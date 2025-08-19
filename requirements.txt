@@ -1,0 +1,14 @@
+# Python packages needed for the Shell Texture Generator
+# These are like ingredients for a recipe - our app needs these to work properly
+
+# Flask - the web framework that powers our website
+Flask==2.3.3
+
+# NumPy - for mathematical calculations and working with arrays of numbers
+numpy==1.24.3
+
+# Matplotlib - for creating and saving the generated texture images
+matplotlib==3.7.2
+
+# Werkzeug - Flask's helper toolkit for handling web requests
+Werkzeug==2.3.7
