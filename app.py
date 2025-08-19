@@ -1,45 +1,45 @@
 """
-Generátor Textur pro Mušle - Diplomová práce
+Shell Texture Generator - Diploma Thesis Project
 
-Webová aplikace pro generování matematických textur pomocí reakčně-difuzních
-algoritmů. Simuluje vznik přírodních vzorů na površích mušlí.
+Web application for generating mathematical textures using reaction-diffusion
+algorithms. Simulates the formation of natural patterns on shell surfaces.
 
-Autor: Stanislav Žižka
-Rok: 2024/2025
+Author: Stanislav Žižka
+Year: 2024/2025
 """
 
-# Import Flask - webový framework pro Python
+# Import Flask - web framework for Python
 from flask import Flask
 from config import config
 from routes.pages import pages
 
 def create_app(config_name=None):
     """
-    Factory pattern pro vytvoření Flask aplikace.
-    Umožňuje snadné testování a deployment v různých prostředích.
+    Factory pattern for creating Flask application.
+    Enables easy testing and deployment in different environments.
     
     Args:
-        config_name: Typ konfigurace ('development', 'production', 'testing')
+        config_name: Configuration type ('development', 'production', 'testing')
         
     Returns:
-        Flask: Nakonfigurovaná Flask aplikace
+        Flask: Configured Flask application
     """
-    # Určení typu konfigurace
+    # Determine configuration type
     if config_name is None:
         config_name = 'development'
     
-    # Vytvoření Flask aplikace
+    # Create Flask application
     app = Flask(__name__)
     app.config.from_object(config[config_name])
     
-    # Registrace blueprintů pro organizaci routů
+    # Register blueprints for route organization
     app.register_blueprint(pages)
     
     return app
 
-# Vytvoření instance aplikace
+# Create application instance
 app = create_app()
 
-# Spuštění aplikace pro development
+# Run application for development
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

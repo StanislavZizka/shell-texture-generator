@@ -1,76 +1,76 @@
-# Generátor Textur pro Mušle
+# Shell Texture Generator
 
-Webová aplikace pro generování matematických textur pomocí reakčně-difuzních algoritmů. Projekt simuluje tvorbu přírodních vzorů na površích mušlí.
+Web application for generating mathematical textures using reaction-diffusion algorithms. The project simulates the formation of natural patterns on shell surfaces.
 
-## O projektu
+## About the Project
 
-Tento projekt zkoumá, jak vznikají komplexní vzory v přírodě pomocí jednoduchých matematických pravidel. Aplikace implementuje aktivátor-inhibitor modely pro vytváření realistických textur, které napodobují vzory nacházející se na skutečných mušlích.
+This project explores how complex patterns in nature arise through simple mathematical rules. The application implements activator-inhibitor models to create realistic textures that mimic patterns found on real shells.
 
-## Technologie
+## Technologies
 
-- **Flask** - webový framework pro Python
-- **NumPy** - matematické výpočty a práce s poli
-- **Matplotlib** - generování a ukládání obrázků textur
-- **HTML/CSS/JavaScript** - moderní webové rozhraní
+- **Flask** - Python web framework
+- **NumPy** - mathematical computations and array operations
+- **Matplotlib** - texture generation and image saving
+- **HTML/CSS/JavaScript** - modern web interface
 
-## Funkce
+## Features
 
-- Interaktivní generování textur pomocí matematických modelů
-- Nastavitelné parametry pro různé typy vzorů
-- Vizualizace výsledků v reálném čase
-- Export generovaných textur
-- Vícejazyčné rozhraní (čeština/angličtina)
+- Interactive texture generation using mathematical models
+- Adjustable parameters for different pattern types
+- Real-time result visualization
+- Export generated textures
+- Multi-language interface (Czech/English)
 
-## Struktura projektu
+## Project Structure
 
 ```
 shell-texture-generator/
-├── app.py                 # Hlavní aplikace Flask
-├── config.py             # Konfigurace aplikace
-├── requirements.txt      # Python závislosti
-├── routes/              # URL routy
+├── app.py                 # Main Flask application
+├── config.py             # Application configuration
+├── requirements.txt      # Python dependencies
+├── routes/              # URL routes
 │   ├── __init__.py
-│   ├── pages.py         # HTML stránky
-│   └── api.py           # API endpointy
-├── services/            # Business logika
+│   ├── pages.py         # HTML pages
+│   └── api.py           # API endpoints
+├── services/            # Business logic
 │   ├── __init__.py
 │   └── texture_generator.py
-├── utils/               # Pomocné funkce
+├── utils/               # Helper functions
 │   ├── __init__.py
 │   └── helpers.py
-├── templates/           # HTML šablony
-├── static/             # Statické soubory
+├── templates/           # HTML templates
+├── static/             # Static files
 │   ├── css/
 │   ├── js/
 │   └── images/
-├── assets/             # 3D modely mušlí
-└── models/             # Datové modely
+├── assets/             # 3D shell models
+└── models/             # Data models
 ```
 
-## Spuštění
+## Installation
 
-1. Nainstalujte závislosti:
+1. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Spusťte aplikaci:
+2. Run the application:
 ```bash
 python app.py
 ```
 
-3. Otevřete prohlížeč na adrese: http://localhost:5000
+3. Open browser at: http://localhost:5000
 
-## Vývoj
+## Development
 
-Projekt je strukturován pro snadnou údržbu a rozšiřování:
+The project is structured for easy maintenance and expansion:
 
-- **Modularita** - každá funkcionalita má svůj vlastní modul
-- **Separace** - HTML, CSS a JavaScript jsou oddělené
-- **Konfigurace** - všechna nastavení centralizovaná v config.py
-- **Dokumentace** - komentáře v kódu vysvětlují složitější části
+- **Modularity** - each functionality has its own module
+- **Separation** - HTML, CSS and JavaScript are separated
+- **Configuration** - all settings centralized in config.py
+- **Documentation** - code comments explain complex parts
 
-## Autor
+## Author
 
 Stanislav Žižka  
-Diplomová práce • 2024/2025
+Diploma Thesis • 2024/2025
