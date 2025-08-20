@@ -1,0 +1,409 @@
+/* Main stylesheet for Shell Texture Generator
+   Modern design system with CSS custom properties and responsive layout */
+
+/* Design System - Color palette and spacing variables */
+:root {
+  /* Primary color scale - Blue theme for professional look */
+  --primary-50: #f0f9ff;
+  --primary-100: #e0f2fe;
+  --primary-200: #bae6fd;
+  --primary-300: #7dd3fc;
+  --primary-400: #38bdf8;
+  --primary-500: #0ea5e9;
+  --primary-600: #0284c7;
+  --primary-700: #0369a1;
+  --primary-800: #075985;
+  --primary-900: #0c4a6e;
+  
+  /* Neutral grays for text and backgrounds */
+  --gray-50: #f8fafc;
+  --gray-100: #f1f5f9;
+  --gray-200: #e2e8f0;
+  --gray-300: #cbd5e1;
+  --gray-400: #94a3b8;
+  --gray-500: #64748b;
+  --gray-600: #475569;
+  --gray-700: #334155;
+  --gray-800: #1e293b;
+  --gray-900: #0f172a;
+  
+  /* Theme-aware color variables (light theme default) */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+  --card-bg: rgba(255, 255, 255, 0.95);
+  --card-border: rgba(255, 255, 255, 0.3);
+  --input-bg: #ffffff;
+  --nav-bg: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+  
+  /* Status colors for feedback */
+  --success-500: #10b981;
+  --error-500: #ef4444;
+  --warning-500: #f59e0b;
+  
+  /* Spacing system - consistent spacing scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  
+  /* Border radius scale */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  
+  /* Shadow system for depth */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  
+  /* Typography scale */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  
+  /* Animation timing */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 350ms ease;
+}
+
+/* Base styles and reset */
+* {
+  box-sizing: border-box;
+}
+
+/* Dark theme color overrides */
+[data-theme="dark"] {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --border-color: #334155;
+  --card-bg: rgba(30, 41, 59, 0.95);
+  --card-border: rgba(51, 65, 85, 0.3);
+  --input-bg: #1e293b;
+  --nav-bg: linear-gradient(180deg, #020617 0%, #0f172a 100%);
+}
+
+/* Global body styles */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+  background: var(--bg-gradient);
+  min-height: 100vh;
+  color: var(--text-primary);
+  line-height: 1.6;
+  font-size: var(--font-size-base);
+  transition: background var(--transition-base), color var(--transition-base);
+}
+
+/* Side navigation - fixed position sidebar */
+.sidenav {
+  height: 100vh;
+  width: 75px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: var(--nav-bg);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  transition: all var(--transition-base);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-6) 0;
+}
+
+.sidenav:hover {
+  box-shadow: var(--shadow-xl);
+}
+
+/* Navigation links styling */
+.sidenav a {
+  display: flex;
+  align-items: center;
+  padding: var(--space-4);
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.7);
+  transition: all var(--transition-base);
+  border-radius: var(--radius-xl);
+  margin: var(--space-2) var(--space-3);
+  position: relative;
+  overflow: hidden;
+  min-height: 48px;
+  justify-content: flex-start;
+}
+
+/* Hover effect with sliding light */
+.sidenav a::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transition: left var(--transition-slow);
+}
+
+.sidenav a:hover::before {
+  left: 100%;
+}
+
+/* Navigation icons */
+.sidenav a i {
+  font-size: 1.25rem;
+  min-width: 1.5rem;
+  color: var(--primary-400);
+  transition: transform var(--transition-base), color var(--transition-base);
+}
+
+/* Navigation text labels (hidden by default) */
+.sidenav a .nav-text {
+  margin-left: var(--space-4);
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all var(--transition-base);
+  white-space: nowrap;
+  font-weight: 500;
+  font-size: var(--font-size-sm);
+}
+
+/* Hover states for navigation */
+.sidenav a:hover {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(56, 189, 248, 0.1));
+  color: white;
+  transform: translateX(3px);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+}
+
+.sidenav a:hover i {
+  color: var(--primary-300);
+  transform: scale(1.15);
+}
+
+/* Active navigation state */
+.sidenav a.active {
+  background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
+  color: white;
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+}
+
+.sidenav a.active i {
+  color: white;
+}
+
+/* Expanded navigation state */
+.sidenav.expanded {
+  width: 260px;
+}
+
+.sidenav.expanded .nav-text {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Menu toggle button */
+.menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin: 0 auto var(--space-8) auto;
+  background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
+  color: white;
+  border: none;
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  font-size: 1.1rem;
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+}
+
+.menu-btn:hover {
+  background: linear-gradient(135deg, var(--primary-700), var(--primary-600));
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
+}
+
+/* Main content area - adjusts based on navigation state */
+#main {
+  margin-left: 75px;
+  padding: var(--space-8);
+  transition: margin-left var(--transition-base);
+  min-height: 100vh;
+}
+
+#main.expanded {
+  margin-left: 260px;
+}
+
+/* Card components for content sections */
+.card {
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius-xl);
+  padding: var(--space-8);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--card-border);
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+  color: var(--text-primary);
+}
+
+/* Top border accent for cards */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-500), var(--primary-400));
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-xl);
+}
+
+/* Typography styles */
+h1, h2, h3 {
+  color: var(--text-primary);
+  font-weight: 700;
+  margin: 0 0 var(--space-6) 0;
+}
+
+h1 {
+  font-size: var(--font-size-3xl);
+  background: linear-gradient(135deg, var(--primary-600), var(--primary-400));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+p {
+  color: var(--text-secondary);
+  margin: 0 0 var(--space-4) 0;
+  line-height: 1.6;
+}
+
+/* Button components */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-6);
+  background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-family: inherit;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  text-decoration: none;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Button shine effect */
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left var(--transition-slow);
+}
+
+.btn:hover::before {
+  left: 100%;
+}
+
+.btn:hover {
+  background: linear-gradient(135deg, var(--primary-700), var(--primary-600));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-md);
+}
+
+/* Secondary button variant */
+.btn-secondary {
+  background: linear-gradient(135deg, var(--gray-600), var(--gray-500));
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, var(--gray-700), var(--gray-600));
+}
+
+/* Fade-in animation for page transitions */
+.fade-in {
+  animation: fadeIn var(--transition-base) forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Mobile responsivity - Small screens */
+@media (max-width: 768px) {
+  .sidenav {
+    width: 60px;
+  }
+  
+  #main {
+    margin-left: 60px;
+    padding: var(--space-6);
+  }
+  
+  .card {
+    padding: var(--space-6);
+  }
+  
+  h1 {
+    font-size: var(--font-size-2xl);
+  }
+}
+
+/* Accessibility - Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

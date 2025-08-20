@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shell Texture Generator - Home</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <!-- Side navigation menu for easy access to different texture algorithms -->
+    <nav class="sidenav" id="mySidenav">
+        <button class="menu-btn" aria-label="Toggle navigation">
+            <i class="fas fa-bars"></i>
+        </button>
+        <a href="{{ url_for('pages.home') }}" class="nav-link" aria-label="Home page">
+            <i class="fas fa-home"></i>
+            <span class="nav-text">Home</span>
+        </a>
+        <a href="#" class="nav-link" aria-label="Activator-Inhibitor model">
+            <i class="fas fa-project-diagram"></i>
+            <span class="nav-text">Activator-Inhibitor</span>
+        </a>
+        <a href="#" class="nav-link" aria-label="Wave patterns (coming soon)">
+            <i class="fas fa-wave-square"></i>
+            <span class="nav-text">Wave Patterns</span>
+        </a>
+        <a href="#" class="nav-link" aria-label="Stripe patterns (coming soon)">
+            <i class="fas fa-grip-lines"></i>
+            <span class="nav-text">Stripe Patterns</span>
+        </a>
+    </nav>
+
+    <!-- Main content area -->
+    <main id="main" class="fade-in">
+        <div class="hero-section">
+            <h1>Mathematical Texture Generator</h1>
+            <p class="hero-subtitle">Create stunning patterns using mathematical models</p>
+            
+            <!-- Feature cards showcasing available algorithms -->
+            <div class="features-grid">
+                <div class="feature-card card">
+                    <div class="feature-icon">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <h3>Reaction-Diffusion Models</h3>
+                    <p>Generate complex patterns using activator-inhibitor mathematical models</p>
+                    <button class="btn">Get Started <i class="fas fa-arrow-right"></i></button>
+                </div>
+                
+                <div class="feature-card card">
+                    <div class="feature-icon">
+                        <i class="fas fa-wave-square"></i>
+                    </div>
+                    <h3>Wave Patterns</h3>
+                    <p>Create wave-based textures with various frequencies and amplitudes</p>
+                    <button class="btn btn-secondary" disabled>Coming Soon</button>
+                </div>
+                
+                <div class="feature-card card">
+                    <div class="feature-icon">
+                        <i class="fas fa-grip-lines"></i>
+                    </div>
+                    <h3>Stripe Patterns</h3>
+                    <p>Generate striped textures with customizable parameters and colors</p>
+                    <button class="btn btn-secondary" disabled>Coming Soon</button>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <style>
+        /* Hero section styling for the main landing area */
+        .hero-section {
+            text-align: center;
+            padding: var(--space-12) 0;
+        }
+        
+        .hero-subtitle {
+            font-size: var(--font-size-xl);
+            color: var(--gray-600);
+            margin-bottom: var(--space-12);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* Responsive grid layout for feature cards */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-8);
+            margin-top: var(--space-12);
+        }
+        
+        .feature-card {
+            text-align: center;
+            padding: var(--space-8);
+        }
+        
+        /* Circular icons with gradient background */
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto var(--space-6) auto;
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-400));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .feature-card h3 {
+            margin-bottom: var(--space-4);
+            font-size: var(--font-size-xl);
+        }
+        
+        .feature-card p {
+            margin-bottom: var(--space-6);
+            color: var(--gray-600);
+        }
+    </style>
+</body>
+</html>
