@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activator-Inhibitor Model - Shell Texture Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script defer src="{{ url_for('static', filename='js/components/navigation.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/components/theme-toggle.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/components/language-switcher.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/components/texture-generator.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+</head>
+<body>
+    <!-- Side navigation menu for easy access to different texture algorithms -->
+    <nav class="sidenav" id="mySidenav">
+        <button class="menu-btn" aria-label="Toggle navigation">
+            <i class="fas fa-bars"></i>
+        </button>
+        <a href="{{ url_for('pages.home') }}" class="nav-link" aria-label="Home page">
+            <i class="fas fa-home"></i>
+            <span class="nav-text">Home</span>
+        </a>
+        <a href="{{ url_for('pages.activator_inhibitor') }}" class="nav-link active" aria-label="Activator-Inhibitor model">
+            <i class="fas fa-project-diagram"></i>
+            <span class="nav-text">Activator-Inhibitor</span>
+        </a>
+        <a href="#" class="nav-link" aria-label="Wave patterns (coming soon)">
+            <i class="fas fa-wave-square"></i>
+            <span class="nav-text">Wave Patterns</span>
+        </a>
+        <a href="#" class="nav-link" aria-label="Stripe patterns (coming soon)">
+            <i class="fas fa-grip-lines"></i>
+            <span class="nav-text">Stripe Patterns</span>
+        </a>
+    </nav>
+
+    <!-- Main content area -->
+    <main id="main" class="fade-in">
+        <div class="page-header">
+            <h1><i class="fas fa-project-diagram"></i> <span data-i18n="page-title-ai">Activator-Inhibitor Model</span></h1>
+            <p data-i18n="page-subtitle-ai">Configure reaction-diffusion model parameters to generate complex patterns</p>
+        </div>
+
+        <div class="left-grid">
+            <!-- Parameter form container -->
+            <div class="form-container">
+                <h3><i class="fas fa-sliders-h"></i> <span data-i18n="model-params">Model Parameters</span></h3>
+                <form id="activatorForm">
+                    <div class="form-group">
+                        <label for="kValue" data-i18n="constant-k">Constant K</label>
+                        <input type="number" id="kValue" name="kValue" step="0.01" value="1.0" required min="0.1" max="5.0" aria-describedby="k-help">
+                        <small id="k-help" class="form-help" data-i18n="constant-k-help">Reaction process rate (0.1 - 5.0)</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="tMaxValue" data-i18n="max-time">Maximum Time</label>
+                        <input type="number" id="tMaxValue" name="tMaxValue" step="0.1" value="10.0" required min="1.0" max="10000.0" aria-describedby="tmax-help">
+                        <small id="tmax-help" class="form-help" data-i18n="max-time-help">Simulation duration in time units</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="deltaT" data-i18n="time-step">Time Step</label>
+                        <input type="number" id="deltaT" name="deltaT" step="0.001" value="0.1" required min="0.001" max="1.0" aria-describedby="delta-help">
+                        <small id="delta-help" class="form-help" data-i18n="time-step-help">Simulation step precision</small>
+                    </div>
+                    
+                    <div class="color-group">
+                        <h4><i class="fas fa-palette"></i> <span data-i18n="color-scheme">Color Scheme</span></h4>
+                        <div class="color-inputs">
+                            <div class="form-group">
+                                <label for="color1" data-i18n="base-color">Base Color</label>
+                                <input type="color" id="color1" name="color1" value="#0000ff">
+                            </div>
+                            <div class="form-group">
+                                <label for="color2" data-i18n="contrast-color">Contrast Color</label>
+                                <input type="color" id="color2" name="color2" value="#ff0000">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" id="generateBtn" class="btn">
+                        <i class="fas fa-magic"></i> <span data-i18n="generate-texture">Generate Texture</span>
+                    </button>
+                </form>
+                
+                <!-- Loading indicator -->
+                <div id="loading" style="display: none;">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text" data-i18n="generating">Generating texture...</div>
+                </div>
+            </div>
+
+            <!-- Result display container -->
+            <div class="image-container">
+                <h3><i class="fas fa-image"></i> <span data-i18n="result-texture">Generated Texture</span></h3>
+                <div class="image-wrapper" id="imageWrapper">
+                    <div class="image-placeholder">
+                        <i class="fas fa-camera"></i>
+                        <p data-i18n="placeholder-text">Generated texture will appear here</p>
+                    </div>
+                </div>
+                
+                <!-- Texture result will be populated by JavaScript -->
+                <div id="textureResult"></div>
+            </div>
+        </div>
+    </main>
+
+    <style>
+        /* Page-specific styles for activator-inhibitor interface */
+        .page-header {
+            margin-bottom: var(--space-8);
+            text-align: center;
+        }
+        
+        .page-header h1 {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-3);
+            margin-bottom: var(--space-4);
+        }
+        
+        .color-group {
+            margin-top: var(--space-6);
+            padding-top: var(--space-6);
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .color-group h4 {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            margin-bottom: var(--space-4);
+            color: var(--text-primary);
+            font-size: var(--font-size-lg);
+        }
+        
+        .color-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-4);
+        }
+        
+        .form-help {
+            font-size: var(--font-size-sm);
+            color: var(--text-muted);
+            margin-top: var(--space-2);
+            display: block;
+        }
+        
+        .image-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-4);
+            padding: var(--space-8);
+            color: var(--text-muted);
+            background: var(--bg-secondary);
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-lg);
+            min-height: 200px;
+        }
+        
+        .image-placeholder i {
+            font-size: 3rem;
+            opacity: 0.5;
+        }
+        
+        .generated-texture {
+            max-width: 100%;
+            height: auto;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            cursor: pointer;
+            transition: transform var(--transition-base);
+        }
+        
+        .generated-texture:hover {
+            transform: scale(1.02);
+        }
+        
+        .texture-actions {
+            display: flex;
+            gap: var(--space-4);
+            justify-content: center;
+            margin-top: var(--space-6);
+        }
+        
+        .btn-primary, .btn-secondary {
+            padding: var(--space-3) var(--space-6);
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all var(--transition-base);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-700), var(--primary-600));
+            transform: translateY(-2px);
+        }
+        
+        .error-message {
+            color: var(--error-500);
+            font-size: var(--font-size-sm);
+            margin-top: var(--space-1);
+        }
+        
+        .invalid {
+            border-color: var(--error-500) !important;
+        }
+        
+        /* Mobile responsivity */
+        @media (max-width: 768px) {
+            .color-inputs {
+                grid-template-columns: 1fr;
+            }
+            
+            .texture-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</body>
+</html>

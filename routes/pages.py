@@ -25,3 +25,16 @@ def home():
         Rendered HTML template for the homepage
     """
     return render_template('home.html')
+
+@pages.route('/activator-inhibitor')
+def activator_inhibitor():
+    """
+    Activator-Inhibitor model page route.
+    
+    Renders the texture generation interface for reaction-diffusion
+    mathematical models. Users can adjust parameters and generate patterns.
+    
+    Returns:
+        Rendered HTML template for the activator-inhibitor interface
+    """
+    return render_template('activator_inhibitor.html')

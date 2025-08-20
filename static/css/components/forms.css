@@ -1,0 +1,241 @@
+/* Form Component Styles - Enhanced form controls and validation */
+
+.form-container {
+    background: var(--card-bg);
+    backdrop-filter: blur(15px);
+    border-radius: var(--radius-xl);
+    padding: var(--space-8);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--card-border);
+    transition: all var(--transition-base);
+    color: var(--text-primary);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Top accent border for form containers */
+.form-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-500), var(--primary-400));
+}
+
+.form-container:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-xl);
+}
+
+/* Form group spacing and layout */
+.form-group {
+    margin-bottom: var(--space-6);
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+    font-size: var(--font-size-sm);
+    transition: all var(--transition-base);
+}
+
+/* Enhanced input styling */
+input[type="number"], 
+input[type="color"], 
+select {
+    width: 100%;
+    padding: var(--space-4);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--input-bg);
+    color: var(--text-primary);
+    font-size: var(--font-size-base);
+    font-family: inherit;
+    transition: all var(--transition-base);
+    outline: none;
+    box-sizing: border-box;
+}
+
+input[type="number"]:focus, 
+input[type="color"]:focus, 
+select:focus {
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+    transform: translateY(-1px);
+}
+
+/* Invalid input states */
+input.invalid {
+    border-color: var(--error-500);
+    background-color: rgba(239, 68, 68, 0.05);
+}
+
+/* Color input specific styling */
+input[type="color"] {
+    height: 50px;
+    padding: var(--space-2);
+    cursor: pointer;
+    border-radius: var(--radius-md);
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: var(--radius-sm);
+}
+
+/* Disabled input states */
+input:disabled, select:disabled {
+    background: var(--bg-secondary);
+    color: var(--text-muted);
+    border-color: var(--border-color);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Error message styling */
+.error-message {
+    color: var(--error-500);
+    font-size: var(--font-size-sm);
+    margin-top: var(--space-1);
+    display: block;
+    font-weight: 500;
+}
+
+/* Help text styling */
+.form-help {
+    color: var(--text-muted);
+    font-size: var(--font-size-sm);
+    margin-top: var(--space-2);
+    line-height: 1.4;
+}
+
+/* Color group layout */
+.color-group {
+    margin-top: var(--space-6);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--border-color);
+}
+
+.color-group h4 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+    color: var(--text-primary);
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+}
+
+.color-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+}
+
+/* Button enhancements */
+button[type="submit"] {
+    width: 100%;
+    margin-top: var(--space-4);
+    padding: var(--space-4) var(--space-6);
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    min-height: 48px;
+}
+
+/* Loading state styles */
+#loading {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-6);
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    margin: var(--space-4) 0;
+    animation: fadeIn var(--transition-base);
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--gray-200);
+    border-left: 4px solid var(--primary-500);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.loading-text {
+    color: var(--gray-700);
+    font-weight: 600;
+    font-size: var(--font-size-lg);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* Animation keyframes */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive design for mobile devices */
+@media (max-width: 768px) {
+    .form-container {
+        padding: var(--space-6);
+    }
+    
+    .color-inputs {
+        grid-template-columns: 1fr;
+        gap: var(--space-3);
+    }
+    
+    input[type="number"], 
+    input[type="color"], 
+    select {
+        padding: var(--space-3);
+        font-size: var(--font-size-sm);
+    }
+    
+    button[type="submit"] {
+        padding: var(--space-3) var(--space-5);
+        font-size: var(--font-size-sm);
+    }
+}
+
+/* Focus management for accessibility */
+input:focus,
+select:focus,
+button:focus {
+    outline: 2px solid var(--primary-500);
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .form-container {
+        border: 2px solid var(--text-primary);
+    }
+    
+    input, select {
+        border-width: 2px;
+    }
+}

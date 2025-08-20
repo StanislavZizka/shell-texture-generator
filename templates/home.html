@@ -20,7 +20,7 @@
             <i class="fas fa-home"></i>
             <span class="nav-text">Home</span>
         </a>
-        <a href="#" class="nav-link" aria-label="Activator-Inhibitor model">
+        <a href="{{ url_for('pages.activator_inhibitor') }}" class="nav-link" aria-label="Activator-Inhibitor model">
             <i class="fas fa-project-diagram"></i>
             <span class="nav-text">Activator-Inhibitor</span>
         </a>
@@ -48,7 +48,7 @@
                     </div>
                     <h3>Reaction-Diffusion Models</h3>
                     <p>Generate complex patterns using activator-inhibitor mathematical models</p>
-                    <button class="btn">Get Started <i class="fas fa-arrow-right"></i></button>
+                    <a href="{{ url_for('pages.activator_inhibitor') }}" class="btn">Get Started <i class="fas fa-arrow-right"></i></a>
                 </div>
                 
                 <div class="feature-card card">
