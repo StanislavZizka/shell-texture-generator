@@ -26,7 +26,7 @@ class TextureGenerator {
         }
 
         // Bind parameter input changes for real-time validation
-        const inputs = ['kValue', 'tMaxValue', 'deltaT', 'color1', 'color2'];
+        const inputs = ['K', 't_max', 'delta_t', 'color1', 'color2'];
         inputs.forEach(inputId => {
             const input = document.getElementById(inputId);
             if (input) {
@@ -44,9 +44,9 @@ class TextureGenerator {
     setDefaultValues() {
         // Default parameter values for reaction-diffusion simulation
         const defaults = {
-            'kValue': '1.0',
-            'tMaxValue': '10.0',
-            'deltaT': '0.1',
+            'K': '1.0',
+            't_max': '10.0',
+            'delta_t': '0.1',
             'color1': '#0000ff',
             'color2': '#ff0000'
         };
@@ -66,17 +66,17 @@ class TextureGenerator {
 
         // Validate based on input type and mathematical constraints
         switch (input.id) {
-            case 'kValue':
+            case 'K':
                 const k = parseFloat(value);
                 isValid = k >= 0.1 && k <= 5.0;
                 errorMessage = 'K must be between 0.1 and 5.0';
                 break;
-            case 'tMaxValue':
+            case 't_max':
                 const tMax = parseFloat(value);
                 isValid = tMax >= 1.0 && tMax <= 10000.0;
                 errorMessage = 'Max time must be between 1.0 and 10000.0';
                 break;
-            case 'deltaT':
+            case 'delta_t':
                 const deltaT = parseFloat(value);
                 isValid = deltaT >= 0.001 && deltaT <= 1.0;
                 errorMessage = 'Time step must be between 0.001 and 1.0';
@@ -147,9 +147,9 @@ class TextureGenerator {
     getFormParams() {
         // Extract form parameters for API submission
         const inputs = {
-            K: document.getElementById('kValue'),
-            t_max: document.getElementById('tMaxValue'),
-            delta_t: document.getElementById('deltaT'),
+            K: document.getElementById('K'),
+            t_max: document.getElementById('t_max'),
+            delta_t: document.getElementById('delta_t'),
             color1: document.getElementById('color1'),
             color2: document.getElementById('color2')
         };
@@ -189,20 +189,27 @@ class TextureGenerator {
     }
 
     handleGenerationSuccess(imageUrl) {
-        // Display generated texture with action buttons
-        const resultDiv = document.getElementById('textureResult');
-        if (resultDiv) {
-            resultDiv.innerHTML = `
-                <img src="${imageUrl}?${Date.now()}" alt="Generated texture" class="generated-texture">
-                <div class="texture-actions">
-                    <button onclick="window.open('${imageUrl}', '_blank')" class="btn-secondary">
-                        ${window.t ? window.t('view') : 'View'}
-                    </button>
-                    <a href="${imageUrl}" download="texture.png" class="btn-primary">
-                        ${window.t ? window.t('download') : 'Download'}
-                    </a>
-                </div>
-            `;
+        // Display generated texture in the designated image element
+        const img = document.getElementById('generatedImage');
+        const placeholder = document.querySelector('.image-placeholder');
+        
+        if (img) {
+            img.src = imageUrl + "?t=" + new Date().getTime();
+            img.style.display = "block";
+            if (placeholder) placeholder.style.display = "none";
+        }
+
+        // Update download button
+        const downloadBtn = document.getElementById("downloadBtn");
+        if (downloadBtn) {
+            downloadBtn.href = imageUrl;
+            downloadBtn.download = "activator_inhibitor_texture.png";
+        }
+        
+        // Show image actions
+        const imageActions = document.getElementById('imageActions');
+        if (imageActions) {
+            imageActions.style.display = 'flex';
         }
 
         // Show success notification

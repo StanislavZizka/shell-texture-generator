@@ -515,61 +515,6 @@
             }, 4000);
         }
         
-        document.getElementById("activatorForm").addEventListener("submit", function(event) {
-            event.preventDefault();
-            
-            const K = parseFloat(document.getElementById("K").value);
-            const t_max = parseFloat(document.getElementById("t_max").value);
-            const delta_t = parseFloat(document.getElementById("delta_t").value);
-            const color1 = document.getElementById("color1").value;
-            const color2 = document.getElementById("color2").value;
-            
-            if (isNaN(K) || isNaN(t_max) || isNaN(delta_t) || K <= 0 || t_max <= 0 || delta_t <= 0) {
-                showToast(window.languageSwitcher ? window.languageSwitcher.t('enter-valid-values') : "Enter valid values for all parameters", "error");
-                return;
-            }
-            
-            // Show loading
-            document.getElementById("loading").style.display = "flex";
-            document.querySelector('button[type="submit"]').disabled = true;
-            
-            fetch("/calculate", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ K, t_max, delta_t, color1, color2 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("loading").style.display = "none";
-                document.querySelector('button[type="submit"]').disabled = false;
-                
-                if (data.image_url) {
-                    const img = document.getElementById("generatedImage");
-                    const placeholder = document.querySelector('.image-placeholder');
-                    
-                    img.src = data.image_url + "?t=" + new Date().getTime();
-                    img.style.display = "block";
-                    if (placeholder) placeholder.style.display = "none";
-
-                    const downloadBtn = document.getElementById("downloadBtn");
-                    downloadBtn.href = data.image_url;
-                    downloadBtn.download = `activator_inhibitor_K${K}_t${t_max}.png`;
-                    
-                    document.getElementById('imageActions').style.display = 'flex';
-                    
-                    showToast(window.languageSwitcher ? window.languageSwitcher.t('texture-generated') : "Texture generated successfully!");
-                } else {
-                    showToast(window.languageSwitcher ? window.languageSwitcher.t('texture-generation-error') : "Error generating texture", "error");
-                    console.error("Error:", data);
-                }
-            })
-            .catch(error => {
-                document.getElementById("loading").style.display = "none";
-                document.querySelector('button[type="submit"]').disabled = false;
-                showToast(window.languageSwitcher ? window.languageSwitcher.t('server-error') : "Error communicating with server", "error");
-                console.error("Error:", error);
-            });
-        });
 
         // 3D Model Visualization System
         class ShellViewer {

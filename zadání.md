@@ -89,4 +89,34 @@ Kompletní shell texture generator s:
 - 🔄 3D shell modely pro vizualizaci
 - 📋 Production-ready deployment setup
 
-**Status:** FÁZE 6 - Integrace 3D modelů a assetů
+**Status:** FÁZE 6E - Unifikace JS komponent pro texture generation
+
+## Budoucí plány - Roadmapa
+
+### FÁZE 6E ✅ (Aktuální)
+**Unifikace JS komponent pro texture generation**
+- ✅ Oprava field názvů v TextureGenerator komponentě 
+- ✅ Unifikace zobrazování textury (#generatedImage)
+- ✅ Odstranění duplicitních inline scriptů
+- 🎯 **Cíl:** Plně funkční texture generation bez konfliktů
+
+### FÁZE 7 📋 (Další)  
+**Implementace wave patterns a stripe patterns**
+- 🔄 Přidání matematických modelů pro oscilační vlny
+- 🔄 Implementace zebří pruhy (stripe patterns)
+- 🔄 Rozšíření API endpointů pro nové typy textur
+- 🔄 UI komponenty pro nastavení wave/stripe parametrů
+
+### FÁZE 8 📋 (Plán)
+**Advanced 3D visualization features**
+- 🔄 Pokročilé materiály a textury pro 3D modely
+- 🔄 Multiple lighting setups pro lepší vizualizaci
+- 🔄 Export 3D scén s aplikovanými texturami
+- 🔄 Interaktivní camera controls a animace
+
+### FÁZE 9 📋 (Budoucnost)
+**Mobile optimization a PWA features**
+- 🔄 Responsive design optimalizace pro mobily
+- 🔄 Progressive Web App funkcionalita
+- 🔄 Offline režim pro texture generation
+- 🔄 Touch-friendly 3D model interakce
