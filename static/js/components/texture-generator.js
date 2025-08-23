@@ -16,10 +16,10 @@ class TextureGenerator {
     }
 
     bindEvents() {
-        // Bind generate button click event
-        const generateBtn = document.getElementById('generateBtn');
-        if (generateBtn) {
-            generateBtn.addEventListener('click', (e) => {
+        // Bind form submit event (more reliable than button click)
+        const form = document.getElementById('activatorForm');
+        if (form) {
+            form.addEventListener('submit', (e) => {
                 e.preventDefault();
                 this.generateTexture();
             });
