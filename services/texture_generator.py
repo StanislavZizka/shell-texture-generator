@@ -69,8 +69,7 @@ class TextureGeneratorService:
             
             # Log simulation progress for monitoring
             if step % 100 == 0:
-                print(f"Simulation step {step}/{steps}: A range=[{np.min(A):.4f}, {np.max(A):.4f}], "
-                      f"B range=[{np.min(B):.4f}, {np.max(B):.4f}]")
+                pass  # Skip logging to avoid Windows console issues
         
         # Generate final texture image from simulation results
         image_path = self._create_texture_image(A, B, color1, color2, size)
@@ -127,6 +126,15 @@ class TextureGeneratorService:
         
         # Save image to static directory for web serving
         output_path = os.path.join(IMAGES_DIR, "activator_inhibitor_texture.png")
-        plt.imsave(output_path, img_data)
+        
+        try:
+            # Use PIL for better Windows compatibility
+            from PIL import Image
+            img_pil = Image.fromarray((img_data * 255).astype('uint8'))
+            img_pil.save(output_path)
+            # Skip logging to avoid Windows console issues
+        except Exception as e:
+            # Skip detailed logging to avoid Windows console issues
+            raise
         
         return output_path

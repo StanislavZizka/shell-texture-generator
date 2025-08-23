@@ -12,3 +12,6 @@ matplotlib==3.7.2
 
 # Werkzeug - WSGI toolkit and Flask utilities
 Werkzeug==2.3.7
+
+# Pillow - Python Imaging Library for image manipulation
+Pillow>=9.0.0
