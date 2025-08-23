@@ -43,6 +43,17 @@ SIMULATION_PARAMS = {
     'random_seed': 42         # For reproducible results during development
 }
 
+# 3D Shell Model definitions for visualization
+# Maps shell type names to their respective OBJ file paths
+SHELL_MODELS = {
+    'buccinidae': 'Buccinidae/Buccinidae.obj',
+    'fasciolariidae': 'Fasciolariidae/Fasciolariidae.obj',
+    'moon-snail': 'Moon snail/Moon snail.obj',
+    'muricidae': 'Muricidae/Muricidae.obj',
+    'pecten': 'Pecten/Pecten.obj',
+    'whelk': 'Whelk/Whelk.obj'
+}
+
 # Flask application configuration classes
 # Different settings for development, testing, and production deployment
 class Config:

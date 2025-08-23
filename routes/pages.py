@@ -7,7 +7,7 @@ show HTML to users (not API endpoints that return data).
 
 This follows Flask Blueprint pattern for better code organization.
 """
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, send_from_directory
 
 # Create a Blueprint - think of it as a mini-app for organizing related routes
 # The 'pages' name helps Flask organize our URL routing
@@ -26,7 +26,7 @@ def home():
     """
     return render_template('home.html')
 
-@pages.route('/activator-inhibitor')
+@pages.route('/activator_inhibitor')
 def activator_inhibitor():
     """
     Activator-Inhibitor model page route.
@@ -38,3 +38,19 @@ def activator_inhibitor():
         Rendered HTML template for the activator-inhibitor interface
     """
     return render_template('activator_inhibitor.html')
+
+@pages.route('/assets/<path:filename>')
+def assets(filename):
+    """
+    Serve static assets (3D models, textures, etc.).
+    
+    Provides access to 3D shell models and other resource files
+    needed for the visualization components.
+    
+    Args:
+        filename: Path to the asset file within the assets directory
+        
+    Returns:
+        File response for the requested asset
+    """
+    return send_from_directory('assets', filename)
