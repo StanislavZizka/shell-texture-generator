@@ -12,8 +12,71 @@
     <script defer src="{{ url_for('static', filename='js/components/navigation.js') }}"></script>
     <script defer src="{{ url_for('static', filename='js/components/theme-toggle.js') }}"></script>
     <script defer src="{{ url_for('static', filename='js/components/language-switcher.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/components/image-viewer.js') }}"></script>
     <script defer src="{{ url_for('static', filename='js/components/texture-generator.js') }}"></script>
     <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+    
+    <!-- Three.js from multiple CDN sources as fallback -->
+    <script>
+        // Try multiple CDN sources for Three.js
+        function loadThreeJS() {
+            const scripts = [
+                'https://unpkg.com/three@0.160.0/build/three.min.js',
+                'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/three.js/r160/three.min.js'
+            ];
+            
+            let currentIndex = 0;
+            
+            function tryNextScript() {
+                if (currentIndex >= scripts.length) {
+                    console.error('All Three.js CDN sources failed');
+                    return;
+                }
+                
+                const script = document.createElement('script');
+                script.src = scripts[currentIndex];
+                script.onload = () => {
+                    console.log('Three.js loaded from:', scripts[currentIndex]);
+                    loadAdditionalModules();
+                };
+                script.onerror = () => {
+                    console.warn('Failed to load Three.js from:', scripts[currentIndex]);
+                    currentIndex++;
+                    tryNextScript();
+                };
+                document.head.appendChild(script);
+            }
+            
+            tryNextScript();
+        }
+        
+        function loadAdditionalModules() {
+            // Load OrbitControls
+            const orbitScript = document.createElement('script');
+            orbitScript.src = 'https://unpkg.com/three@0.160.0/examples/js/controls/OrbitControls.js';
+            orbitScript.onload = () => console.log('OrbitControls loaded');
+            orbitScript.onerror = () => console.warn('OrbitControls failed to load');
+            document.head.appendChild(orbitScript);
+            
+            // Load OBJLoader
+            const objScript = document.createElement('script');
+            objScript.src = 'https://unpkg.com/three@0.160.0/examples/js/loaders/OBJLoader.js';
+            objScript.onload = () => console.log('OBJLoader loaded');
+            objScript.onerror = () => console.warn('OBJLoader failed to load');
+            document.head.appendChild(objScript);
+            
+            // Load MTLLoader  
+            const mtlScript = document.createElement('script');
+            mtlScript.src = 'https://unpkg.com/three@0.160.0/examples/js/loaders/MTLLoader.js';
+            mtlScript.onload = () => console.log('MTLLoader loaded');
+            mtlScript.onerror = () => console.warn('MTLLoader failed to load');
+            document.head.appendChild(mtlScript);
+        }
+        
+        // Start loading Three.js
+        loadThreeJS();
+    </script>
 </head>
 <body>
     <!-- Side navigation menu for easy access to different texture algorithms -->
@@ -46,7 +109,7 @@
             <p data-i18n="page-subtitle-ai">Configure reaction-diffusion model parameters to generate complex patterns</p>
         </div>
 
-        <div class="left-grid">
+        <div class="content-grid">
             <!-- Parameter form container -->
             <div class="form-container">
                 <h3><i class="fas fa-sliders-h"></i> <span data-i18n="model-params">Model Parameters</span></h3>
@@ -107,6 +170,55 @@
                 
                 <!-- Texture result will be populated by JavaScript -->
                 <div id="textureResult"></div>
+                <div class="image-actions" style="display:none;" id="imageActions">
+                    <a id="downloadBtn" href="#" class="download-btn" download>
+                        <i class="fas fa-download"></i> <span data-i18n="download">Download</span>
+                    </a>
+                    <button class="btn btn-secondary" onclick="openPopup(document.getElementById('generatedImage'))">
+                        <i class="fas fa-expand"></i> <span data-i18n="view">View</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 3D Model Visualization Section -->
+            <div class="model-container card" id="modelContainer">
+                <h3><i class="fas fa-cube"></i> <span data-i18n="3d-visualization">3D Visualization</span></h3>
+                <div class="model-wrapper">
+                    <div class="model-selector">
+                        <label for="shellSelect"><i class="fas fa-list"></i> <span data-i18n="select-shell-type">Select shell type:</span></label>
+                        <select id="shellSelect" class="shell-selector" onchange="changeShellModel()">
+                            <option value="Buccinidae" data-i18n="shell-buccinidae">Buccinidae</option>
+                            <option value="Fasciolariidae" data-i18n="shell-fasciolariidae">Fasciolariidae</option>
+                            <option value="Moon snail" data-i18n="shell-moon-snail">Moon snail</option>
+                            <option value="Muricidae" data-i18n="shell-muricidae">Muricidae</option>
+                            <option value="Pecten" data-i18n="shell-pecten">Pecten</option>
+                            <option value="Whelk" data-i18n="shell-whelk">Whelk</option>
+                        </select>
+                    </div>
+                    <div id="threejs-container" class="threejs-container">
+                        <div class="model-loading" id="modelLoading">
+                            <div class="loading-spinner"></div>
+                            <div class="loading-text" data-i18n="loading-model">Loading 3D model...</div>
+                        </div>
+                    </div>
+                    <div class="model-instructions">
+                        <p><i class="fas fa-mouse"></i> <span data-i18n="instruction-drag">Drag texture onto shell to apply</span></p>
+                        <p><i class="fas fa-mouse"></i> <span data-i18n="instruction-mouse">Left click: rotate • Mouse wheel: zoom in/out</span></p>
+                        <p><i class="fas fa-mobile-alt"></i> <span data-i18n="instruction-mobile">Mobile: 1 finger = rotate • 2 fingers = pinch zoom</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image popup viewer -->
+        <div id="popupContainer" class="popup" onclick="closePopup(event)">
+            <div class="popup-close" onclick="closePopup(event)">
+                <i class="fas fa-times"></i>
+            </div>
+            <img class="popup-content" id="popupImage">
+            <div class="popup-controls">
+                <div data-i18n="popup-close-info">ESC / Click outside / Swipe down to close</div>
+                <div data-i18n="popup-zoom-info">Double click to zoom • Pinch to zoom on mobile</div>
             </div>
         </div>
     </main>
@@ -234,6 +346,168 @@
                 flex-direction: column;
             }
         }
+        
+        /* Content grid layout for activator-inhibitor page */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: var(--space-8);
+            margin-top: var(--space-8);
+        }
+
+        @media (max-width: 1200px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (min-width: 768px) and (max-width: 1200px) {
+            .content-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .model-container {
+                grid-column: 1 / -1;
+            }
+        }
+
+        /* 3D Model Visualization Styles */
+        .model-selector {
+            margin-bottom: var(--space-4);
+            padding: var(--space-4);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        .model-selector label {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            margin-bottom: var(--space-2);
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .shell-selector {
+            width: 100%;
+            padding: var(--space-3);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .shell-selector:focus {
+            outline: none;
+            border-color: var(--primary-500);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .shell-selector:hover {
+            border-color: var(--primary-500);
+        }
+
+        .model-wrapper {
+            position: relative;
+        }
+
+        .threejs-container {
+            width: 100%;
+            height: 500px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            position: relative;
+            overflow: hidden;
+            border: 2px dashed var(--border-color);
+            transition: all 0.3s ease;
+            cursor: grab;
+        }
+
+        .threejs-container:active {
+            cursor: grabbing;
+        }
+
+        .threejs-container.drag-over {
+            border-color: var(--primary-500);
+            background: rgba(59, 130, 246, 0.1);
+            transform: scale(1.02);
+        }
+
+        .model-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+        }
+
+        .model-instructions {
+            text-align: center;
+            margin-top: var(--space-4);
+            color: var(--text-muted);
+            font-size: var(--font-size-sm);
+        }
+
+        .model-instructions p {
+            margin: var(--space-2) 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+        }
+
+        .model-instructions i {
+            color: var(--primary-500);
+        }
+
+        @media (max-width: 768px) {
+            .threejs-container {
+                height: 350px;
+            }
+            
+            .model-instructions p {
+                font-size: var(--font-size-xs);
+            }
+        }
     </style>
+    
+    <script>
+        // Basic 3D model functionality placeholder
+        function changeShellModel() {
+            const shellSelect = document.getElementById('shellSelect');
+            const selectedShell = shellSelect.value;
+            console.log('Changing shell model to:', selectedShell);
+            // TODO: Implement actual 3D model loading
+            showToast(`Loading ${selectedShell} model...`, 'info');
+        }
+        
+        // Toast notification system
+        function showToast(message, type = 'success') {
+            console.log(`Toast [${type}]: ${message}`);
+            // Basic console logging for now - full toast system to be implemented
+        }
+        
+        // Initialize 3D scene when Three.js is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Activator-Inhibitor page loaded');
+            
+            // Check if Three.js loads successfully
+            setTimeout(() => {
+                if (typeof THREE !== 'undefined') {
+                    console.log('Three.js loaded successfully');
+                    // Initialize 3D scene here
+                } else {
+                    console.warn('Three.js failed to load');
+                }
+            }, 2000);
+        });
+    </script>
 </body>
 </html>
