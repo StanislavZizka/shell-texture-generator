@@ -22,27 +22,27 @@
         </button>
         <a href="{{ url_for('pages.home') }}" class="nav-link" aria-label="Home page">
             <i class="fas fa-home"></i>
-            <span class="nav-text">Home</span>
+            <span class="nav-text" data-i18n="nav-home">Home</span>
         </a>
         <a href="{{ url_for('pages.activator_inhibitor') }}" class="nav-link" aria-label="Activator-Inhibitor model">
             <i class="fas fa-project-diagram"></i>
-            <span class="nav-text">Activator-Inhibitor</span>
+            <span class="nav-text" data-i18n="nav-activator-inhibitor">Activator-Inhibitor</span>
         </a>
         <a href="#" class="nav-link" aria-label="Wave patterns (coming soon)">
             <i class="fas fa-wave-square"></i>
-            <span class="nav-text">Wave Patterns</span>
+            <span class="nav-text" data-i18n="nav-waves">Wave Patterns</span>
         </a>
         <a href="#" class="nav-link" aria-label="Stripe patterns (coming soon)">
             <i class="fas fa-grip-lines"></i>
-            <span class="nav-text">Stripe Patterns</span>
+            <span class="nav-text" data-i18n="nav-stripes">Stripe Patterns</span>
         </a>
     </nav>
 
     <!-- Main content area -->
     <main id="main" class="fade-in">
         <div class="hero-section">
-            <h1>Mathematical Texture Generator</h1>
-            <p class="hero-subtitle">Create stunning patterns using mathematical models</p>
+            <h1 data-i18n="page-title-home">Mathematical Texture Generator</h1>
+            <p class="hero-subtitle" data-i18n="page-subtitle-home">Create stunning patterns using mathematical models</p>
             
             <!-- Feature cards showcasing available algorithms -->
             <div class="features-grid">
@@ -50,27 +50,27 @@
                     <div class="feature-icon">
                         <i class="fas fa-project-diagram"></i>
                     </div>
-                    <h3>Reaction-Diffusion Models</h3>
-                    <p>Generate complex patterns using activator-inhibitor mathematical models</p>
-                    <a href="{{ url_for('pages.activator_inhibitor') }}" class="btn">Get Started <i class="fas fa-arrow-right"></i></a>
+                    <h3 data-i18n="feature-1-title">Reaction-Diffusion Models</h3>
+                    <p data-i18n="feature-1-desc">Generate complex patterns using activator-inhibitor mathematical models</p>
+                    <a href="{{ url_for('pages.activator_inhibitor') }}" class="btn"><span data-i18n="get-started">Get Started</span> <i class="fas fa-arrow-right"></i></a>
                 </div>
                 
                 <div class="feature-card card">
                     <div class="feature-icon">
                         <i class="fas fa-wave-square"></i>
                     </div>
-                    <h3>Wave Patterns</h3>
-                    <p>Create wave-based textures with various frequencies and amplitudes</p>
-                    <button class="btn btn-secondary" disabled>Coming Soon</button>
+                    <h3 data-i18n="nav-waves">Wave Patterns</h3>
+                    <p data-i18n="feature-2-desc">Create wave-based textures with various frequencies and amplitudes</p>
+                    <button class="btn btn-secondary" disabled><span data-i18n="coming-soon">Coming Soon</span></button>
                 </div>
                 
                 <div class="feature-card card">
                     <div class="feature-icon">
                         <i class="fas fa-grip-lines"></i>
                     </div>
-                    <h3>Stripe Patterns</h3>
-                    <p>Generate striped textures with customizable parameters and colors</p>
-                    <button class="btn btn-secondary" disabled>Coming Soon</button>
+                    <h3 data-i18n="nav-stripes">Stripe Patterns</h3>
+                    <p data-i18n="feature-3-desc">Generate striped textures with customizable parameters and colors</p>
+                    <button class="btn btn-secondary" disabled><span data-i18n="coming-soon">Coming Soon</span></button>
                 </div>
             </div>
         </div>
