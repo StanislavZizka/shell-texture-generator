@@ -115,21 +115,21 @@
                 <h3><i class="fas fa-sliders-h"></i> <span data-i18n="model-params">Model Parameters</span></h3>
                 <form id="activatorForm">
                     <div class="form-group">
-                        <label for="kValue" data-i18n="constant-k">Constant K</label>
-                        <input type="number" id="kValue" name="kValue" step="0.01" value="1.0" required min="0.1" max="5.0" aria-describedby="k-help">
-                        <small id="k-help" class="form-help" data-i18n="constant-k-help">Reaction process rate (0.1 - 5.0)</small>
+                        <label for="K" data-i18n="constant-k">Constant K</label>
+                        <input type="number" id="K" name="K" step="0.01" value="1.0" required min="0.1" max="5.0" aria-describedby="K-help">
+                        <small id="K-help" class="form-help" data-i18n="constant-k-help">Reaction process rate (0.1 - 5.0)</small>
                     </div>
                     
                     <div class="form-group">
-                        <label for="tMaxValue" data-i18n="max-time">Maximum Time</label>
-                        <input type="number" id="tMaxValue" name="tMaxValue" step="0.1" value="10.0" required min="1.0" max="10000.0" aria-describedby="tmax-help">
-                        <small id="tmax-help" class="form-help" data-i18n="max-time-help">Simulation duration in time units</small>
+                        <label for="t_max" data-i18n="max-time">Maximum Time</label>
+                        <input type="number" id="t_max" name="t_max" step="0.1" value="10.0" required min="1.0" max="10000.0" aria-describedby="t_max-help">
+                        <small id="t_max-help" class="form-help" data-i18n="max-time-help">Simulation duration in time units</small>
                     </div>
                     
                     <div class="form-group">
-                        <label for="deltaT" data-i18n="time-step">Time Step</label>
-                        <input type="number" id="deltaT" name="deltaT" step="0.001" value="0.1" required min="0.001" max="1.0" aria-describedby="delta-help">
-                        <small id="delta-help" class="form-help" data-i18n="time-step-help">Simulation step precision</small>
+                        <label for="delta_t" data-i18n="time-step">Time Step</label>
+                        <input type="number" id="delta_t" name="delta_t" step="0.001" value="0.1" required min="0.001" max="1.0" aria-describedby="delta_t-help">
+                        <small id="delta_t-help" class="form-help" data-i18n="time-step-help">Simulation step precision</small>
                     </div>
                     
                     <div class="color-group">
@@ -166,6 +166,7 @@
                         <i class="fas fa-camera"></i>
                         <p data-i18n="placeholder-text">Generated texture will appear here</p>
                     </div>
+                    <img id="generatedImage" src="#" alt="Generated texture" style="display:none;" onclick="openPopup(this)">
                 </div>
                 
                 <!-- Texture result will be populated by JavaScript -->
@@ -479,35 +480,1116 @@
     </style>
     
     <script>
-        // Basic 3D model functionality placeholder
-        function changeShellModel() {
-            const shellSelect = document.getElementById('shellSelect');
-            const selectedShell = shellSelect.value;
-            console.log('Changing shell model to:', selectedShell);
-            // TODO: Implement actual 3D model loading
-            showToast(`Loading ${selectedShell} model...`, 'info');
-        }
-        
         // Toast notification system
-        function showToast(message, type = 'success') {
-            console.log(`Toast [${type}]: ${message}`);
-            // Basic console logging for now - full toast system to be implemented
+        function showToast(message, type = 'success', duration = 4000) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <span class="toast-message">${message}</span>
+                    <button class="toast-close" onclick="this.parentElement.parentElement.remove()">×</button>
+                </div>
+            `;
+            
+            let toastContainer = document.getElementById('toast-container');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.id = 'toast-container';
+                toastContainer.style.cssText = 'position:fixed;top:20px;right:20px;z-index:10000;';
+                document.body.appendChild(toastContainer);
+            }
+            
+            toastContainer.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.style.transition = 'all 0.3s ease';
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        if (toast.parentNode) {
+                            document.body.removeChild(toast);
+                        }
+                    }, 300);
+                }
+            }, 4000);
         }
         
-        // Initialize 3D scene when Three.js is loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Activator-Inhibitor page loaded');
+        document.getElementById("activatorForm").addEventListener("submit", function(event) {
+            event.preventDefault();
             
-            // Check if Three.js loads successfully
-            setTimeout(() => {
-                if (typeof THREE !== 'undefined') {
-                    console.log('Three.js loaded successfully');
-                    // Initialize 3D scene here
+            const K = parseFloat(document.getElementById("K").value);
+            const t_max = parseFloat(document.getElementById("t_max").value);
+            const delta_t = parseFloat(document.getElementById("delta_t").value);
+            const color1 = document.getElementById("color1").value;
+            const color2 = document.getElementById("color2").value;
+            
+            if (isNaN(K) || isNaN(t_max) || isNaN(delta_t) || K <= 0 || t_max <= 0 || delta_t <= 0) {
+                showToast(window.languageSwitcher ? window.languageSwitcher.t('enter-valid-values') : "Enter valid values for all parameters", "error");
+                return;
+            }
+            
+            // Show loading
+            document.getElementById("loading").style.display = "flex";
+            document.querySelector('button[type="submit"]').disabled = true;
+            
+            fetch("/calculate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ K, t_max, delta_t, color1, color2 })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("loading").style.display = "none";
+                document.querySelector('button[type="submit"]').disabled = false;
+                
+                if (data.image_url) {
+                    const img = document.getElementById("generatedImage");
+                    const placeholder = document.querySelector('.image-placeholder');
+                    
+                    img.src = data.image_url + "?t=" + new Date().getTime();
+                    img.style.display = "block";
+                    if (placeholder) placeholder.style.display = "none";
+
+                    const downloadBtn = document.getElementById("downloadBtn");
+                    downloadBtn.href = data.image_url;
+                    downloadBtn.download = `activator_inhibitor_K${K}_t${t_max}.png`;
+                    
+                    document.getElementById('imageActions').style.display = 'flex';
+                    
+                    showToast(window.languageSwitcher ? window.languageSwitcher.t('texture-generated') : "Texture generated successfully!");
                 } else {
-                    console.warn('Three.js failed to load');
+                    showToast(window.languageSwitcher ? window.languageSwitcher.t('texture-generation-error') : "Error generating texture", "error");
+                    console.error("Error:", data);
+                }
+            })
+            .catch(error => {
+                document.getElementById("loading").style.display = "none";
+                document.querySelector('button[type="submit"]').disabled = false;
+                showToast(window.languageSwitcher ? window.languageSwitcher.t('server-error') : "Error communicating with server", "error");
+                console.error("Error:", error);
+            });
+        });
+
+        // 3D Model Visualization System
+        class ShellViewer {
+            constructor() {
+                this.scene = null;
+                this.camera = null;
+                this.renderer = null;
+                this.controls = null;
+                this.shell = null;
+                this.container = null;
+                this.isInitialized = false;
+                this.currentTexture = null;
+                this.currentShellType = 'Buccinidae'; // Default shell
+                this.originalMaterials = [];
+                
+                // Individual scale settings for each shell type
+                this.shellScales = {
+                    'Buccinidae': 2.0,        // Smaller - was too big
+                    'Fasciolariidae': 2.8,    // Medium size
+                    'Moon snail': 2.5,        // Medium size
+                    'Muricidae': 3.2,         // Bigger - has fine details
+                    'Pecten': 3.0,            // Standard size
+                    'Whelk': 2.7              // Medium size
+                };
+                
+                this.init();
+            }
+
+            getShellScale() {
+                return this.shellScales[this.currentShellType] || 3.0;
+            }
+
+            init() {
+                this.container = document.getElementById('threejs-container');
+                if (!this.container) return;
+
+                this.setupScene();
+                this.setupCamera();
+                this.setupRenderer();
+                this.setupControls();
+                this.setupLights();
+                this.loadShellModel();
+                this.setupDragAndDrop();
+                this.setupEvents();
+                this.animate();
+            }
+
+            setupScene() {
+                this.scene = new THREE.Scene();
+                this.updateSceneBackground();
+            }
+
+            updateSceneBackground() {
+                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                const bgColor = isDark ? 0x1a202c : 0xf8fafc;
+                this.scene.background = new THREE.Color(bgColor);
+            }
+
+            setupCamera() {
+                const aspect = this.container.clientWidth / this.container.clientHeight;
+                this.camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
+                this.camera.position.set(0, 0, 3);
+            }
+
+            setupRenderer() {
+                this.renderer = new THREE.WebGLRenderer({ 
+                    antialias: true, // Enable antialiasing for smooth textures
+                    alpha: true,
+                    preserveDrawingBuffer: true,
+                    powerPreference: "high-performance"
+                });
+                this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Limit for performance
+                this.renderer.shadowMap.enabled = false; // No shadows for cleaner textures
+                this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+                this.renderer.toneMapping = THREE.ACESFilmicToneMapping; // Better color reproduction
+                this.renderer.toneMappingExposure = 1.2; // Slightly brighter exposure
+                this.renderer.physicallyCorrectLights = false; // Simpler lighting for better texture visibility
+                this.container.appendChild(this.renderer.domElement);
+            }
+
+            setupControls() {
+                try {
+                    if (typeof THREE.OrbitControls !== 'undefined') {
+                        this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+                        this.controls.enableDamping = true;
+                        this.controls.dampingFactor = 0.05;
+                        this.controls.screenSpacePanning = false;
+                        this.controls.enableZoom = true; // Enable zoom
+                        this.controls.enablePan = true; // Enable panning
+                        this.controls.enableRotate = true; // Enable rotation
+                        this.controls.minDistance = 0.5; // Closer zoom
+                        this.controls.maxDistance = 20; // Further zoom out
+                        this.controls.maxPolarAngle = Math.PI;
+                        this.controls.zoomSpeed = 1.0; // Normal zoom speed
+                        this.controls.panSpeed = 0.8; // Pan speed
+                        this.controls.rotateSpeed = 0.5; // Rotation speed
+                    } else {
+                        console.warn('OrbitControls not loaded, using enhanced mouse controls');
+                        this.setupEnhancedControls();
+                    }
+                } catch (error) {
+                    console.warn('Error setting up OrbitControls:', error);
+                    this.setupEnhancedControls();
+                }
+            }
+
+            setupEnhancedControls() {
+                // Enhanced mouse controls with zoom support
+                let isMouseDown = false;
+                let mouseX = 0, mouseY = 0;
+
+                // Mouse rotation
+                this.renderer.domElement.addEventListener('mousedown', (e) => {
+                    isMouseDown = true;
+                    mouseX = e.clientX;
+                    mouseY = e.clientY;
+                });
+
+                document.addEventListener('mouseup', () => {
+                    isMouseDown = false;
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!isMouseDown || !this.shell) return;
+                    
+                    const deltaX = e.clientX - mouseX;
+                    const deltaY = e.clientY - mouseY;
+                    
+                    this.shell.rotation.y += deltaX * 0.01;
+                    this.shell.rotation.x += deltaY * 0.01;
+                    
+                    mouseX = e.clientX;
+                    mouseY = e.clientY;
+                });
+
+                // Mouse wheel zoom
+                this.renderer.domElement.addEventListener('wheel', (e) => {
+                    e.preventDefault();
+                    
+                    const zoomSpeed = 0.1;
+                    const currentZ = this.camera.position.z;
+                    
+                    if (e.deltaY > 0) {
+                        // Zoom out
+                        this.camera.position.z = Math.min(currentZ + zoomSpeed, 20);
+                    } else {
+                        // Zoom in
+                        this.camera.position.z = Math.max(currentZ - zoomSpeed, 0.5);
+                    }
+                });
+
+                // Touch controls for mobile
+                this.setupTouchControls();
+            }
+
+            setupTouchControls() {
+                let lastTouchDistance = 0;
+                let lastTouchCenter = { x: 0, y: 0 };
+
+                this.renderer.domElement.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    if (e.touches.length === 2) {
+                        // Pinch to zoom
+                        const touch1 = e.touches[0];
+                        const touch2 = e.touches[1];
+                        lastTouchDistance = Math.hypot(
+                            touch2.clientX - touch1.clientX,
+                            touch2.clientY - touch1.clientY
+                        );
+                        lastTouchCenter = {
+                            x: (touch1.clientX + touch2.clientX) / 2,
+                            y: (touch1.clientY + touch2.clientY) / 2
+                        };
+                    }
+                });
+
+                this.renderer.domElement.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    if (e.touches.length === 2) {
+                        // Handle pinch zoom
+                        const touch1 = e.touches[0];
+                        const touch2 = e.touches[1];
+                        const currentDistance = Math.hypot(
+                            touch2.clientX - touch1.clientX,
+                            touch2.clientY - touch1.clientY
+                        );
+
+                        if (lastTouchDistance > 0) {
+                            const zoomFactor = currentDistance / lastTouchDistance;
+                            const currentZ = this.camera.position.z;
+                            const newZ = currentZ / zoomFactor;
+                            this.camera.position.z = Math.max(0.5, Math.min(20, newZ));
+                        }
+
+                        lastTouchDistance = currentDistance;
+                    }
+                });
+            }
+
+            setupLights() {
+                // Optimized lighting for enhanced texture visibility
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+                this.scene.add(ambientLight);
+
+                // Primary directional light for good texture illumination
+                const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.6);
+                directionalLight1.position.set(10, 10, 5);
+                directionalLight1.castShadow = false;
+                this.scene.add(directionalLight1);
+
+                // Fill light from opposite side for even illumination
+                const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
+                directionalLight2.position.set(-10, 5, -5);
+                directionalLight2.castShadow = false;
+                this.scene.add(directionalLight2);
+
+                // Top light for better surface details
+                const directionalLight3 = new THREE.DirectionalLight(0xffffff, 0.3);
+                directionalLight3.position.set(0, 15, 0);
+                directionalLight3.castShadow = false;
+                this.scene.add(directionalLight3);
+            }
+
+            loadShellModel(shellType = null) {
+                // Use provided shell type or current one
+                if (shellType) {
+                    this.currentShellType = shellType;
+                }
+                
+                console.log('Loading shell model:', this.currentShellType);
+                
+                // Try to load OBJ model, fallback to simple parser if loaders not available
+                if (typeof THREE.OBJLoader !== 'undefined') {
+                    this.loadOBJModel();
+                } else {
+                    console.log('OBJLoader not available, using simple OBJ parser');
+                    this.loadOBJWithSimpleParser();
+                }
+            }
+
+            loadOBJModel() {
+                const loadingEl = document.getElementById('modelLoading');
+                console.log('Starting OBJ model loading...');
+                
+                // Check if loaders are available
+                if (typeof THREE.OBJLoader === 'undefined') {
+                    console.error('OBJLoader not available');
+                    this.fallbackToBasicShell(loadingEl);
+                    return;
+                }
+                
+                if (typeof THREE.MTLLoader === 'undefined') {
+                    console.warn('MTLLoader not available, loading OBJ without materials');
+                    this.loadOBJWithoutMaterials(loadingEl);
+                    return;
+                }
+                
+                try {
+                    // First load MTL file for materials
+                    console.log('Loading MTL file...');
+                    const mtlLoader = new THREE.MTLLoader();
+                    const mtlPath = `/assets/${encodeURIComponent(this.currentShellType)}/${encodeURIComponent(this.currentShellType)}.mtl`;
+                    console.log('Loading MTL from:', mtlPath);
+                    
+                    mtlLoader.load(mtlPath, (materials) => {
+                        console.log('MTL loaded successfully, materials:', materials);
+                        materials.preload();
+                        
+                        // Store original materials for reset functionality
+                        this.originalMaterials = [];
+                        Object.values(materials.materials).forEach(material => {
+                            this.originalMaterials.push(material.clone());
+                        });
+                        console.log('Stored', this.originalMaterials.length, 'original materials');
+                        
+                        // Load OBJ file
+                        console.log('Loading OBJ file...');
+                        const objLoader = new THREE.OBJLoader();
+                        objLoader.setMaterials(materials);
+                        
+                        const objPath = `/assets/${encodeURIComponent(this.currentShellType)}/${encodeURIComponent(this.currentShellType)}.obj`;
+                        console.log('Loading OBJ from:', objPath);
+                        objLoader.load(objPath, (object) => {
+                            console.log('OBJ loaded successfully:', object);
+                            
+                            // Scale and position the shell with individual sizing
+                            const scale = this.getShellScale();
+                            object.scale.setScalar(scale);
+                            console.log(`Scaled ${this.currentShellType} to ${scale}`);
+                            object.position.set(0, 0, 0);
+                            object.rotation.set(0, 0, 0);
+                            
+                            // Count meshes
+                            let meshCount = 0;
+                            object.traverse((child) => {
+                                if (child.isMesh) {
+                                    meshCount++;
+                                    console.log('Found mesh:', child.name, 'Material:', child.material);
+                                    if (child.material) {
+                                        child.material.needsUpdate = true;
+                                    }
+                                }
+                            });
+                            console.log('Total meshes found:', meshCount);
+                            
+                            this.shell = object;
+                            this.scene.add(this.shell);
+                            
+                            // Hide loading indicator
+                            if (loadingEl) loadingEl.style.display = 'none';
+                            
+                            this.isInitialized = true;
+                            console.log('OBJ model loaded and added to scene successfully');
+                            
+                        }, (progress) => {
+                            if (progress.lengthComputable) {
+                                const percentComplete = progress.loaded / progress.total * 100;
+                                console.log('OBJ Loading progress:', percentComplete.toFixed(2) + '%');
+                            }
+                        }, (error) => {
+                            console.error('Error loading OBJ:', error);
+                            this.fallbackToBasicShell(loadingEl);
+                        });
+                        
+                    }, (progress) => {
+                        console.log('MTL loading progress:', progress);
+                    }, (error) => {
+                        console.error('Error loading MTL:', error);
+                        console.log('Trying to load OBJ without materials...');
+                        this.loadOBJWithoutMaterials(loadingEl);
+                    });
+                    
+                } catch (error) {
+                    console.error('Error in loadOBJModel:', error);
+                    this.fallbackToBasicShell(loadingEl);
+                }
+            }
+
+            loadOBJWithoutMaterials(loadingEl) {
+                console.log('Loading OBJ without materials...');
+                const objLoader = new THREE.OBJLoader();
+                
+                const objPath = `/assets/${encodeURIComponent(this.currentShellType)}/${encodeURIComponent(this.currentShellType)}.obj`;
+                console.log('Loading OBJ without materials from:', objPath);
+                objLoader.load(objPath, (object) => {
+                    console.log('OBJ loaded without materials:', object);
+                    
+                    // Apply default material
+                    const defaultMaterial = new THREE.MeshPhongMaterial({ 
+                        color: 0xf0f0f0,
+                        shininess: 30,
+                        specular: 0x111111
+                    });
+                    this.originalMaterials = [defaultMaterial];
+                    
+                    let meshCount = 0;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material = defaultMaterial.clone();
+                            meshCount++;
+                            console.log('Applied default material to mesh:', child.name);
+                        }
+                    });
+                    console.log('Applied materials to', meshCount, 'meshes');
+                    
+                    const scale = this.getShellScale();
+                    object.scale.setScalar(scale);
+                    console.log(`Scaled ${this.currentShellType} to ${scale}`);
+                    object.position.set(0, 0, 0);
+                    
+                    this.shell = object;
+                    this.scene.add(this.shell);
+                    
+                    if (loadingEl) loadingEl.style.display = 'none';
+                    this.isInitialized = true;
+                    console.log('OBJ model without materials loaded successfully');
+                    
+                }, (progress) => {
+                    if (progress.lengthComputable) {
+                        const percentComplete = progress.loaded / progress.total * 100;
+                        console.log('OBJ Loading progress (no MTL):', percentComplete.toFixed(2) + '%');
+                    }
+                }, (error) => {
+                    console.error('Error loading OBJ without materials:', error);
+                    this.fallbackToBasicShell(loadingEl);
+                });
+            }
+
+            loadOBJWithSimpleParser() {
+                const loadingEl = document.getElementById('modelLoading');
+                console.log('Loading OBJ with simple parser...');
+                
+                // Fetch OBJ file manually based on selected shell type
+                const objPath = `/assets/${encodeURIComponent(this.currentShellType)}/${encodeURIComponent(this.currentShellType)}.obj`;
+                console.log('Fetching OBJ from:', objPath);
+                fetch(objPath)
+                    .then(response => response.text())
+                    .then(objData => {
+                        console.log('OBJ file fetched, parsing...');
+                        const geometry = this.parseOBJ(objData);
+                        
+                        if (geometry) {
+                            const material = new THREE.MeshPhongMaterial({ 
+                                color: 0xf0f0f0,
+                                shininess: 30,
+                                specular: 0x111111
+                            });
+                            this.originalMaterials = [material];
+                            
+                            this.shell = new THREE.Mesh(geometry, material);
+                            const scale = this.getShellScale();
+                            this.shell.scale.setScalar(scale);
+                            console.log(`Scaled ${this.currentShellType} to ${scale}`);
+                            this.scene.add(this.shell);
+                            
+                            if (loadingEl) loadingEl.style.display = 'none';
+                            this.isInitialized = true;
+                            console.log('OBJ loaded with simple parser successfully');
+                        } else {
+                            throw new Error('Failed to parse OBJ data');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading OBJ with simple parser:', error);
+                        this.fallbackToBasicShell(loadingEl);
+                    });
+            }
+
+            parseOBJ(data) {
+                console.log('Parsing OBJ data with UV mapping support...');
+                const vertices = [];
+                const textureCoords = [];
+                const faces = [];
+                const faceUVs = [];
+                
+                const lines = data.split('\n');
+                let vertexCount = 0;
+                let uvCount = 0;
+                let faceCount = 0;
+                
+                for (let line of lines) {
+                    line = line.trim();
+                    if (line.startsWith('v ')) {
+                        // Vertex positions
+                        const parts = line.split(/\s+/);
+                        vertices.push(
+                            parseFloat(parts[1]),
+                            parseFloat(parts[2]),
+                            parseFloat(parts[3])
+                        );
+                        vertexCount++;
+                    } else if (line.startsWith('vt ')) {
+                        // UV texture coordinates
+                        const parts = line.split(/\s+/);
+                        textureCoords.push(
+                            parseFloat(parts[1]),
+                            parseFloat(parts[2])
+                        );
+                        uvCount++;
+                    } else if (line.startsWith('f ')) {
+                        // Face definitions with vertex/texture/normal indices
+                        const parts = line.split(/\s+/);
+                        if (parts.length >= 4) {
+                            const vertexIndices = [];
+                            const uvIndices = [];
+                            
+                            // Parse each vertex reference in the face
+                            for (let i = 1; i < parts.length; i++) {
+                                const vertexData = parts[i].split('/');
+                                const vertexIndex = parseInt(vertexData[0]) - 1; // OBJ is 1-indexed
+                                const uvIndex = vertexData.length > 1 && vertexData[1] ? parseInt(vertexData[1]) - 1 : -1;
+                                
+                                vertexIndices.push(vertexIndex);
+                                uvIndices.push(uvIndex);
+                            }
+                            
+                            // Triangulate faces (convert quads to triangles)
+                            if (vertexIndices.length === 3) {
+                                // Triangle face
+                                faces.push(vertexIndices[0], vertexIndices[1], vertexIndices[2]);
+                                faceUVs.push(uvIndices[0], uvIndices[1], uvIndices[2]);
+                                faceCount++;
+                            } else if (vertexIndices.length === 4) {
+                                // Quad face - split into two triangles
+                                faces.push(vertexIndices[0], vertexIndices[1], vertexIndices[2]);
+                                faces.push(vertexIndices[0], vertexIndices[2], vertexIndices[3]);
+                                faceUVs.push(uvIndices[0], uvIndices[1], uvIndices[2]);
+                                faceUVs.push(uvIndices[0], uvIndices[2], uvIndices[3]);
+                                faceCount += 2;
+                            }
+                        }
+                    }
+                }
+                
+                console.log(`Parsed ${vertexCount} vertices, ${uvCount} UV coordinates, ${faceCount} faces`);
+                
+                if (vertices.length === 0 || faces.length === 0) {
+                    console.error('No valid geometry found in OBJ file');
+                    return null;
+                }
+                
+                // Create Three.js geometry
+                const geometry = new THREE.BufferGeometry();
+                geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+                geometry.setIndex(faces);
+                
+                // Handle UV mapping
+                if (textureCoords.length > 0 && faceUVs.length > 0) {
+                    console.log('Creating UV mapping from OBJ data...');
+                    
+                    // Create properly indexed UV coordinates for each vertex
+                    const uvBuffer = [];
+                    for (let i = 0; i < faceUVs.length; i++) {
+                        const uvIndex = faceUVs[i];
+                        if (uvIndex >= 0 && uvIndex < textureCoords.length / 2) {
+                            uvBuffer.push(textureCoords[uvIndex * 2]);
+                            uvBuffer.push(textureCoords[uvIndex * 2 + 1]);
+                        } else {
+                            // Fallback UV coordinates if index is invalid
+                            uvBuffer.push(0.5);
+                            uvBuffer.push(0.5);
+                        }
+                    }
+                    
+                    if (uvBuffer.length > 0) {
+                        geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvBuffer, 2));
+                        console.log('UV mapping applied successfully with', uvBuffer.length / 2, 'UV coordinates');
+                    } else {
+                        console.warn('Failed to create UV buffer, generating fallback UVs');
+                        this.generateFallbackUVs(geometry);
+                    }
+                } else {
+                    console.warn('No UV coordinates found in OBJ file, generating fallback UVs');
+                    this.generateFallbackUVs(geometry);
+                }
+                
+                geometry.computeVertexNormals();
+                console.log('Geometry created successfully with proper UV mapping');
+                return geometry;
+            }
+
+            generateFallbackUVs(geometry) {
+                console.log('Generating fallback UV coordinates using spherical mapping...');
+                
+                const positions = geometry.getAttribute('position');
+                if (!positions) {
+                    console.error('No position attribute found in geometry');
+                    return;
+                }
+                
+                const uvs = [];
+                const vertex = new THREE.Vector3();
+                
+                for (let i = 0; i < positions.count; i++) {
+                    vertex.fromBufferAttribute(positions, i);
+                    
+                    // Normalize vertex position for spherical mapping
+                    vertex.normalize();
+                    
+                    // Convert to spherical coordinates
+                    const theta = Math.atan2(vertex.x, vertex.z);
+                    const phi = Math.acos(vertex.y);
+                    
+                    // Convert to UV coordinates (0-1 range)
+                    const u = (theta + Math.PI) / (2 * Math.PI);
+                    const v = phi / Math.PI;
+                    
+                    uvs.push(u, v);
+                }
+                
+                if (uvs.length > 0) {
+                    geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+                    console.log('Generated', uvs.length / 2, 'fallback UV coordinates using spherical mapping');
+                } else {
+                    console.error('Failed to generate fallback UV coordinates');
+                }
+            }
+
+            fallbackToBasicShell(loadingEl) {
+                console.log('Falling back to basic shell geometry');
+                
+                // Create simple fallback shell
+                const geometry = new THREE.SphereGeometry(1, 32, 16);
+                const material = new THREE.MeshPhongMaterial({ 
+                    color: 0xf0f0f0,
+                    shininess: 30,
+                    specular: 0x111111
+                });
+                
+                this.originalMaterials = [material];
+                this.shell = new THREE.Mesh(geometry, material);
+                this.scene.add(this.shell);
+                
+                if (loadingEl) {
+                    loadingEl.innerHTML = '<div class="loading-text" style="color: orange;">Using fallback model</div>';
+                    setTimeout(() => {
+                        loadingEl.style.display = 'none';
+                    }, 2000);
+                }
+                
+                this.isInitialized = true;
+            }
+
+            setupDragAndDrop() {
+                // Enable drag and drop from generated image
+                const generatedImage = document.getElementById('generatedImage');
+                
+                if (generatedImage) {
+                    generatedImage.draggable = true;
+                    generatedImage.addEventListener('dragstart', (e) => {
+                        e.dataTransfer.setData('text/plain', generatedImage.src);
+                        e.dataTransfer.effectAllowed = 'copy';
+                    });
+                }
+
+                // Setup drop zone
+                this.container.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'copy';
+                    this.container.classList.add('drag-over');
+                });
+
+                this.container.addEventListener('dragleave', (e) => {
+                    if (!this.container.contains(e.relatedTarget)) {
+                        this.container.classList.remove('drag-over');
+                    }
+                });
+
+                this.container.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    this.container.classList.remove('drag-over');
+                    
+                    const imageUrl = e.dataTransfer.getData('text/plain');
+                    if (imageUrl) {
+                        this.applyTexture(imageUrl);
+                    }
+                });
+            }
+
+            applyTexture(imageUrl) {
+                if (!this.shell || !this.isInitialized) {
+                    console.error('Cannot apply texture: shell not loaded or not initialized');
+                    showToast(window.languageSwitcher ? window.languageSwitcher.t('model-not-ready') : 'Model not ready for texture application', 'error');
+                    return;
+                }
+
+                console.log('Starting texture application process...');
+                console.log('Texture URL:', imageUrl);
+                console.log('Shell type:', this.currentShellType);
+
+                const loader = new THREE.TextureLoader();
+                loader.load(imageUrl, (texture) => {
+                    // Perfect 1:1 texture reproduction settings
+                    texture.wrapS = THREE.RepeatWrapping;
+                    texture.wrapT = THREE.RepeatWrapping;
+                    texture.repeat.set(1, 1); // Exactly once - no repetition
+                    texture.offset.set(0, 0);
+                    texture.magFilter = THREE.LinearFilter;
+                    texture.minFilter = THREE.LinearMipmapLinearFilter;
+                    texture.generateMipmaps = true;
+                    texture.flipY = false;
+                    texture.premultiplyAlpha = false;
+                    texture.unpackAlignment = 4;
+                    texture.encoding = THREE.sRGBEncoding; // Ensure proper color encoding
+                    
+                    // No anisotropy to prevent any filtering that could alter colors
+                    texture.anisotropy = 1;
+
+                    console.log('Applying enhanced texture with optimal visibility...');
+                    console.log('Texture anisotropy:', texture.anisotropy);
+
+                    // Apply 100% visible texture - no lighting, no blending
+                    if (this.shell.traverse) {
+                        // For OBJ models (Group objects)
+                        this.shell.traverse((child) => {
+                            if (child.isMesh && child.material) {
+                                // Unlit material for perfect 1:1 texture display - no lighting interference
+                                const newMaterial = new THREE.MeshBasicMaterial({
+                                    map: texture,
+                                    transparent: false,
+                                    opacity: 1.0,
+                                    side: THREE.DoubleSide,
+                                    toneMapped: false,
+                                    fog: false,
+                                    alphaTest: 0,
+                                    depthWrite: true,
+                                    depthTest: true,
+                                    vertexColors: false
+                                });
+                                
+                                // Force material update
+                                child.material = newMaterial;
+                                child.material.needsUpdate = true;
+                                
+                                // Ensure proper UV mapping
+                                if (child.geometry.attributes.uv) {
+                                    const uvCount = child.geometry.attributes.uv.count;
+                                    console.log('UV coordinates available for mesh:', child.name, 'UV count:', uvCount);
+                                    
+                                    // Validate UV coordinates
+                                    if (uvCount > 0) {
+                                        console.log('✓ Texture mapping should work correctly for:', child.name);
+                                    } else {
+                                        console.warn('⚠ UV attribute exists but has no data for:', child.name);
+                                    }
+                                } else {
+                                    console.warn('✗ No UV coordinates for mesh:', child.name, '- texture may appear as solid color');
+                                    console.log('Attempting to generate fallback UVs for mesh:', child.name);
+                                    
+                                    // Try to generate fallback UVs for this specific mesh
+                                    this.generateFallbackUVs(child.geometry);
+                                    
+                                    if (child.geometry.attributes.uv) {
+                                        console.log('✓ Successfully generated fallback UVs for:', child.name);
+                                    } else {
+                                        console.error('✗ Failed to generate fallback UVs for:', child.name);
+                                    }
+                                }
+                                
+                                console.log('Applied enhanced texture to mesh:', child.name);
+                            }
+                        });
+                    } else {
+                        // For simple mesh objects (fallback) - perfect 1:1 reproduction
+                        const newMaterial = new THREE.MeshBasicMaterial({
+                            map: texture,
+                            transparent: false,
+                            opacity: 1.0,
+                            side: THREE.DoubleSide,
+                            toneMapped: false,
+                            fog: false,
+                            alphaTest: 0,
+                            depthWrite: true,
+                            depthTest: true,
+                            vertexColors: false
+                        });
+                        
+                        // Check UV coordinates for fallback mesh
+                        if (this.shell.geometry.attributes.uv) {
+                            const uvCount = this.shell.geometry.attributes.uv.count;
+                            console.log('✓ Fallback mesh has UV coordinates, count:', uvCount);
+                        } else {
+                            console.warn('✗ Fallback mesh missing UV coordinates, generating...');
+                            this.generateFallbackUVs(this.shell.geometry);
+                        }
+                        
+                        this.shell.material = newMaterial;
+                        this.shell.material.needsUpdate = true;
+                    }
+
+                    // Force renderer update for perfect color reproduction
+                    if (this.renderer) {
+                        this.renderer.shadowMap.enabled = false; // Disable shadows completely
+                        this.renderer.toneMapping = THREE.NoToneMapping; // Disable tone mapping
+                        this.renderer.toneMappingExposure = 1.0; // Reset exposure
+                        this.renderer.outputEncoding = THREE.sRGBEncoding; // Proper color space
+                    }
+
+                    this.currentTexture = texture;
+                    
+                    // Show reset button
+                    const modelActions = document.getElementById('modelActions');
+                    if (modelActions) {
+                        modelActions.style.display = 'flex';
+                    }
+                    
+                    showToast(window.languageSwitcher ? window.languageSwitcher.t('texture-applied') : 'Texture successfully applied to shell!');
+                }, undefined, (error) => {
+                    showToast(window.languageSwitcher ? window.languageSwitcher.t('texture-generation-error') : 'Error loading texture', 'error');
+                    console.error('Error loading texture:', error);
+                });
+            }
+
+            resetTexture() {
+                if (!this.shell || !this.isInitialized || !this.originalMaterials) return;
+
+                // Restore original materials for OBJ model
+                let materialIndex = 0;
+                
+                if (this.shell.traverse) {
+                    // For OBJ models (Group objects)
+                    this.shell.traverse((child) => {
+                        if (child.isMesh && child.material) {
+                            if (materialIndex < this.originalMaterials.length) {
+                                child.material = this.originalMaterials[materialIndex].clone();
+                                materialIndex++;
+                            } else if (this.originalMaterials.length > 0) {
+                                // Use first material if we run out
+                                child.material = this.originalMaterials[0].clone();
+                            }
+                        }
+                    });
+                } else {
+                    // For simple mesh objects (fallback)
+                    if (this.originalMaterials.length > 0) {
+                        this.shell.material = this.originalMaterials[0].clone();
+                    }
+                }
+
+                this.currentTexture = null;
+                
+                // Hide reset button
+                const modelActions = document.getElementById('modelActions');
+                if (modelActions) {
+                    modelActions.style.display = 'none';
+                }
+                
+                showToast(window.languageSwitcher ? window.languageSwitcher.t('texture-reset') : 'Texture reset to original colors!');
+            }
+
+            setupEvents() {
+                window.addEventListener('resize', () => this.onWindowResize());
+                
+                // Listen for theme changes
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+                            this.updateSceneBackground();
+                        }
+                    });
+                });
+                
+                observer.observe(document.documentElement, {
+                    attributes: true,
+                    attributeFilter: ['data-theme']
+                });
+            }
+
+            onWindowResize() {
+                if (!this.camera || !this.renderer) return;
+
+                const width = this.container.clientWidth;
+                const height = this.container.clientHeight;
+
+                this.camera.aspect = width / height;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(width, height);
+            }
+
+            animate() {
+                requestAnimationFrame(() => this.animate());
+
+                if (this.controls) {
+                    this.controls.update();
+                }
+
+                if (this.shell && this.isInitialized) {
+                    // Gentle rotation animation
+                    this.shell.rotation.y += 0.005;
+                }
+
+                if (this.renderer && this.scene && this.camera) {
+                    this.renderer.render(this.scene, this.camera);
+                }
+            }
+
+            clearCurrentModel() {
+                if (this.shell) {
+                    this.scene.remove(this.shell);
+                    this.shell = null;
+                }
+                this.currentTexture = null;
+                this.originalMaterials = [];
+                this.isInitialized = false;
+                
+                // Hide reset button
+                const modelActions = document.getElementById('modelActions');
+                if (modelActions) {
+                    modelActions.style.display = 'none';
+                }
+            }
+
+            changeModel(newShellType) {
+                console.log('Changing model to:', newShellType);
+                
+                // Show loading
+                const loadingEl = document.getElementById('modelLoading');
+                if (loadingEl) {
+                    loadingEl.style.display = 'block';
+                    loadingEl.innerHTML = '<div class="loading-spinner"></div><div class="loading-text">Loading new model...</div>';
+                }
+                
+                // Clear current model
+                this.clearCurrentModel();
+                
+                // Load new model
+                this.loadShellModel(newShellType);
+            }
+
+            show() {
+                const modelContainer = document.getElementById('modelContainer');
+                if (modelContainer) {
+                    modelContainer.style.display = 'block';
+                    // Trigger resize to ensure proper rendering
+                    setTimeout(() => this.onWindowResize(), 100);
+                }
+            }
+
+            hide() {
+                const modelContainer = document.getElementById('modelContainer');
+                if (modelContainer) {
+                    modelContainer.style.display = 'none';
+                }
+            }
+        }
+
+        // Initialize 3D viewer
+        let shellViewer = null;
+        
+        let initRetries = 0;
+        const maxRetries = 5;
+        
+        function initShellViewer() {
+            try {
+                console.log('Checking THREE availability:', typeof THREE);
+                console.log('Checking OBJLoader:', typeof THREE.OBJLoader);
+                console.log('Checking MTLLoader:', typeof THREE.MTLLoader);
+                console.log('Checking OrbitControls:', typeof THREE.OrbitControls);
+                
+                if (typeof THREE !== 'undefined') {
+                    // Don't wait for loaders - use custom parser if they're not available
+                    if (typeof THREE.OBJLoader === 'undefined' && initRetries < maxRetries) {
+                        console.log('OBJLoader not ready yet, retrying... (' + (initRetries + 1) + '/' + maxRetries + ')');
+                        initRetries++;
+                        setTimeout(initShellViewer, 500);
+                        return;
+                    }
+                    
+                    console.log('Initializing ShellViewer (loaders available:', typeof THREE.OBJLoader !== 'undefined', ')');
+                    shellViewer = new ShellViewer();
+                    console.log('ShellViewer initialized successfully');
+                } else {
+                    console.log('Three.js not loaded yet, retrying...');
+                    setTimeout(initShellViewer, 200);
+                }
+            } catch (error) {
+                console.error('Error initializing ShellViewer:', error);
+                console.error('Error stack:', error.stack);
+                // Hide loading and show error message
+                const loadingEl = document.getElementById('modelLoading');
+                if (loadingEl) {
+                    loadingEl.innerHTML = '<div class="loading-text" style="color: red;">Error loading 3D model: ' + error.message + '</div>';
+                }
+            }
+        }
+
+        // Wait for both DOM and scripts to load
+        let scriptsLoaded = 0;
+        const totalScripts = 2; // Three.js and OrbitControls
+        
+        function checkScriptsLoaded() {
+            scriptsLoaded++;
+            console.log(`Script ${scriptsLoaded}/${totalScripts} loaded`);
+            if (scriptsLoaded >= totalScripts) {
+                console.log('All scripts loaded, initializing...');
+                setTimeout(initShellViewer, 100);
+            }
+        }
+        
+        // Add load events to scripts
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded');
+            const scripts = document.querySelectorAll('script[src*="three"]');
+            scripts.forEach((script, index) => {
+                script.addEventListener('load', checkScriptsLoaded);
+                script.addEventListener('error', (e) => {
+                    console.error(`Script ${index} failed to load:`, e);
+                });
+            });
+            
+            // Fallback - try to initialize after 2 seconds regardless
+            setTimeout(() => {
+                if (!shellViewer) {
+                    console.log('Fallback initialization...');
+                    initShellViewer();
                 }
             }, 2000);
         });
+
+        // Show 3D model when texture is generated
+        const originalFormHandler = document.getElementById("activatorForm").onsubmit;
+        document.getElementById("activatorForm").addEventListener("submit", function(event) {
+            // The existing form handler will run first
+            // Then we'll show the 3D model after successful generation
+        });
+
+        // Modify the existing fetch success handler to show 3D model
+        const originalFetch = window.fetch;
+        window.fetch = function(...args) {
+            return originalFetch.apply(this, args).then(response => {
+                if (args[0] === '/calculate' && response.ok) {
+                    response.clone().json().then(data => {
+                        if (data.image_url && shellViewer) {
+                            setTimeout(() => {
+                                shellViewer.show();
+                            }, 500);
+                        }
+                    });
+                }
+                return response;
+            });
+        };
+
+        // Global function for reset button
+        function resetShellTexture() {
+            if (shellViewer && shellViewer.resetTexture) {
+                shellViewer.resetTexture();
+            }
+        }
+
+        // Global function for changing shell model
+        function changeShellModel() {
+            const shellSelect = document.getElementById('shellSelect');
+            if (shellSelect && shellViewer && shellViewer.changeModel) {
+                const selectedShell = shellSelect.value;
+                shellViewer.changeModel(selectedShell);
+                showToast((window.languageSwitcher ? window.languageSwitcher.t('model-loading') : 'Loading model:') + ` ${selectedShell}`);
+            }
+        }
     </script>
 </body>
 </html>
