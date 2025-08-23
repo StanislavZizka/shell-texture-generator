@@ -4,6 +4,25 @@ document.addEventListener("DOMContentLoaded", function () {
         popup.style.display = "none";
     }
     
+    // Global variables for drag and zoom functionality
+    let currentScale = 1;
+    let currentX = 0;
+    let currentY = 0;
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    
+    function updateTransform(img) {
+        img.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentScale})`;
+    }
+    
+    function resetTransform(img) {
+        currentScale = 1;
+        currentX = 0;
+        currentY = 0;
+        updateTransform(img);
+    }
+    
     // Add double-click zoom for desktop
     document.addEventListener('dblclick', function(e) {
         const popup = document.getElementById("popupContainer");
@@ -11,14 +30,13 @@ document.addEventListener("DOMContentLoaded", function () {
         
         const popupImg = document.getElementById("popupImage");
         if (popupImg && e.target === popupImg) {
-            const currentTransform = popupImg.style.transform;
-            
-            if (currentTransform.includes('scale(2)')) {
-                popupImg.style.transform = 'scale(1)';
+            if (currentScale > 1) {
+                resetTransform(popupImg);
                 popupImg.classList.remove('zoomed');
                 popup.classList.remove('zoomed');
             } else {
-                popupImg.style.transform = 'scale(2)';
+                currentScale = 2;
+                updateTransform(popupImg);
                 popupImg.classList.add('zoomed');
                 popup.classList.add('zoomed');
             }
@@ -34,22 +52,18 @@ document.addEventListener("DOMContentLoaded", function () {
         if (popupImg && popup.contains(e.target)) {
             e.preventDefault();
             
-            const currentTransform = popupImg.style.transform;
-            let currentScale = 1;
+            const delta = e.deltaY > 0 ? 0.9 : 1.1;
+            currentScale = Math.min(Math.max(0.5, currentScale * delta), 4);
             
-            if (currentTransform.includes('scale(')) {
-                const match = currentTransform.match(/scale\(([^)]+)\)/);
-                if (match) {
-                    currentScale = parseFloat(match[1]);
-                }
+            // Reset position when zooming out to 1x or less
+            if (currentScale <= 1) {
+                currentX = 0;
+                currentY = 0;
             }
             
-            const delta = e.deltaY > 0 ? 0.9 : 1.1;
-            const newScale = Math.min(Math.max(0.5, currentScale * delta), 4);
+            updateTransform(popupImg);
             
-            popupImg.style.transform = `scale(${newScale})`;
-            
-            if (newScale > 1) {
+            if (currentScale > 1) {
                 popupImg.classList.add('zoomed');
                 popup.classList.add('zoomed');
             } else {
@@ -57,6 +71,35 @@ document.addEventListener("DOMContentLoaded", function () {
                 popup.classList.remove('zoomed');
             }
         }
+    });
+    
+    // Mouse drag functionality
+    document.addEventListener('mousedown', function(e) {
+        const popup = document.getElementById("popupContainer");
+        if (!popup || popup.style.display === "none") return;
+        
+        const popupImg = document.getElementById("popupImage");
+        if (popupImg && e.target === popupImg && currentScale > 1) {
+            isDragging = true;
+            dragStartX = e.clientX - currentX;
+            dragStartY = e.clientY - currentY;
+            e.preventDefault();
+        }
+    });
+    
+    document.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        
+        const popupImg = document.getElementById("popupImage");
+        if (popupImg) {
+            currentX = e.clientX - dragStartX;
+            currentY = e.clientY - dragStartY;
+            updateTransform(popupImg);
+        }
+    });
+    
+    document.addEventListener('mouseup', function() {
+        isDragging = false;
     });
 });
 
@@ -70,8 +113,12 @@ function openPopup(imgElement) {
 
     if (popup && popupImg) {
         // Reset zoom and styles first
-        popupImg.style.transform = 'scale(1)';
+        currentScale = 1;
+        currentX = 0;
+        currentY = 0;
+        popupImg.style.transform = 'translate(0px, 0px) scale(1)';
         popupImg.classList.remove('zoomed');
+        popup.classList.remove('zoomed');
         popupImg.style.opacity = '0.5';
         
         // Set image source
@@ -127,14 +174,20 @@ function closePopup(event) {
         // Restore body scroll
         document.body.style.overflow = '';
         
-        // Clear popup image
+        // Clear popup image and reset zoom state
         const popupImg = document.getElementById("popupImage");
         if (popupImg) {
             popupImg.src = '';
             popupImg.style.opacity = '1';
-            popupImg.style.transform = 'scale(1)';
+            popupImg.style.transform = 'translate(0px, 0px) scale(1)';
             popupImg.classList.remove('zoomed');
         }
+        
+        // Reset global zoom state
+        currentScale = 1;
+        currentX = 0;
+        currentY = 0;
+        isDragging = false;
     }
 }
 
@@ -212,7 +265,6 @@ document.addEventListener('touchend', function(e) {
 
 // Pinch to zoom support (basic)
 let initialDistance = 0;
-let currentScale = 1;
 
 document.addEventListener('touchstart', function(e) {
     if (e.touches.length === 2) {
@@ -238,9 +290,26 @@ document.addEventListener('touchmove', function(e) {
         if (initialDistance > 0) {
             const scale = currentDistance / initialDistance;
             const popupImg = document.getElementById("popupImage");
+            const popup = document.getElementById("popupContainer");
             if (popupImg) {
                 currentScale = Math.min(Math.max(0.5, scale), 3); // Limit zoom
-                popupImg.style.transform = `scale(${currentScale})`;
+                
+                // Reset position when scaling down
+                if (currentScale <= 1) {
+                    currentX = 0;
+                    currentY = 0;
+                }
+                
+                updateTransform(popupImg);
+                
+                // Update classes
+                if (currentScale > 1) {
+                    popupImg.classList.add('zoomed');
+                    if (popup) popup.classList.add('zoomed');
+                } else {
+                    popupImg.classList.remove('zoomed');
+                    if (popup) popup.classList.remove('zoomed');
+                }
             }
         }
     }

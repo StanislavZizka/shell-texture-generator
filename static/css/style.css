@@ -579,8 +579,8 @@ p {
 }
 
 .popup.show.zoomed {
-  align-items: flex-start;
-  justify-content: flex-start;
+  align-items: center;
+  justify-content: center;
   overflow: auto;
 }
 
@@ -594,6 +594,7 @@ p {
   object-fit: contain;
   display: block;
   transition: transform 0.3s ease;
+  transform-origin: center center;
   cursor: grab;
   user-select: none;
   margin: 0;
