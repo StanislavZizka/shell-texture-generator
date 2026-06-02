@@ -1,0 +1,56 @@
+<div class="static-parameters-section" id="patternStaticParametersGroup">
+    <div class="static-parameters-header">
+        <div class="static-parameters-title">
+            <i class="fas fa-sliders"></i>
+            <div>
+                <strong id="patternParameterModeLabel" data-i18n="static-mode">Static parameters</strong>
+                <p id="patternParameterModeDesc" data-i18n="static-parameters-empty">Please select a stage first.</p>
+            </div>
+        </div>
+    </div>
+    <small class="form-help mode-hint" id="patternDynamicModeHint" hidden data-i18n="dynamic-parameter-hint">Tip: start from the preset values and change only the fields you need.</small>
+
+    <details class="parameter-accordion random-error-accordion is-empty" id="patternParameterAccordion">
+        <summary class="parameter-accordion-summary random-error-accordion-summary" aria-expanded="false">
+            <div class="parameter-accordion-title random-error-accordion-title">
+                <i class="fas fa-chevron-down accordion-caret" aria-hidden="true"></i>
+                <div>
+                    <strong><i class="fas fa-lock"></i> <span data-i18n="static-parameters-panel-title">Preset values</span></strong>
+                    <p data-i18n="static-parameters-panel-desc">Read-only values for the selected stage.</p>
+                </div>
+            </div>
+            <span class="param-badge" id="patternParameterState">READ ONLY</span>
+        </summary>
+        <div class="static-params-content random-error-preview">
+            <div class="parameter-accordion-empty random-error-accordion-empty" id="patternParameterEmpty" data-i18n="static-parameters-empty">Please select a stage first.</div>
+            <div class="parameter-grid random-error-summary-grid" id="patternParameterGrid" hidden>
+                {% set parameter_values = model_params %}
+                {% for param_key in parameter_keys %}
+                    {% set param_value = parameter_values.get(param_key, '') %}
+                    {% if figure_mode == '23' %}
+                        {% set input_step = '1' if param_key in ['random_seed'] else 'any' %}
+                        {% set input_id = 'fig23_' ~ param_key %}
+                    {% else %}
+                        {% set input_step = '1' if param_key in ['size', 'seed', 'random_seed', 'delta_t', 't_max'] else 'any' %}
+                        {% set input_id = 'pattern_' ~ param_key %}
+                    {% endif %}
+                    <div class="parameter-item random-error-summary-item" data-parameter-key="{{ param_key }}">
+                        <label for="{{ input_id }}" class="parameter-label" data-i18n="param-{{ param_key }}">{{ param_key }}</label>
+                        <input
+                            type="number"
+                            class="parameter-input"
+                            id="{{ input_id }}"
+                            name="{{ param_key }}"
+                            value="{{ param_value }}"
+                            step="{{ input_step }}"
+                            data-parameter-key="{{ param_key }}"
+                            data-default-value="{{ param_value }}"
+                            readonly
+                            aria-readonly="true"
+                        >
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </details>
+</div>

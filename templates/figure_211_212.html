@@ -1,0 +1,98 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title or 'Pattern Evolution' }} - Shell Texture Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script>
+        window.FIGURE_STAGE_PRESETS = {{ stages | tojson }};
+        window.FIGURE_STAGE_ORDER = {{ stage_order | tojson }};
+        window.FIGURE_DEFAULT_STAGE = "{{ default_stage }}";
+        window.FIGURE_STAGE_RANDOM_ERROR_PRESETS = {{ random_error_presets | tojson }};
+        window.FIGURE_MODEL_PARAMS = {{ model_params | tojson }};
+        window.FIGURE_PARAMETER_KEYS = {{ parameter_keys | tojson }};
+        window.FIGURE_DEVELOPMENT_PRESETS = {{ development_presets | tojson }};
+        window.FIGURE_DEVELOPMENT_ORDER = {{ development_order | tojson }};
+        window.FIGURE_DEFAULT_DEVELOPMENT = "{{ default_development }}";
+        window.FIGURE_DEVELOPMENT_RANDOM_ERROR_PRESETS = {{ development_random_error_presets | tojson }};
+        window.FIGURE_API_ENDPOINT = "{{ api_endpoint }}";
+        window.FIGURE_PAGE_KIND = "{{ figure_mode }}";
+        window.SHELL_VIEWER_SHELLS = ["Buccinidae", "Fasciolariidae", "Moon snail", "Muricidae", "Pecten", "Whelk"];
+    </script>
+    <script defer src="{{ url_for('static', filename='js/components/navigation.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/components/theme-toggle.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/components/language-switcher.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/components/appearance-switcher.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/components/image-viewer.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/components/texture-heatmap.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='vendor/three/three.min.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='vendor/three/examples/js/controls/OrbitControls.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='vendor/three/examples/js/loaders/OBJLoader.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='vendor/three/examples/js/loaders/MTLLoader.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/components/shell-viewer.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/components/figure-page-shared.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/components/figure-page-viewer-bridge.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/components/figure-page-result-bridge.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/components/figure-page-window-bridge.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/activator_212.js') }}"></script>
+</head>
+<body data-figure-mode="{{ figure_mode }}">
+    {% include 'partials/figure_page_navigation.html' %}
+
+    <main id="main" class="fade-in pattern-page pattern-page-{{ figure_mode }}">
+        {% set page_header_icon_class = 'fas fa-shapes' %}
+        {% set page_header_title_i18n = 'figure211-page-title' if figure_mode == '211' else 'figure212-page-title' %}
+        {% set page_header_subtitle_i18n = 'figure211-page-subtitle' if figure_mode == '211' else 'figure212-page-subtitle' %}
+        {% include 'partials/figure_page_header.html' %}
+
+        <div class="content-grid">
+            <section class="form-container card figure-panel figure-panel--form">
+                <h3><i class="fas fa-sliders-h"></i> Model Parameters</h3>
+
+                <div class="mode-banner">
+                    <div class="mode-switch segmented-control" role="tablist" aria-label="Parameter mode">
+                        <button type="button" class="mode-chip active" id="patternStaticModeBtn" aria-pressed="true">
+                            <i class="fas fa-lock"></i>
+                            <span data-i18n="static-mode">Static parameters</span>
+                        </button>
+                        <button type="button" class="mode-chip" id="patternDynamicModeBtn" aria-pressed="false">
+                            <i class="fas fa-pen-to-square"></i>
+                            <span data-i18n="dynamic-mode">Dynamic parameters</span>
+                        </button>
+                    </div>
+                    <small id="patternModeDescription" data-i18n="mode-description-static">Static parameters are read-only and match the selected preset.</small>
+                </div>
+
+                <form id="patternForm">
+                    <input type="hidden" id="preset" name="preset" value="">
+                    <input type="hidden" id="figure_pattern_mode" name="figure_pattern_mode" value="stage">
+                    <input type="hidden" id="parameter_mode" name="parameter_mode" value="static">
+
+                    {% set stage_select_name = 'stage' %}
+                    {% set stage_help_i18n = 'stageSelectionHelp' %}
+                    {% set stage_help_text = 'Select a concrete stage before generating.' %}
+                    {% include 'partials/figure_stage_selector.html' %}
+
+                    {% include 'partials/figure_static_parameters_shell.html' %}
+                    {% include 'partials/figure_random_error_shell.html' %}
+
+                    {% include 'partials/figure_color_scheme_and_generate.html' %}
+                </form>
+            </section>
+
+            {% include 'partials/figure_result_texture.html' %}
+
+            {% include 'partials/figure_3d_viewer.html' %}
+        </div>
+
+        {% include 'partials/figure_popup_preview.html' %}
+    </main>
+</body>
+</html>
+

@@ -1,0 +1,201 @@
+/* Texture heatmap preview */
+.texture-heatmap-module {
+  margin-top: var(--space-5);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--card-border);
+  background: var(--bg-secondary);
+  box-shadow: var(--shadow-sm);
+  display: none;
+  min-height: 0;
+}
+
+.texture-heatmap-module.visible {
+  display: block;
+}
+
+.texture-heatmap-header {
+  margin-bottom: var(--space-3);
+}
+
+.texture-heatmap-panel {
+  display: none;
+  margin-top: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-color);
+  min-height: 0;
+}
+
+.texture-heatmap-panel.visible {
+  display: block;
+}
+
+.texture-heatmap-canvas-shell {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.texture-heatmap-canvas-shell canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.texture-heatmap-note {
+  display: block;
+  margin-top: var(--space-3);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.texture-heatmap-actions {
+  margin-top: var(--space-6);
+}
+
+[data-theme="light"] .texture-heatmap-module {
+  background: var(--bg-secondary);
+}
+
+[data-theme="light"] .texture-heatmap-note {
+  color: #475569;
+}
+
+/* Biological heatmap section below the image */
+.biological-heatmap-section {
+  margin-top: var(--space-6);
+  padding: var(--space-6);
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow-md);
+  animation: fadeIn 0.4s ease-out;
+  display: none;
+}
+
+.biological-heatmap-section.visible {
+  display: block;
+}
+
+.biological-heatmap-section h4 {
+  margin-bottom: var(--space-4);
+  color: var(--text-primary);
+  font-size: var(--font-size-xl);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 700;
+}
+
+.biological-heatmap-section h4 i {
+  color: var(--primary-500);
+}
+
+.heatmap-wrapper {
+  display: flex;
+  gap: var(--space-6);
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.heatmap-canvas-container {
+  flex: 1;
+  min-width: 300px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  border: 1px solid var(--border-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#biologicalHeatmapCanvas {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.biological-heatmap-legend {
+  flex-shrink: 0;
+  min-width: 200px;
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.biological-heatmap-legend h5 {
+  margin: 0 0 var(--space-3) 0;
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--primary-600);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+[data-theme="dark"] .biological-heatmap-legend h5 {
+  color: var(--primary-400);
+}
+
+.biological-heatmap-legend .heatmap-legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  font-weight: 500;
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-base);
+}
+
+.biological-heatmap-legend .heatmap-legend-item:hover {
+  background: var(--bg-secondary);
+  transform: translateX(3px);
+}
+
+.biological-heatmap-legend .heatmap-legend-item:last-child {
+  margin-bottom: 0;
+}
+
+.biological-heatmap-legend .heatmap-legend-color {
+  width: 40px;
+  height: 20px;
+  border-radius: var(--radius-sm);
+  display: inline-block;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.biological-heatmap-legend .heatmap-legend-color.stable {
+  background: linear-gradient(90deg, #0000ff, #0088ff);
+}
+
+.biological-heatmap-legend .heatmap-legend-color.transition {
+  background: linear-gradient(90deg, #00ff00, #ffff00);
+}
+
+.biological-heatmap-legend .heatmap-legend-color.unstable {
+  background: linear-gradient(90deg, #ff8800, #ff0000);
+}
+
+/* Responsive adjustments for heatmap */
+@media (max-width: 768px) {
+  .heatmap-wrapper {
+    flex-direction: column;
+  }
+
+  .biological-heatmap-legend {
+    width: 100%;
+  }
+}

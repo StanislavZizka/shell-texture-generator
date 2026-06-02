@@ -1,0 +1,84 @@
+========================================
+  PREHLED VSECH KNIHOVEN V PROJEKTU
+========================================
+
+-------- PYTHON (requirements.txt) --------
+
+- Flask 2.3.3
+  Webovy framework, ktery obsluhuje cele HTTP routovani a renderovani HTML
+  sablon. Registruje dva blueprinty (pages pro HTML stranky, api pro JSON
+  endpointy) a pres url_for() servuje staticke soubory.
+
+- NumPy 1.24.3
+  Jadro vsech numerickych vypoctu. Vytvari 2D pole pro koncentrace aktivatoru
+  a inhibitoru, pocita Laplaceuv operator pro difuzi a resi diferencialni
+  rovnice Gierer-Meinhardtova modelu Eulerovou metodou.
+
+- Matplotlib 3.7.2
+  Generuje heatmapy vyslednych textur. Pouziva backend 'Agg' pro serverove
+  prostredi (bez GUI), colormapu jet (modra->zelena->zluta->cervena)
+  a uklada vysledne obrazky pres savefig().
+
+- Werkzeug 2.3.7
+  WSGI toolkit, ktery Flask intene pouziva pro low-level HTTP handling,
+  request/response objekty a routing. V kodu se explicitne nepouziva,
+  ale bez nej Flask nefunguje.
+
+- Pillow >=9.0.0
+  Posledni krok pro export PNG obrazku. Prevadi NumPy pole na bytes
+  pomoci Image.fromarray(), pouziva se jako alternativa k matplotlib
+  pro lepsi kompatibilitu na Windows.
+
+-------- PYTHON (dalsi pouzite v testech/archivu) --------
+
+- requests
+  Pouziva se pouze v archivovanych testovacich souborech pro HTTP volani
+  na Flask server. V produkncim kodu se nepouziva.
+
+- scipy
+  V archivovanych testech pocita lokalni varianci obrazku (uniform_filter)
+  a spektralni analyzu pres Fourierovu transformaci (fft2, fftshift).
+  V produkncim kodu se nepouziva.
+
+-------- PYTHON (standardni knihovna) --------
+- sys, os, io, glob, re, pathlib, contextlib
+- argparse, json, time, typing
+
+-------- FRONTEND - CDN knihovny --------
+
+- Font Awesome 6.5.0
+  cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css
+  Poskytuje ikonky pro UI prvky - pouziva se 40+ ruznych ikon
+  (fa-home, fa-calculator, fa-image, fa-random atd.) ve vsech sablonach.
+
+- Google Fonts - Inter
+  fonts.googleapis.com/css2?family=Inter
+  Jednotny typograficky styl cele aplikace. Font Inter ve vahach
+  400/500/600/700 (normal, medium, bold, extra-bold) pro ruzne
+  urovne duraznosti textu.
+
+- Chart.js 4.4.0
+  cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js
+  Vykresluje spojnicovy graf analytickeho reseni Riccatiho rovnice
+  v oscillatory_waves.html. Zobrazuje casovy prubeh koncentrace
+  aktivatoru a(t).
+
+- Three.js 0.160.0
+  unpkg.com/three@0.160.0/build/three.min.js
+  3D vizualizace shell modelu v random_error.html a activator_inhibitor.html.
+  Uzivatele mohou natahnou vygenerovanou texturu na 3D model lastury
+  a interaktivne s nim rotovat/zoomovat.
+  + OrbitControls  = rotace a zoom 3D modelu mysi
+  + OBJLoader      = nacitani OBJ souboru s 3D geometrii
+  + MTLLoader      = nacitani materialu a textur
+
+-------- FRONTEND - CSS --------
+- Zadny framework (vlastni CSS s CSS custom properties)
+- Lokalni importy: components/forms.css, components/toast.css
+
+-------- FRONTEND - JavaScript --------
+- Zadny framework (vanilla JS)
+- Lokalni komponenty:
+  app.js, navigation.js, theme-toggle.js,
+  language-switcher.js, image-viewer.js,
+  texture-generator.js, random-error.js

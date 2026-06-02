@@ -1,0 +1,36 @@
+<nav class="sidenav" id="mySidenav">
+    <button class="menu-btn" aria-label="Toggle navigation">
+        <i class="fas fa-bars"></i>
+    </button>
+    <a href="{{ url_for('pages.home') }}" class="nav-link" aria-label="Home page">
+        <i class="fas fa-home"></i>
+        <span class="nav-text" data-i18n="nav-home">Home</span>
+    </a>
+    <a href="{{ url_for('pages.activator_inhibitor') }}" class="nav-link" aria-label="Activator-Inhibitor model">
+        <i class="fas fa-project-diagram"></i>
+        <span class="nav-text" data-i18n="nav-activator-inhibitor">Activator-Inhibitor</span>
+    </a>
+    {% if figure_mode == '23' %}
+        <a href="{{ url_for('pages.random_error') }}" class="nav-link" aria-label="Random Error model">
+            <i class="fas fa-random"></i>
+            <span class="nav-text" data-i18n="nav-random-error">Random Error</span>
+        </a>
+        <a href="{{ url_for('pages.figure_23') }}" class="nav-link active" aria-label="Figure 2.3 stripes">
+            <i class="fas fa-grip-lines"></i>
+            <span class="nav-text" data-i18n="nav-figure23">Figure 2.3 - Stripes</span>
+        </a>
+    {% else %}
+        <a href="{{ url_for('pages.figure_23') }}" class="nav-link" aria-label="Figure 2.3 stripes">
+            <i class="fas fa-grip-lines"></i>
+            <span class="nav-text" data-i18n="nav-figure23">Figure 2.3 - Stripes</span>
+        </a>
+        <a href="{{ url_for('pages.spots_211') }}" class="nav-link {% if figure_mode == '211' %}active{% endif %}" aria-label="Figure 2.11 spots">
+            <i class="fas fa-circle"></i>
+            <span class="nav-text" data-i18n="nav-figure211">Figure 2.11 - Spots</span>
+        </a>
+        <a href="{{ url_for('pages.activator_212') }}" class="nav-link {% if figure_mode == '212' %}active{% endif %}" aria-label="Figure 2.12 labyrinths">
+            <i class="fas fa-sitemap"></i>
+            <span class="nav-text" data-i18n="nav-figure212">Figure 2.12 - Labyrinths</span>
+        </a>
+    {% endif %}
+</nav>

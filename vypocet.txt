@@ -1,0 +1,274 @@
+% ---------------------------------------------------------
+% Oscilační vlny
+% ---------------------------------------------------------
+\newpage
+\section*{Metodika výpočtu oscilačních vln}
+
+\subsection*{Výchozí rovnice pro aktivátor}
+
+\[
+\frac{\partial a}{\partial t}
+=
+s \, \frac{a^{2}}{(s_b + 1)(1 + s_a a^{2})}
++ b_a
+- r_a a
++ D_a \frac{\partial^{2} a}{\partial x^{2}}
+\]
+
+\subsection*{Rovnice pro inhibitor}
+
+\[
+\frac{\partial b}{\partial t}
+=
+s a^{2}
+- r_b b
++ D_b \frac{\partial^{2} b}{\partial x^{2}}
++ b_b
+\]
+
+\[
+a = a(x,t), \qquad b = b(x,t)
+\]
+
+\subsection*{Chování pro malé hodnoty $a$}
+
+\[
+\frac{1}{1 + s_a a^{2}} \approx 1 - s_a a^{2} \approx 1
+\]
+
+\[
+s_a a^{2} \ll 1
+\]
+
+Zjednodušená rovnice:
+
+\[
+\frac{da}{dt}
+\approx
+k a^{2} + b_a - r_a a,
+\qquad
+k = \frac{s}{s_b + b} > 0
+\]
+
+Komentáře:
+
+\begin{itemize}
+\item $k a^{2}$ – nelineární (kvadratický) autokatalyzátor
+\item $-r_a a$ – lineární průběh
+\item $b_a$ – konst.
+\end{itemize}
+
+\subsection*{Chování pro velké hodnoty $a$}
+
+\[
+a^{2} s_a \gg 1
+\quad\Rightarrow\quad
+1 + s_a a^{2} \approx s_a a^{2}
+\]
+
+\[
+s \frac{a^{2}}{(s_b+1)(1 + s_a a^{2})}
+\approx
+\frac{s}{s_a (s_b + 1)}
+\]
+
+\[
+\Rightarrow \text{konečná konst.}
+\]
+
+Zjednodušená rovnice:
+
+\[
+\frac{da}{dt}
+=
+\frac{s}{s_a(s_b+1)} + b_a - r_a a
+\]
+
+Komentáře:
+
+\begin{itemize}
+\item konečná maximální produkce
+\item převládne člen $-r_a a$
+\item koncentrace klesá (saturace autokatalýzy)
+\end{itemize}
+
+% ---------------------------------------------------------
+\subsection*{Zjednodušený model (analytický)}
+
+\textbf{Explicitní} $a=a(t)$
+
+\begin{enumerate}
+\item Bez difúze: \quad $D_a = D_b = 0$
+\item Inhibitor je (téměř) konstantní: \quad $b = b_0$
+\item Zanedbáváme saturační člen:
+\[
+\frac{1}{1+s_a a^{2}} \Rightarrow \text{konečná produkce pro malé } b
+\]
+\end{enumerate}
+
+Z toho plyne:
+
+\[
+\frac{da}{dt}
+=
+k a^{2} - r_a a + b_a,
+\qquad
+k = \frac{s}{s_b + b_0} > 0
+\]
+
+\textbf{Riccatiho ODR 1. řádu}
+
+% ---------------------------------------------------------
+\subsection*{Rovnovážné (stacionární) body}
+
+\[
+\frac{da}{dt} = 0
+\quad\Rightarrow\quad
+k a^{2} - r_a a + b_a = 0
+\]
+
+Dostáváme diskriminant:
+
+\[
+D = r_a^{2} - 4 k b_a
+\]
+
+Kořeny:
+
+\[
+a^{*}_{1,2}
+=
+\frac{r_a \pm \sqrt{r_a^{2} - 4 k b_a}}{2k}
+\]
+
+\begin{itemize}
+\item $D > 0$ – dva kořeny
+\item $D = 0$ – dvojný bod
+\item $D < 0$ – žádný reálný kořen (bez saturace)
+\end{itemize}
+
+Interpretace:
+
+\begin{itemize}
+\item $a_1^*$ – nejnižší hladina aktivátoru, pro kterou je model stabilní
+\item $a_2^*$ – nejvyšší hladina aktivátoru, ale na hranici stability
+\end{itemize}
+
+% ---------------------------------------------------------
+\subsection*{Explicitní řešení}
+
+Riccatiho rovnice:
+
+\[
+k a^{2} - r_a a + b_a
+=
+k (a - a_1^*)(a - a_2^*)
+\]
+
+\[
+\frac{da}{dt}
+=
+k (a - a_1^*)(a - a_2^*)
+=
+f(a)
+\]
+
+Separace proměnných:
+
+\[
+\int 
+\frac{1}{(a-a_1^*)(a-a_2^*)}
+\, da
+=
+k t + C
+\]
+
+Rozklad na parciální zlomky:
+
+\[
+\frac{1}{(a-a_1^*)(a-a_2^*)}
+=
+\frac{1}{a_2^* - a_1^*}
+\left(
+\frac{1}{a-a_1^*}
+-
+\frac{1}{a-a_2^*}
+\right)
+\]
+
+Integrace:
+
+\[
+\frac{1}{a_2^* - a_1^*}
+\ln\left(
+\frac{a - a_1^*}{a - a_2^*}
+\right)
+=
+k t + C
+\]
+
+Vynásobíme $(a_2^* - a_1^*)$:
+
+\[
+\ln\left(
+\frac{a - a_1^*}{a - a_2^*}
+\right)
+=
+k (a_2^* - a_1^*) t + C
+\]
+
+Exponenciace:
+
+\[
+\frac{a - a_1^*}{a - a_2^*}
+=
+C_0 e^{k (a_2^* - a_1^*) t}
+\]
+
+Násobení pravé strany:
+
+\[
+a - a_1^*
+=
+a C_0 e^{k(a_2^* - a_1^*) t}
+-
+a_2^* C_0 e^{k(a_2^* - a_1^*) t}
+\]
+
+Shromáždíme členy s $a$:
+
+\[
+a(1 - C_0 e^{k(a_2^* - a_1^*) t})
+=
+a_1^*
+-
+a_2^* C_0 e^{k(a_2^* - a_1^*) t}
+\]
+
+Explicitní řešení:
+
+\[
+a(t)
+=
+\frac{
+a_1^*
+-
+a_2^* C_0 e^{k(a_2^* - a_1^*) t}
+}{
+1
+-
+C_0 e^{k(a_2^* - a_1^*) t}
+}
+\]
+
+Konstanta $C_0$:
+
+\[
+C_0
+=
+\frac{a_0 - a_1^*}{a_0 - a_2^*}
+\]
+
+\textbf{Poznámka:}\\
+Z času $t_0 = 0$ nastane rychlý růst a následně pro $t \to \infty$  
+plynulá saturace k hodnotě $a_1^*$.

@@ -1,0 +1,16 @@
+/* Print helpers */
+@media print {
+  .sidenav, .menu-btn, .popup, .toast {
+    display: none !important;
+  }
+
+  #main {
+    margin-left: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .card, .form-container, .image-container {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+}

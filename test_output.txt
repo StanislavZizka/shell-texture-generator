@@ -1,0 +1,138 @@
+============================================================
+TESTING BIOLOGICAL HEATMAP GENERATION
+============================================================
+
+[TEST 1] Generating texture WITHOUT heatmap...
+Initial A: min=0.075000, max=0.124999, mean=0.099980
+Initial B: min=0.445000, max=0.455000, mean=0.449990
+K=1.0, delta_t=0.1, t_max=50.0, steps=500
+Parameters: s=0.11, r_a=0.1, r_b=0.18, D_a=0.0035, D_b=0.32, dx=1.0
+Step 0: dA_dt min=-0.009193, max=-0.005403
+Step 0: After update A: min=0.074421, max=0.124121, mean=0.099241
+Step 0: After update B: min=0.437413, max=0.446950, mean=0.442202
+Step 10: A_min=0.068833, A_max=0.115984, A_mean=0.092279, B_min=0.368594, B_max=0.374652, B_mean=0.371553
+Step 20: A_min=0.063799, A_max=0.108800, A_mean=0.086060, B_min=0.310554, B_max=0.314487, B_mean=0.312512
+Step 30: A_min=0.059275, A_max=0.102494, A_mean=0.080528, B_min=0.261730, B_max=0.264736, B_mean=0.263172
+Step 40: A_min=0.055213, A_max=0.097023, A_mean=0.075638, B_min=0.220809, B_max=0.223201, B_mean=0.221941
+Step 50: A_min=0.051580, A_max=0.092363, A_mean=0.071352, B_min=0.186505, B_max=0.188527, B_mean=0.187485
+Step 60: A_min=0.048346, A_max=0.088504, A_mean=0.067642, B_min=0.157791, B_max=0.159622, B_mean=0.158694
+Step 70: A_min=0.045482, A_max=0.085462, A_mean=0.064490, B_min=0.133801, B_max=0.135502, B_mean=0.134636
+Step 80: A_min=0.042966, A_max=0.083280, A_mean=0.061891, B_min=0.113760, B_max=0.115354, B_mean=0.114537
+Step 90: A_min=0.040777, A_max=0.082049, A_mean=0.059858, B_min=0.097018, B_max=0.098543, B_mean=0.097746
+Step 100: A_min=0.038902, A_max=0.081926, A_mean=0.058422, B_min=0.083032, B_max=0.084513, B_mean=0.083724
+Step 110: A_min=0.037332, A_max=0.083180, A_mean=0.057649, B_min=0.071352, B_max=0.072817, B_mean=0.072018
+Step 120: A_min=0.036065, A_max=0.086274, A_mean=0.057655, B_min=0.061598, B_max=0.063085, B_mean=0.062253
+Step 130: A_min=0.035106, A_max=0.092045, A_mean=0.058639, B_min=0.053456, B_max=0.055017, B_mean=0.054118
+Step 140: A_min=0.034468, A_max=0.102121, A_mean=0.060956, B_min=0.046663, B_max=0.048382, B_mean=0.047359
+Step 150: A_min=0.034180, A_max=0.120056, A_mean=0.065283, B_min=0.041003, B_max=0.043032, B_mean=0.041773
+Step 160: A_min=0.034287, A_max=0.155108, A_mean=0.073052, B_min=0.036297, B_max=0.038987, B_mean=0.037213
+Step 170: A_min=0.034861, A_max=0.239556, A_mean=0.087948, B_min=0.032391, B_max=0.036756, B_mean=0.033630
+Step 180: A_min=0.036016, A_max=0.564946, A_mean=0.123467, B_min=0.029175, B_max=0.041503, B_mean=0.031308
+Step 190: A_min=0.037916, A_max=2.000000, A_mean=0.276064, B_min=0.026592, B_max=0.180847, B_mean=0.034703
+Step 200: A_min=0.040625, A_max=2.000000, A_mean=0.582389, B_min=0.024760, B_max=0.414395, B_mean=0.085605
+Step 210: A_min=0.041149, A_max=2.000000, A_mean=0.751941, B_min=0.024962, B_max=0.612815, B_mean=0.181538
+Step 220: A_min=0.039731, A_max=2.000000, A_mean=0.829489, B_min=0.031842, B_max=0.769371, B_mean=0.288341
+Step 230: A_min=0.037716, A_max=2.000000, A_mean=0.869263, B_min=0.053856, B_max=0.929353, B_mean=0.390165
+Step 240: A_min=0.035573, A_max=2.000000, A_mean=0.892629, B_min=0.085813, B_max=1.092757, B_mean=0.482136
+Step 250: A_min=0.033478, A_max=2.000000, A_mean=0.907982, B_min=0.112738, B_max=1.207101, B_mean=0.563255
+Step 260: A_min=0.031497, A_max=2.000000, A_mean=0.918701, B_min=0.140566, B_max=1.295408, B_mean=0.633973
+Step 270: A_min=0.029656, A_max=2.000000, A_mean=0.926476, B_min=0.167767, B_max=1.366284, B_mean=0.695186
+Step 280: A_min=0.027962, A_max=2.000000, A_mean=0.932165, B_min=0.193384, B_max=1.424371, B_mean=0.747937
+Step 290: A_min=0.026411, A_max=2.000000, A_mean=0.936304, B_min=0.216894, B_max=1.475589, B_mean=0.793202
+Step 300: A_min=0.024996, A_max=2.000000, A_mean=0.939517, B_min=0.238092, B_max=1.517661, B_mean=0.831949
+Step 310: A_min=0.023629, A_max=2.000000, A_mean=0.942014, B_min=0.257001, B_max=1.552296, B_mean=0.865093
+Step 320: A_min=0.022208, A_max=2.000000, A_mean=0.943940, B_min=0.273789, B_max=1.580909, B_mean=0.893426
+Step 330: A_min=0.020919, A_max=2.000000, A_mean=0.945408, B_min=0.288666, B_max=1.604628, B_mean=0.917638
+Step 340: A_min=0.019753, A_max=2.000000, A_mean=0.946541, B_min=0.301828, B_max=1.624388, B_mean=0.938317
+Step 350: A_min=0.018697, A_max=2.000000, A_mean=0.947408, B_min=0.313477, B_max=1.645428, B_mean=0.955994
+Step 360: A_min=0.017742, A_max=2.000000, A_mean=0.948065, B_min=0.323827, B_max=1.663479, B_mean=0.971108
+Step 370: A_min=0.016879, A_max=2.000000, A_mean=0.948550, B_min=0.333042, B_max=1.679956, B_mean=0.984042
+Step 380: A_min=0.016073, A_max=2.000000, A_mean=0.948882, B_min=0.341168, B_max=1.698418, B_mean=0.995121
+Step 390: A_min=0.015213, A_max=2.000000, A_mean=0.949072, B_min=0.348237, B_max=1.713369, B_mean=1.004613
+Step 400: A_min=0.014428, A_max=2.000000, A_mean=0.949145, B_min=0.354317, B_max=1.724864, B_mean=1.012745
+Step 410: A_min=0.013546, A_max=2.000000, A_mean=0.949149, B_min=0.359504, B_max=1.733839, B_mean=1.019715
+Step 420: A_min=0.012739, A_max=2.000000, A_mean=0.949088, B_min=0.363905, B_max=1.740955, B_mean=1.025697
+Step 430: A_min=0.012002, A_max=2.000000, A_mean=0.949004, B_min=0.367625, B_max=1.746658, B_mean=1.030840
+Step 440: A_min=0.011329, A_max=2.000000, A_mean=0.948878, B_min=0.370764, B_max=1.751264, B_mean=1.035276
+Step 450: A_min=0.010714, A_max=2.000000, A_mean=0.948714, B_min=0.373410, B_max=1.755004, B_mean=1.039105
+Step 460: A_min=0.010152, A_max=2.000000, A_mean=0.948514, B_min=0.375639, B_max=1.758050, B_mean=1.042413
+Step 470: A_min=0.009639, A_max=2.000000, A_mean=0.948307, B_min=0.377515, B_max=1.760539, B_mean=1.045277
+Step 480: A_min=0.009170, A_max=2.000000, A_mean=0.948092, B_min=0.379092, B_max=1.762575, B_mean=1.047764
+Step 490: A_min=0.008742, A_max=2.000000, A_mean=0.947880, B_min=0.380415, B_max=1.764242, B_mean=1.049932
+[DEBUG TextureGen] show_biological_heatmap = False
+[DEBUG TextureGen] Skipping heatmap generation (show_biological_heatmap = False)
+✓ Image path: c:\Users\Stanislav\Documents\Python\shell-texture-generator\static\images\activator_inhibitor_texture.png
+✓ Heatmap path: None
+✓ Expected: heatmap_path should be None
+✓ TEST 1 PASSED
+
+[TEST 2] Generating texture WITH heatmap...
+Initial A: min=0.075000, max=0.124999, mean=0.099980
+Initial B: min=0.445000, max=0.455000, mean=0.449990
+K=1.0, delta_t=0.1, t_max=50.0, steps=500
+Parameters: s=0.11, r_a=0.1, r_b=0.18, D_a=0.0035, D_b=0.32, dx=1.0
+Step 0: dA_dt min=-0.009193, max=-0.005403
+Step 0: After update A: min=0.074421, max=0.124121, mean=0.099241
+Step 0: After update B: min=0.437413, max=0.446950, mean=0.442202
+Step 10: A_min=0.068833, A_max=0.115984, A_mean=0.092279, B_min=0.368594, B_max=0.374652, B_mean=0.371553
+Step 20: A_min=0.063799, A_max=0.108800, A_mean=0.086060, B_min=0.310554, B_max=0.314487, B_mean=0.312512
+Step 30: A_min=0.059275, A_max=0.102494, A_mean=0.080528, B_min=0.261730, B_max=0.264736, B_mean=0.263172
+Step 40: A_min=0.055213, A_max=0.097023, A_mean=0.075638, B_min=0.220809, B_max=0.223201, B_mean=0.221941
+Step 50: A_min=0.051580, A_max=0.092363, A_mean=0.071352, B_min=0.186505, B_max=0.188527, B_mean=0.187485
+Step 60: A_min=0.048346, A_max=0.088504, A_mean=0.067642, B_min=0.157791, B_max=0.159622, B_mean=0.158694
+Step 70: A_min=0.045482, A_max=0.085462, A_mean=0.064490, B_min=0.133801, B_max=0.135502, B_mean=0.134636
+Step 80: A_min=0.042966, A_max=0.083280, A_mean=0.061891, B_min=0.113760, B_max=0.115354, B_mean=0.114537
+Step 90: A_min=0.040777, A_max=0.082049, A_mean=0.059858, B_min=0.097018, B_max=0.098543, B_mean=0.097746
+Step 100: A_min=0.038902, A_max=0.081926, A_mean=0.058422, B_min=0.083032, B_max=0.084513, B_mean=0.083724
+Step 110: A_min=0.037332, A_max=0.083180, A_mean=0.057649, B_min=0.071352, B_max=0.072817, B_mean=0.072018
+Step 120: A_min=0.036065, A_max=0.086274, A_mean=0.057655, B_min=0.061598, B_max=0.063085, B_mean=0.062253
+Step 130: A_min=0.035106, A_max=0.092045, A_mean=0.058639, B_min=0.053456, B_max=0.055017, B_mean=0.054118
+Step 140: A_min=0.034468, A_max=0.102121, A_mean=0.060956, B_min=0.046663, B_max=0.048382, B_mean=0.047359
+Step 150: A_min=0.034180, A_max=0.120056, A_mean=0.065283, B_min=0.041003, B_max=0.043032, B_mean=0.041773
+Step 160: A_min=0.034287, A_max=0.155108, A_mean=0.073052, B_min=0.036297, B_max=0.038987, B_mean=0.037213
+Step 170: A_min=0.034861, A_max=0.239556, A_mean=0.087948, B_min=0.032391, B_max=0.036756, B_mean=0.033630
+Step 180: A_min=0.036016, A_max=0.564946, A_mean=0.123467, B_min=0.029175, B_max=0.041503, B_mean=0.031308
+Step 190: A_min=0.037916, A_max=2.000000, A_mean=0.276064, B_min=0.026592, B_max=0.180847, B_mean=0.034703
+Step 200: A_min=0.040625, A_max=2.000000, A_mean=0.582389, B_min=0.024760, B_max=0.414395, B_mean=0.085605
+Step 210: A_min=0.041149, A_max=2.000000, A_mean=0.751941, B_min=0.024962, B_max=0.612815, B_mean=0.181538
+Step 220: A_min=0.039731, A_max=2.000000, A_mean=0.829489, B_min=0.031842, B_max=0.769371, B_mean=0.288341
+Step 230: A_min=0.037716, A_max=2.000000, A_mean=0.869263, B_min=0.053856, B_max=0.929353, B_mean=0.390165
+Step 240: A_min=0.035573, A_max=2.000000, A_mean=0.892629, B_min=0.085813, B_max=1.092757, B_mean=0.482136
+Step 250: A_min=0.033478, A_max=2.000000, A_mean=0.907982, B_min=0.112738, B_max=1.207101, B_mean=0.563255
+Step 260: A_min=0.031497, A_max=2.000000, A_mean=0.918701, B_min=0.140566, B_max=1.295408, B_mean=0.633973
+Step 270: A_min=0.029656, A_max=2.000000, A_mean=0.926476, B_min=0.167767, B_max=1.366284, B_mean=0.695186
+Step 280: A_min=0.027962, A_max=2.000000, A_mean=0.932165, B_min=0.193384, B_max=1.424371, B_mean=0.747937
+Step 290: A_min=0.026411, A_max=2.000000, A_mean=0.936304, B_min=0.216894, B_max=1.475589, B_mean=0.793202
+Step 300: A_min=0.024996, A_max=2.000000, A_mean=0.939517, B_min=0.238092, B_max=1.517661, B_mean=0.831949
+Step 310: A_min=0.023629, A_max=2.000000, A_mean=0.942014, B_min=0.257001, B_max=1.552296, B_mean=0.865093
+Step 320: A_min=0.022208, A_max=2.000000, A_mean=0.943940, B_min=0.273789, B_max=1.580909, B_mean=0.893426
+Step 330: A_min=0.020919, A_max=2.000000, A_mean=0.945408, B_min=0.288666, B_max=1.604628, B_mean=0.917638
+Step 340: A_min=0.019753, A_max=2.000000, A_mean=0.946541, B_min=0.301828, B_max=1.624388, B_mean=0.938317
+Step 350: A_min=0.018697, A_max=2.000000, A_mean=0.947408, B_min=0.313477, B_max=1.645428, B_mean=0.955994
+Step 360: A_min=0.017742, A_max=2.000000, A_mean=0.948065, B_min=0.323827, B_max=1.663479, B_mean=0.971108
+Step 370: A_min=0.016879, A_max=2.000000, A_mean=0.948550, B_min=0.333042, B_max=1.679956, B_mean=0.984042
+Step 380: A_min=0.016073, A_max=2.000000, A_mean=0.948882, B_min=0.341168, B_max=1.698418, B_mean=0.995121
+Step 390: A_min=0.015213, A_max=2.000000, A_mean=0.949072, B_min=0.348237, B_max=1.713369, B_mean=1.004613
+Step 400: A_min=0.014428, A_max=2.000000, A_mean=0.949145, B_min=0.354317, B_max=1.724864, B_mean=1.012745
+Step 410: A_min=0.013546, A_max=2.000000, A_mean=0.949149, B_min=0.359504, B_max=1.733839, B_mean=1.019715
+Step 420: A_min=0.012739, A_max=2.000000, A_mean=0.949088, B_min=0.363905, B_max=1.740955, B_mean=1.025697
+Step 430: A_min=0.012002, A_max=2.000000, A_mean=0.949004, B_min=0.367625, B_max=1.746658, B_mean=1.030840
+Step 440: A_min=0.011329, A_max=2.000000, A_mean=0.948878, B_min=0.370764, B_max=1.751264, B_mean=1.035276
+Step 450: A_min=0.010714, A_max=2.000000, A_mean=0.948714, B_min=0.373410, B_max=1.755004, B_mean=1.039105
+Step 460: A_min=0.010152, A_max=2.000000, A_mean=0.948514, B_min=0.375639, B_max=1.758050, B_mean=1.042413
+Step 470: A_min=0.009639, A_max=2.000000, A_mean=0.948307, B_min=0.377515, B_max=1.760539, B_mean=1.045277
+Step 480: A_min=0.009170, A_max=2.000000, A_mean=0.948092, B_min=0.379092, B_max=1.762575, B_mean=1.047764
+Step 490: A_min=0.008742, A_max=2.000000, A_mean=0.947880, B_min=0.380415, B_max=1.764242, B_mean=1.049932
+[DEBUG TextureGen] show_biological_heatmap = True
+[DEBUG TextureGen] Generating biological heatmap...
+[DEBUG TextureGen] Biological heatmap generated: c:\Users\Stanislav\Documents\Python\shell-texture-generator\static\images\biological_heatmap.png
+✓ Image path: c:\Users\Stanislav\Documents\Python\shell-texture-generator\static\images\activator_inhibitor_texture.png
+✓ Heatmap path: c:\Users\Stanislav\Documents\Python\shell-texture-generator\static\images\biological_heatmap.png
+✓ Expected: heatmap_path should NOT be None
+✓ Heatmap file exists: c:\Users\Stanislav\Documents\Python\shell-texture-generator\static\images\biological_heatmap.png
+✓ File size: 56774 bytes
+✓ TEST 2 PASSED
+
+============================================================
+ALL TESTS PASSED! ✓
+============================================================

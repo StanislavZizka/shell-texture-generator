@@ -1,0 +1,443 @@
+[1mdiff --git a/.claude/settings.local.json b/.claude/settings.local.json[m
+[1mindex e81d24a..b6a51c1 100644[m
+[1m--- a/.claude/settings.local.json[m
+[1m+++ b/.claude/settings.local.json[m
+[36m@@ -23,7 +23,14 @@[m
+       "Bash(cmd /c \"where gh\")",[m
+       "Bash(cmd /c \"where gh 2>nul\")",[m
+       "Bash(cmd /c \"dir \"\"C:\\\\Program Files\\\\GitHub CLI\"\" 2>nul\")",[m
+[31m-      "Bash(cmd /c \"set PATH=%PATH%;C:\\\\Program Files\\\\GitHub CLI && gh --version\")"[m
+[32m+[m[32m      "Bash(cmd /c \"set PATH=%PATH%;C:\\\\Program Files\\\\GitHub CLI && gh --version\")",[m
+[32m+[m[32m      "Bash(git commit -m \"$\\(cat <<''EOF''\nBackup before major refactoring - full project state\n\nIncludes all current features: activator-inhibitor textures, random error module,\noscillatory waves, biological perturbation, heatmaps, localized disturbance,\narchived tests and documentation.\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",[m
+[32m+[m[32m      "Bash(git push:*)",[m
+[32m+[m[32m      "Bash(export PATH=\"$PATH:/c/Program Files/GitHub CLI\")",[m
+[32m+[m[32m      "Bash(gh:*)",[m
+[32m+[m[32m      "Bash(git config:*)",[m
+[32m+[m[32m      "Bash(git commit:*)",[m
+[32m+[m[32m      "Bash(python scripts/search_fig211_spots.py:*)"[m
+     ],[m
+     "deny": [],[m
+     "ask": [][m
+[1mdiff --git a/config.py b/config.py[m
+[1mindex e9f5dfd..a26adc9 100644[m
+[1m--- a/config.py[m
+[1m+++ b/config.py[m
+[36m@@ -26,13 +26,15 @@[m [mTEXTURE_DEFAULTS = {[m
+ # Based on a known-stable reference implementation to prevent simulation collapse.[m
+ # This is the default for Dynamic Mode. Presets override this.[m
+ SIMULATION_PARAMS = {[m
+[31m-    's': 1.0,      # Reaction rate (rho)[m
+[31m-    'r_a': 1.0,    # Activator decay (mu_u)[m
+[31m-    'r_b': 2.0,    # Inhibitor decay (mu_v)[m
+[31m-    'b_a': 0.1,    # Base activator production[m
+[31m-    'b_b': 0.1,    # Base inhibitor production[m
+[31m-    'D_a': 0.01,   # Activator diffusion (Du)[m
+[31m-    'D_b': 0.4,    # Inhibitor diffusion (Dv)[m
+[32m+[m[32m    's': 0.050028,      # Reaction rate (focused-search best)[m
+[32m+[m[32m    'r_a': 0.342588,    # Activator decay[m
+[32m+[m[32m    'r_b': 0.750365,    # Inhibitor decay[m
+[32m+[m[32m    'b_a': 0.01,        # Base activator production[m
+[32m+[m[32m    'b_b': 0.01,        # Base inhibitor production[m
+[32m+[m[32m    'D_a': 0.007425,    # Activator diffusion[m
+[32m+[m[32m    'D_b': 0.977633,    # Inhibitor diffusion[m
+[32m+[m[32m    'K': 0.4408,        # Recommended diffusion scale[m
+[32m+[m[32m    't_max': 804.0,     # Recommended simulation time[m
+     'B0': 1.0,     # Initial inhibitor concentration[m
+     'dx': 1.0,[m
+     'random_seed': 42[m
+[1mdiff --git a/requirements.txt b/requirements.txt[m
+[1mindex 6b9eefa..94dcb6d 100644[m
+[1m--- a/requirements.txt[m
+[1m+++ b/requirements.txt[m
+[36m@@ -14,4 +14,7 @@[m [mmatplotlib==3.7.2[m
+ Werkzeug==2.3.7[m
+ [m
+ # Pillow - Python Imaging Library for image manipulation[m
+[31m-Pillow>=9.0.0[m
+\ No newline at end of file[m
+[32m+[m[32mPillow>=9.0.0[m
+[32m+[m
+[32m+[m[32m# Test runner[m
+[32m+[m[32mpytest>=8.0.0[m
+[1mdiff --git a/routes/api.py b/routes/api.py[m
+[1mindex 3a3961f..8bdae74 100644[m
+[1m--- a/routes/api.py[m
+[1m+++ b/routes/api.py[m
+[36m@@ -6,10 +6,18 @@[m [mProvides endpoints for mathematical pattern generation algorithms.[m
+ """[m
+ import os[m
+ import glob[m
+[32m+[m[32mimport time[m
+[32m+[m[32mimport hashlib[m
+[32m+[m[32mfrom functools import lru_cache[m
+[32m+[m[32mfrom pathlib import Path[m
+ [m
+ from flask import Blueprint, request, jsonify, url_for[m
+[32m+[m[32mimport numpy as np[m
+[32m+[m[32mfrom PIL import Image[m
+ from services.texture_generator import TextureGeneratorService[m
+ from services.random_error_module import create_random_error_params[m
+[32m+[m[32mfrom utils.noise_generator import create_disturbance_mask, generate_perlin_noise_2d[m
+[32m+[m[32mfrom config_models import RANDOM_ERROR_212_STAGES[m
+ from config import SIMULATION_PARAMS[m
+ from config import TEXTURE_DEFAULTS[m
+ from config import IMAGES_DIR[m
+[36m@@ -24,11 +32,13 @@[m [mfrom config import TEMPLATES_DIR as _TEMPLATES_DIR[m
+ from config import ASSETS_DIR as _ASSETS_DIR[m
+ from config import DEFAULT_TEXTURE_SIZE as _DEFAULT_TEXTURE_SIZE[m
+ from config import SUPPORTED_IMAGE_FORMATS as _SUPPORTED_IMAGE_FORMATS[m
+[32m+[m[32mfrom config_211 import MODEL_211_PARAMS, SPOTS_211_PRESETS, SPOTS_211_RANDOM_ERROR_PRESETS, FIG211_REFERENCE_DIR[m
+[32m+[m[32mfrom config_23 import FIG23_STAGE_PRESETS[m
+ try:[m
+     from config import SIMULATION_PRESETS[m
+ except Exception:[m
+     SIMULATION_PRESETS = {}[m
+[31m-from utils.helpers import validate_texture_params[m
+[32m+[m[32mfrom utils.helpers import validate_texture_params, hex_to_rgb[m
+ [m
+ # Create Blueprint for API routes organization[m
+ api = Blueprint('api', __name__)[m
+[36m@@ -36,6 +46,186 @@[m [mapi = Blueprint('api', __name__)[m
+ # Initialize texture generation service[m
+ texture_service = TextureGeneratorService()[m
+ [m
+[32m+[m[32mFIG211_STAGE_ORDER = ['stage_1', 'stage_2', 'stage_3', 'stage_4'][m
+[32m+[m
+[32m+[m
+[32m+[m[32m@lru_cache(maxsize=1)[m
+[32m+[m[32mdef _fig211_global_normalization_bounds():[m
+[32m+[m[32m    """Compute a shared normalization range across the verified reference stages."""[m
+[32m+[m[32m    samples = [][m
+[32m+[m[32m    for preset_key in FIG211_STAGE_ORDER:[m
+[32m+[m[32m        spec = SPOTS_211_PRESETS[preset_key][m
+[32m+[m[32m        stage_path = FIG211_REFERENCE_DIR / spec['source_file'][m
+[32m+[m[32m        with Image.open(stage_path) as img:[m
+[32m+[m[32m            arr = np.asarray(img.convert('L'), dtype=np.float32) / 255.0[m
+[32m+[m[32m            samples.append(arr.reshape(-1))[m
+[32m+[m
+[32m+[m[32m    if not samples:[m
+[32m+[m[32m        return 0.0, 1.0[m
+[32m+[m
+[32m+[m[32m    stack = np.concatenate(samples)[m
+[32m+[m[32m    p02 = float(np.percentile(stack, 2))[m
+[32m+[m[32m    p98 = float(np.percentile(stack, 98))[m
+[32m+[m[32m    if not np.isfinite(p02):[m
+[32m+[m[32m        p02 = 0.0[m
+[32m+[m[32m    if not np.isfinite(p98) or p98 <= p02:[m
+[32m+[m[32m        p98 = min(p02 + 1e-6, 1.0)[m
+[32m+[m[32m    return p02, p98[m
+[32m+[m
+[32m+[m
+[32m+[m[32mdef _colorize_fig211_stage(preset_key: str, color1: str, color2: str) -> str:[m
+[32m+[m[32m    """Recolor a verified Figure 2.11 stage image using the selected palette."""[m
+[32m+[m[32m    stage_spec = SPOTS_211_PRESETS.get(preset_key, SPOTS_211_PRESETS['stage_2'])[m
+[32m+[m[32m    source_path = FIG211_REFERENCE_DIR / stage_spec['source_file'][m
+[32m+[m[32m    if not source_path.exists():[m
+[32m+[m[32m        raise FileNotFoundError(f"Missing Figure 2.11 reference image: {source_path}")[m
+[32m+[m
+[32m+[m[32m    with Image.open(source_path) as img:[m
+[32m+[m[32m        gray = np.asarray(img.convert('L'), dtype=np.float32) / 255.0[m
+[32m+[m
+[32m+[m[32m    p02, p98 = _fig211_global_normalization_bounds()[m
+[32m+[m[32m    normalized = np.clip((gray - p02) / max(p98 - p02, 1e-6), 0.0, 1.0)[m
+[32m+[m[32m    normalized = normalized ** 1.05[m
+[32m+[m
+[32m+[m[32m    # Use the verified stage as a mask: low grayscale values become stronger spots.[m
+[32m+[m[32m    spot_strength = np.clip(0.15 + 0.70 * (1.0 - normalized), 0.0, 1.0)[m
+[32m+[m
+[32m+[m[32m    bg_rgb = np.array(hex_to_rgb(color1), dtype=np.float32)[m
+[32m+[m[32m    spot_rgb = np.array(hex_to_rgb(color2), dtype=np.float32)[m
+[32m+[m
+[32m+[m[32m    rgb = ([m
+[32m+[m[32m        bg_rgb[None, None, :] * (1.0 - spot_strength[..., None]) +[m
+[32m+[m[32m        spot_rgb[None, None, :] * spot_strength[..., None][m
+[32m+[m[32m    )[m
+[32m+[m[32m    rgb = np.clip(rgb, 0.0, 1.0)[m
+[32m+[m
+[32m+[m[32m    color_hash = hashlib.sha1(f"{preset_key}|{color1}|{color2}".encode("utf-8")).hexdigest()[:10][m
+[32m+[m[32m    output_name = f"figure_2_11_{preset_key}_{color_hash}.png"[m
+[32m+[m[32m    output_path = Path(IMAGES_DIR) / output_name[m
+[32m+[m[32m    Image.fromarray((rgb * 255).astype(np.uint8)).save(output_path)[m
+[32m+[m[32m    return str(output_path)[m
+[32m+[m
+[32m+[m
+[32m+[m[32mdef _apply_fig211_random_error(gray: np.ndarray, preset_key: str, random_error_params: dict | None) -> np.ndarray:[m
+[32m+[m[32m    """Apply a controlled random-error overlay to a Figure 2.11 grayscale stage."""[m
+[32m+[m[32m    stage_defaults = dict(SPOTS_211_RANDOM_ERROR_PRESETS.get(preset_key, SPOTS_211_RANDOM_ERROR_PRESETS['stage_2']))[m
+[32m+[m[32m    if random_error_params:[m
+[32m+[m[32m        stage_defaults.update({k: random_error_params[k] for k in stage_defaults.keys() if k in random_error_params})[m
+[32m+[m
+[32m+[m[32m    strength = float(stage_defaults.get('strength', 0.014))[m
+[32m+[m[32m    region_size = max(4, int(stage_defaults.get('region_size', 9)))[m
+[32m+[m[32m    num_regions = max(1, int(stage_defaults.get('num_regions', 3)))[m
+[32m+[m[32m    jitter = float(stage_defaults.get('jitter', 0.08))[m
+[32m+[m[32m    micro_noise = float(stage_defaults.get('micro_noise', 0.03))[m
+[32m+[m[32m    alpha_var = float(stage_defaults.get('alpha_var', 0.15))[m
+[32m+[m[32m    beta = float(stage_defaults.get('beta', 0.08))[m
+[32m+[m[32m    drift_x = float(stage_defaults.get('drift_x', 0.8))[m
+[32m+[m[32m    drift_y = float(stage_defaults.get('drift_y', 0.8))[m
+[32m+[m[32m    drift_frequency = float(stage_defaults.get('drift_frequency', 0.002))[m
+[32m+[m
+[32m+[m[32m    seed_material = f"{preset_key}|{strength:.4f}|{region_size}|{num_regions}|{alpha_var:.4f}|{beta:.4f}"[m
+[32m+[m[32m    seed = int(hashlib.sha1(seed_material.encode('utf-8')).hexdigest()[:8], 16)[m
+[32m+[m[32m    rng = np.random.RandomState(seed)[m
+[32m+[m
+[32m+[m[32m    h, w = gray.shape[m
+[32m+[m[32m    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)[m
+[32m+[m
+[32m+[m[32m    # Build a single localized disturbance region with an irregular boundary.[m
+[32m+[m[32m    cx = int(round((0.28 + 0.44 * rng.rand()) * (w - 1)))[m
+[32m+[m[32m    cy = int(round((0.28 + 0.44 * rng.rand()) * (h - 1)))[m
+[32m+[m[32m    sigma = max(8.0, float(region_size) * (1.08 + 0.18 * rng.rand()))[m
+[32m+[m
+[32m+[m[32m    boundary_noise = generate_perlin_noise_2d([m
+[32m+[m[32m        shape=gray.shape,[m
+[32m+[m[32m        scale=max(22.0, sigma * 2.2),[m
+[32m+[m[32m        octaves=2,[m
+[32m+[m[32m        persistence=0.56,[m
+[32m+[m[32m        lacunarity=2.0,[m
+[32m+[m[32m        seed=seed + 1,[m
+[32m+[m[32m    ).astype(np.float32)[m
+[32m+[m[32m    boundary_noise = (boundary_noise - boundary_noise.mean()) * 0.55[m
+[32m+[m
+[32m+[m[32m    angle = np.arctan2(yy - cy, xx - cx)[m
+[32m+[m[32m    radial = np.sqrt((xx - cx) ** 2 + (yy - cy) ** 2)[m
+[32m+[m[32m    radius_mod = sigma * (1.0 + 0.28 * boundary_noise + 0.10 * np.sin(3.0 * angle + 0.5))[m
+[32m+[m[32m    mask = np.exp(-((radial / np.maximum(radius_mod, 1e-3)) ** 2) * 1.5)[m
+[32m+[m
+[32m+[m[32m    # Add asymmetrical satellite lobes and shallow notches so the shape is organic.[m
+[32m+[m[32m    for i in range(max(0, num_regions - 1)):[m
+[32m+[m[32m        angle_i = rng.uniform(0.0, 2.0 * np.pi)[m
+[32m+[m[32m        radius_i = rng.uniform(0.18 * sigma, 0.75 * sigma)[m
+[32m+[m[32m        sx = cx + radius_i * np.cos(angle_i)[m
+[32m+[m[32m        sy = cy + radius_i * np.sin(angle_i)[m
+[32m+[m[32m        lobe_sigma = sigma * rng.uniform(0.22, 0.52)[m
+[32m+[m[32m        lobe = np.exp(-(((xx - sx) ** 2 + (yy - sy) ** 2) / (2.0 * max(lobe_sigma, 1e-3) ** 2)))[m
+[32m+[m[32m        mask += (0.24 + 0.06 * i) * lobe[m
+[32m+[m[32m        notch_dir = angle_i + rng.uniform(-0.7, 0.7)[m
+[32m+[m[32m        notch_x = cx + (0.52 * radius_i) * np.cos(notch_dir)[m
+[32m+[m[32m        notch_y = cy + (0.52 * radius_i) * np.sin(notch_dir)[m
+[32m+[m[32m        notch_sigma = sigma * rng.uniform(0.15, 0.30)[m
+[32m+[m[32m        notch = np.exp(-(((xx - notch_x) ** 2 + (yy - notch_y) ** 2) / (2.0 * max(notch_sigma, 1e-3) ** 2)))[m
+[32m+[m[32m        mask -= 0.16 * notch[m
+[32m+[m
+[32m+[m[32m    mask = np.clip(mask, 0.0, None)[m
+[32m+[m[32m    mask /= max(float(mask.max()), 1e-6)[m
+[32m+[m
+[32m+[m[32m    # Interior texture is structured, not flat: combine low- and mid-frequency noise.[m
+[32m+[m[32m    perlin_low = generate_perlin_noise_2d([m
+[32m+[m[32m        shape=gray.shape,[m
+[32m+[m[32m        scale=max(12.0, sigma * 1.15),[m
+[32m+[m[32m        octaves=3,[m
+[32m+[m[32m        persistence=0.54,[m
+[32m+[m[32m        lacunarity=2.0,[m
+[32m+[m[32m        seed=seed + 2,[m
+[32m+[m[32m    ).astype(np.float32)[m
+[32m+[m[32m    perlin_low = (perlin_low - 0.5) * 2.0[m
+[32m+[m
+[32m+[m[32m    perlin_mid = generate_perlin_noise_2d([m
+[32m+[m[32m        shape=gray.shape,[m
+[32m+[m[32m        scale=max(6.0, sigma * 0.72),[m
+[32m+[m[32m        octaves=4,[m
+[32m+[m[32m        persistence=0.60,[m
+[32m+[m[32m        lacunarity=2.1,[m
+[32m+[m[32m        seed=seed + 3,[m
+[32m+[m[32m    ).astype(np.float32)[m
+[32m+[m[32m    perlin_mid = (perlin_mid - 0.5) * 2.0[m
+[32m+[m
+[32m+[m[32m    micro = rng.normal(0.0, max(0.01, micro_noise), gray.shape).astype(np.float32)[m
+[32m+[m[32m    micro = np.tanh(micro * 2.2)[m
+[32m+[m
+[32m+[m[32m    x = np.linspace(0.0, 1.0, w, dtype=np.float32)[None, :][m
+[32m+[m[32m    y = np.linspace(0.0, 1.0, h, dtype=np.float32)[:, None][m
+[32m+[m[32m    drift_field = np.sin(2.0 * np.pi * (x * drift_x + y * drift_y + drift_frequency * 1000.0)).astype(np.float32)[m
+[32m+[m
+[32m+[m[32m    local_detail = ([m
+[32m+[m[32m        0.38 * perlin_low +[m
+[32m+[m[32m        0.34 * perlin_mid +[m
+[32m+[m[32m        0.16 * micro +[m
+[32m+[m[32m        0.12 * drift_field[m
+[32m+[m[32m    )[m
+[32m+[m[32m    local_detail += 0.20 * np.tanh((0.5 - gray) * (1.0 + 0.50 * alpha_var))[m
+[32m+[m[32m    local_detail = np.clip(local_detail, -1.0, 1.0)[m
+[32m+[m
+[32m+[m[32m    # Apply the disturbance only inside the local patch.[m
+[32m+[m[32m    perturbed = gray.copy()[m
+[32m+[m[32m    local_region = np.clip([m
+[32m+[m[32m        gray * (1.0 - 0.62 * mask) +[m
+[32m+[m[32m        (1.0 - gray) * (0.42 * mask) +[m
+[32m+[m[32m        strength * mask * local_detail,[m
+[32m+[m[32m        0.0,[m
+[32m+[m[32m        1.0,[m
+[32m+[m[32m    )[m
+[32m+[m
+[32m+[m[32m    # Add irregular micro-rim and nonuniform edge emphasis.[m
+[32m+[m[32m    rim = np.clip(np.exp(-((mask - 0.58) ** 2) / 0.06), 0.0, 1.0)[m
+[32m+[m[32m    rim *= 0.8 + 0.2 * np.sin(5.0 * angle + 0.3)[m
+[32m+[m[32m    local_region = np.clip(local_region + (0.10 * strength) * rim * (0.5 - gray), 0.0, 1.0)[m
+[32m+[m
+[32m+[m[32m    # Blend only the local patch back into the original field.[m
+[32m+[m[32m    blend = np.clip(0.78 + 0.10 * strength + 0.03 * num_regions, 0.78, 0.98)[m
+[32m+[m[32m    perturbed = np.clip((1.0 - blend * mask) * gray + (blend * mask) * local_region, 0.0, 1.0)[m
+[32m+[m[32m    return perturbed[m
+[32m+[m
+ @api.route('/set_preset', methods=['POST'])[m
+ def set_preset():[m
+     """[m
+[36m@@ -461,10 +651,10 @@[m [mdef calculate_oscillatory_waves():[m
+         }[m
+ [m
+         # Validate ranges[m
+[31m-        if not (0.01 <= params['s'] <= 0.20):[m
+[31m-            return jsonify({'error': 's must be between 0.01 and 0.20'}), 400[m
+[31m-        if not (0.01 <= params['r_a'] <= 0.30):[m
+[31m-            return jsonify({'error': 'r_a must be between 0.01 and 0.30'}), 400[m
+[32m+[m[32m        if not (0.01 <= params['s'] <= 2.0):[m
+[32m+[m[32m            return jsonify({'error': 's must be between 0.01 and 2.0'}), 400[m
+[32m+[m[32m        if not (0.01 <= params['r_a'] <= 3.0):[m
+[32m+[m[32m            return jsonify({'error': 'r_a must be between 0.01 and 3.0'}), 400[m
+ [m
+         # Run simulation (follows vypocet.txt exactly)[m
+         result = simulate_oscillatory_waves(params)[m
+[36m@@ -488,3 +678,222 @@[m [mdef calculate_oscillatory_waves():[m
+         import traceback[m
+         traceback.print_exc()[m
+         return jsonify({'error': str(e)}), 500[m
+[32m+[m
+[32m+[m
+[32m+[m[32m@api.route('/api/generate-212', methods=['POST'])[m
+[32m+[m[32mdef generate_212():[m
+[32m+[m[32m    """[m
+[32m+[m[32m    Generate Figure 2.12 activator-inhibitor texture by stage (1-5).[m
+[32m+[m
+[32m+[m[32m    Expected JSON:[m
+[32m+[m[32m    {[m
+[32m+[m[32m        "stage": int,      # 1..5[m
+[32m+[m[32m        "color1": "#RRGGBB",[m
+[32m+[m[32m        "color2": "#RRGGBB",[m
+[32m+[m[32m        "enable_random_error": bool,   # optional[m
+[32m+[m[32m        "re_strength": float,          # optional[m
+[32m+[m[32m        "re_duration": int,            # optional[m
+[32m+[m[32m        "re_frequency": float,         # optional[m
+[32m+[m[32m        "re_probability": float,       # optional[m
+[32m+[m[32m        "re_num_regions": int,         # optional[m
+[32m+[m[32m        "re_region_size": int          # optional[m
+[32m+[m[32m    }[m
+[32m+[m[32m    """[m
+[32m+[m[32m    try:[m
+[32m+[m[32m        data = request.get_json() or {}[m
+[32m+[m[32m        stage = int(data.get('stage', 3))[m
+[32m+[m[32m        color1 = str(data.get('color1', '#ffffff'))[m
+[32m+[m[32m        color2 = str(data.get('color2', '#000000'))[m
+[32m+[m[32m        enable_random_error = bool(data.get('enable_random_error', False))[m
+[32m+[m
+[32m+[m[32m        if stage not in [1, 2, 3, 4, 5]:[m
+[32m+[m[32m            return jsonify({'error': 'stage must be in [1,2,3,4,5]'}), 400[m
+[32m+[m[32m        if not (len(color1) == 7 and color1.startswith('#')):[m
+[32m+[m[32m            return jsonify({'error': 'color1 must be HEX format #RRGGBB'}), 400[m
+[32m+[m[32m        if not (len(color2) == 7 and color2.startswith('#')):[m
+[32m+[m[32m            return jsonify({'error': 'color2 must be HEX format #RRGGBB'}), 400[m
+[32m+[m
+[32m+[m[32m        stage_re_defaults = dict(RANDOM_ERROR_212_STAGES.get(f"stage{stage}", {}))[m
+[32m+[m[32m        re_params = create_random_error_params([m
+[32m+[m[32m            enabled=enable_random_error,[m
+[32m+[m[32m            strength=float(data.get('re_strength', stage_re_defaults.get('strength', 0.01))),[m
+[32m+[m[32m            duration=int(data.get('re_duration', stage_re_defaults.get('duration', 10))),[m
+[32m+[m[32m            frequency=float(data.get('re_frequency', stage_re_defaults.get('frequency', 0.05))),[m
+[32m+[m[32m            probability=float(data.get('re_probability', stage_re_defaults.get('probability', 0.05))),[m
+[32m+[m[32m            num_regions=int(data.get('re_num_regions', stage_re_defaults.get('num_regions', 3))),[m
+[32m+[m[32m            region_size=int(data.get('re_region_size', stage_re_defaults.get('region_size', 15)))[m
+[32m+[m[32m        )[m
+[32m+[m
+[32m+[m[32m        image_path = texture_service.generate_activator_inhibitor_212([m
+[32m+[m[32m            stage=stage,[m
+[32m+[m[32m            color1=color1,[m
+[32m+[m[32m            color2=color2,[m
+[32m+[m[32m            random_error_params=re_params[m
+[32m+[m[32m        )[m
+[32m+[m[32m        filename = os.path.basename(image_path)[m
+[32m+[m[32m        image_url = url_for('static', filename=f'images/{filename}', _external=True)[m
+[32m+[m[32m        return jsonify({[m
+[32m+[m[32m            'image_url': image_url,[m
+[32m+[m[32m            'stage': stage,[m
+[32m+[m[32m            'applied_re_params': {[m
+[32m+[m[32m                'enabled': bool(re_params.get('enabled', False)),[m
+[32m+[m[32m                'strength': float(re_params.get('strength', 0.0)),[m
+[32m+[m[32m                'duration': int(re_params.get('duration', 0)),[m
+[32m+[m[32m                'frequency': float(re_params.get('frequency', 0.0)),[m
+[32m+[m[32m                'probability': float(re_params.get('probability', 0.0)),[m
+[32m+[m[32m                'num_regions': int(re_params.get('num_regions', 0)),[m
+[32m+[m[32m                'region_size': int(re_params.get('region_size', 0))[m
+[32m+[m[32m            }[m
+[32m+[m[32m        })[m
+[32m+[m[32m    except ValueError as e:[m
+[32m+[m[32m        return jsonify({'error': str(e)}), 400[m
+[32m+[m[32m    except Exception as e:[m
+[32m+[m[32m        return jsonify({'error': str(e)}), 500[m
+[32m+[m
+[32m+[m
+[32m+[m[32m@api.route('/api/generate-23', methods=['POST'])[m
+[32m+[m[32mdef generate_23():[m
+[32m+[m[32m    """[m
+[32m+[m[32m    Generate Figure 2.3 stripe texture using a small local parameter sweep.[m
+[32m+[m
+[32m+[m[32m    Expected JSON:[m
+[32m+[m[32m    {[m
+[32m+[m[32m        "stage": int,      # 1..5[m
+[32m+[m[32m        "color1": "#RRGGBB",[m
+[32m+[m[32m        "color2": "#RRGGBB"[m
+[32m+[m[32m    }[m
+[32m+[m[32m    """[m
+[32m+[m[32m    try:[m
+[32m+[m[32m        data = request.get_json() or {}[m
+[32m+[m[32m        stage = int(data.get('stage', 3))[m
+[32m+[m[32m        color1 = str(data.get('color1', '#f3e7c6'))[m
+[32m+[m[32m        color2 = str(data.get('color2', '#101010'))[m
+[32m+[m
+[32m+[m[32m        if stage not in [1, 2, 3, 4, 5]:[m
+[32m+[m[32m            return jsonify({'error': 'stage must be in [1,2,3,4,5]'}), 400[m
+[32m+[m[32m        if not (len(color1) == 7 and color1.startswith('#')):[m
+[32m+[m[32m            return jsonify({'error': 'color1 must be HEX format #RRGGBB'}), 400[m
+[32m+[m[32m        if not (len(color2) == 7 and color2.startswith('#')):[m
+[32m+[m[32m            return jsonify({'error': 'color2 must be HEX format #RRGGBB'}), 400[m
+[32m+[m
+[32m+[m[32m        preset_key = f'stage_{stage}'[m
+[32m+[m[32m        stage_spec = dict(FIG23_STAGE_PRESETS[preset_key])[m
+[32m+[m[32m        params_override = dict(stage_spec.get('params_override', {}))[m
+[32m+[m
+[32m+[m[32m        image_path, _heatmap_data = texture_service.generate_activator_inhibitor([m
+[32m+[m[32m            K=0.80,[m
+[32m+[m[32m            t_max=110.0,[m
+[32m+[m[32m            delta_t=0.05,[m
+[32m+[m[32m            color1=color1,[m
+[32m+[m[32m            color2=color2,[m
+[32m+[m[32m            size=DEFAULT_TEXTURE_SIZE,[m
+[32m+[m[32m            params_override=params_override,[m
+[32m+[m[32m            export_snapshots=False,[m
+[32m+[m[32m        )[m
+[32m+[m
+[32m+[m[32m        with Image.open(image_path) as img:[m
+[32m+[m[32m            rgb = np.asarray(img.convert('RGB'), dtype=np.uint8)[m
+[32m+[m
+[32m+[m[32m        suffix = hashlib.sha1([m
+[32m+[m[32m            f"figure_2_3|{preset_key}|{color1}|{color2}|{params_override.get('D_b')}|{params_override.get('D_a')}|{params_override.get('r_b')}".encode('utf-8')[m
+[32m+[m[32m        ).hexdigest()[:10][m
+[32m+[m[32m        filename = f"figure_2_3_{preset_key}_{suffix}.png"[m
+[32m+[m[32m        output_path = os.path.join(IMAGES_DIR, filename)[m
+[32m+[m[32m        Image.fromarray(rgb).save(output_path)[m
+[32m+[m
+[32m+[m[32m        image_url = url_for('static', filename=f'images/{filename}', _external=True) + f'?v={int(time.time() * 1000)}'[m
+[32m+[m[32m        return jsonify({[m
+[32m+[m[32m            'image_url': image_url,[m
+[32m+[m[32m            'preset': preset_key,[m
+[32m+[m[32m            'stage_label': stage_spec.get('label', preset_key),[m
+[32m+[m[32m            'download_name': f"figure_2_3_{preset_key}.png",[m
+[32m+[m[32m            'stage_spec': {[m
+[32m+[m[32m                'label': stage_spec.get('label', preset_key),[m
+[32m+[m[32m                'reference_report': stage_spec.get('reference_report', ''),[m
+[32m+[m[32m                'params_override': params_override,[m
+[32m+[m[32m            }[m
+[32m+[m[32m        })[m
+[32m+[m[32m    except ValueError as e:[m
+[32m+[m[32m        return jsonify({'error': str(e)}), 400[m
+[32m+[m[

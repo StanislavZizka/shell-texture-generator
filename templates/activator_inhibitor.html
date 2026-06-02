@@ -1,0 +1,2717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activator-Inhibitor Model - Shell Texture Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script>
+        // Expose presets from Flask to JavaScript for static mode logic
+        window.STATIC_PRESETS = {{ presets | tojson }};
+    </script>
+    <script defer src="{{ url_for('static', filename='js/components/navigation.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/components/theme-toggle.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/components/language-switcher.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/components/image-viewer.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/components/texture-generator.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+    
+    <!-- Three.js from multiple CDN sources as fallback -->
+    <script>
+        // Try multiple CDN sources for Three.js
+        function loadThreeJS() {
+            const scripts = [
+                'https://unpkg.com/three@0.160.0/build/three.min.js',
+                'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/three.js/r160/three.min.js'
+            ];
+            
+            let currentIndex = 0;
+            
+            function tryNextScript() {
+                if (currentIndex >= scripts.length) {
+                    console.error('All Three.js CDN sources failed');
+                    return;
+                }
+                
+                const script = document.createElement('script');
+                script.src = scripts[currentIndex];
+                script.onload = () => {
+                    console.log('Three.js loaded from:', scripts[currentIndex]);
+                    loadAdditionalModules();
+                };
+                script.onerror = () => {
+                    console.warn('Failed to load Three.js from:', scripts[currentIndex]);
+                    currentIndex++;
+                    tryNextScript();
+                };
+                document.head.appendChild(script);
+            }
+            
+            tryNextScript();
+        }
+        
+        function loadAdditionalModules() {
+            // Load OrbitControls
+            const orbitScript = document.createElement('script');
+            orbitScript.src = 'https://unpkg.com/three@0.160.0/examples/js/controls/OrbitControls.js';
+            orbitScript.onload = () => console.log('OrbitControls loaded');
+            orbitScript.onerror = () => console.warn('OrbitControls failed to load');
+            document.head.appendChild(orbitScript);
+            
+            // Load OBJLoader
+            const objScript = document.createElement('script');
+            objScript.src = 'https://unpkg.com/three@0.160.0/examples/js/loaders/OBJLoader.js';
+            objScript.onload = () => console.log('OBJLoader loaded');
+            objScript.onerror = () => console.warn('OBJLoader failed to load');
+            document.head.appendChild(objScript);
+            
+            // Load MTLLoader  
+            const mtlScript = document.createElement('script');
+            mtlScript.src = 'https://unpkg.com/three@0.160.0/examples/js/loaders/MTLLoader.js';
+            mtlScript.onload = () => console.log('MTLLoader loaded');
+            mtlScript.onerror = () => console.warn('MTLLoader failed to load');
+            document.head.appendChild(mtlScript);
+        }
+        
+        // Start loading Three.js
+        loadThreeJS();
+    </script>
+</head>
+<body>
+    <!-- Side navigation menu for easy access to different texture algorithms -->
+    <nav class="sidenav" id="mySidenav">
+        <button class="menu-btn" aria-label="Toggle navigation">
+            <i class="fas fa-bars"></i>
+        </button>
+        <a href="{{ url_for('pages.home') }}" class="nav-link" aria-label="Home page">
+            <i class="fas fa-home"></i>
+            <span class="nav-text">Home</span>
+        </a>
+        <a href="{{ url_for('pages.activator_inhibitor') }}" class="nav-link active" aria-label="Activator-Inhibitor model">
+            <i class="fas fa-project-diagram"></i>
+            <span class="nav-text">Activator-Inhibitor</span>
+        </a>
+        <a href="{{ url_for('pages.random_error') }}" class="nav-link" aria-label="Random Error model">
+            <i class="fas fa-random"></i>
+            <span class="nav-text" data-i18n="nav-random-error">Random Error</span>
+        </a>
+        <a href="#" class="nav-link" aria-label="Wave patterns (coming soon)">
+            <i class="fas fa-wave-square"></i>
+            <span class="nav-text">Wave Patterns</span>
+        </a>
+        <a href="{{ url_for('pages.figure_23') }}" class="nav-link" aria-label="Figure 2.3 stripes">
+            <i class="fas fa-grip-lines"></i>
+            <span class="nav-text">Figure 2.3 - Stripes</span>
+        </a>
+    </nav>
+
+    <!-- Main content area -->
+    <main id="main" class="fade-in">
+        <div class="page-header">
+            <h1><i class="fas fa-project-diagram"></i> <span data-i18n="page-title-ai">Activator-Inhibitor Model</span></h1>
+            <p data-i18n="page-subtitle-ai">Configure reaction-diffusion model parameters to generate complex patterns</p>
+        </div>
+
+        <div class="content-grid">
+            <!-- Parameter form container -->
+            <div class="form-container">
+                <h3><i class="fas fa-sliders-h"></i> <span data-i18n="model-params">Model Parameters</span></h3>
+
+                <!-- Static/Dynamic Mode Toggle -->
+                <div class="form-group mode-banner" style="border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px;">
+                    <label style="font-weight: 600; margin-bottom: 10px; display: block;">
+                        <span data-i18n="generation-mode">Parameter mode</span>:
+                    </label>
+                    <div class="mode-switch segmented-control" role="tablist" aria-label="Parameter mode">
+                        <button type="button" id="staticModeBtn" class="mode-chip active" aria-pressed="true">
+                            <i class="fas fa-lock"></i> <span data-i18n="static-mode">Static parameters</span>
+                        </button>
+                        <button type="button" id="dynamicModeBtn" class="mode-chip" aria-pressed="false">
+                            <i class="fas fa-unlock"></i> <span data-i18n="dynamic-mode">Dynamic parameters</span>
+                        </button>
+                    </div>
+                    <small class="form-help" id="modeDescription" data-i18n="mode-description-static">Static parameters are read-only and match the selected preset. Dynamic parameters can be edited manually.</small>
+                </div>
+
+                <form id="activatorForm">
+                    <!-- Static Mode Preset Selector (hidden in Dynamic Mode) -->
+                    <div class="form-group" id="staticPresetGroup">
+                        <label for="static_preset" class="tooltip-wrapper">
+                            <span data-i18n="select-preset">Select Preset</span>
+                            <span class="tooltip-icon" tabindex="0">
+                                <i class="fas fa-info-circle"></i>
+                                <span class="tooltip-content" data-i18n="tooltip-preset-new">
+                                    Choose a preset configuration:<br>
+                                    <strong>Low Diffusion:</strong> Sharp patterns<br>
+                                    <strong>Medium Diffusion:</strong> Balanced waves<br>
+                                    <strong>High Diffusion:</strong> Soft gradients<br>
+                                    <strong>Balanced:</strong> General balanced preset
+                                </span>
+                            </span>
+                        </label>
+                        <select id="static_preset" name="static_preset">
+                            <option value="low_diffusion" data-i18n="preset-low-diffusion">Low Diffusion (Sharp Patterns)</option>
+                            <option value="medium_diffusion" selected data-i18n="preset-medium-diffusion">Medium Diffusion (Balanced)</option>
+                            <option value="high_diffusion" data-i18n="preset-high-diffusion">High Diffusion (Soft Gradients)</option>
+                            <option value="balanced" data-i18n="preset-balanced">Balanced</option>
+                        </select>
+                        <small class="form-help" data-i18n="preset-help-new">Parameters will be set automatically</small>
+                    </div>
+
+                    <!-- Original Preset Dropdown (now hidden, kept for compatibility) -->
+                    <div class="form-group" id="oldPresetGroup" style="display: none;">
+                        <label for="preset" class="tooltip-wrapper">
+                            <span data-i18n="preset-label">Preset</span>
+                            <span class="tooltip-icon" tabindex="0">
+                                <i class="fas fa-info-circle"></i>
+                                <span class="tooltip-content" data-i18n="tooltip-preset">
+                                    Vybere přednastavený režim simulace.<br>
+                                    <strong>Stable</strong> = klidné vzory,<br>
+                                    <strong>Balanced</strong> = rovnováha mezi aktivací a inhibicí,<br>
+                                    <strong>Active</strong> = rychlé růstové změny,<br>
+                                    <strong>Chaotic</strong> = nestabilní struktury
+                                </span>
+                            </span>
+                        </label>
+                        <select id="preset" name="preset">
+                            <option value="stable" data-i18n="option-stable">Stable (soft patterns)</option>
+                            <option value="balanced" data-i18n="option-balanced">Balanced (medium contrast)</option>
+                            <option value="active" data-i18n="option-active">Active (high contrast)</option>
+                            <option value="chaotic" data-i18n="option-chaotic">Chaotic</option>
+                        </select>
+                        <small class="form-help" data-i18n="preset-help">Choose a pre-tuned parameter set</small>
+                    </div>
+
+                    <!-- Gierer-Meinhardt Parameters (visible in both modes, readonly in Static) -->
+                    <div class="form-group">
+                        <label for="s_param" class="tooltip-wrapper">
+                            <span data-i18n="source-density">Source Density (s)</span>
+                            <span class="tooltip-icon" tabindex="0">
+                                <i class="fas fa-info-circle"></i>
+                                <span class="tooltip-content" data-i18n="source-density-help">
+                                    Síla autokatalýzy (0.01 - 2.0)
+                                </span>
+                            </span>
+                        </label>
+                        <input type="number" id="s_param" name="s_param" step="0.01" value="0.11" min="0.01" max="2.0">
+                        <small class="form-help">Autocatalysis strength (0.01 - 2.0)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="D_b_param" class="tooltip-wrapper">
+                            <span data-i18n="inhibitor-diffusion">Inhibitor Diffusion (D_b)</span>
+                            <span class="tooltip-icon" tabindex="0">
+                                <i class="fas fa-info-circle"></i>
+                                <span class="tooltip-content" data-i18n="inhibitor-diffusion-help">
+                                    Rychlost difúze inhibitoru (0.01 - 1.0)
+                                </span>
+                            </span>
+                        </label>
+                        <input type="number" id="D_b_param" name="D_b_param" step="0.01" value="0.35" min="0.01" max="1.0">
+                        <small class="form-help">Inhibitor diffusion coefficient (0.01 - 1.0)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="r_a_param" class="tooltip-wrapper">
+                            <span data-i18n="activator-decay">Activator Decay (r_a)</span>
+                            <span class="tooltip-icon" tabindex="0">
+                                <i class="fas fa-info-circle"></i>
+                                <span class="tooltip-content" data-i18n="activator-decay-help">
+                                    Rychlost rozpadu aktivátoru (0.01 - 3.0)
+                                </span>
+                            </span>
+                        </label>
+                        <input type="number" id="r_a_param" name="r_a_param" step="0.01" value="0.10" min="0.01" max="3.0">
+                        <small class="form-help">Activator decay rate (0.01 - 3.0)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="r_b_param" class="tooltip-wrapper">
+                            <span data-i18n="inhibitor-decay">Inhibitor Decay (r_b)</span>
+                            <span class="tooltip-icon" tabindex="0">
+                                <i class="fas fa-info-circle"></i>
+                                <span class="tooltip-content" data-i18n="inhibitor-decay-help">
+                                    Rychlost rozpadu inhibitoru (0.01 - 3.0)
+                                </span>
+                            </span>
+                        </label>
+                        <input type="number" id="r_b_param" name="r_b_param" step="0.01" value="0.18" min="0.01" max="3.0">
+                        <small class="form-help">Inhibitor decay rate (0.01 - 3.0)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="K" class="tooltip-wrapper">
+                            <span data-i18n="constant-k">Constant K</span>
+                            <span class="tooltip-icon" tabindex="0">
+                                <i class="fas fa-info-circle"></i>
+                                <span class="tooltip-content" data-i18n="constant-k-help">
+                                    Ovlivňuje rychlost reakce (0.0001 - 5.0)
+                                </span>
+                            </span>
+                        </label>
+                        <input type="number" id="K" name="K" step="0.0001" value="1.0" required min="0.0001" max="5.0" aria-describedby="K-help">
+                        <small id="K-help" class="form-help">Reaction process rate (0.0001 - 5.0)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="t_max" class="tooltip-wrapper">
+                            <span data-i18n="maximum-time">Maximum Time</span>
+                            <span class="tooltip-icon" tabindex="0">
+                                <i class="fas fa-info-circle"></i>
+                                <span class="tooltip-content" data-i18n="maximum-time-help">
+                                    Určuje délku simulace
+                                </span>
+                            </span>
+                        </label>
+                        <input type="number" id="t_max" name="t_max" step="0.1" value="10.0" required min="1.0" max="10000.0" aria-describedby="t_max-help">
+                        <small id="t_max-help" class="form-help">Simulation duration in time units</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="delta_t" class="tooltip-wrapper">
+                            <span data-i18n="time-step">Time Step</span>
+                            <span class="tooltip-icon" tabindex="0">
+                                <i class="fas fa-info-circle"></i>
+                                <span class="tooltip-content" data-i18n="time-step-help">
+                                    Přesnost výpočtu
+                                </span>
+                            </span>
+                        </label>
+                        <input type="number" id="delta_t" name="delta_t" step="0.001" value="0.1" required min="0.001" max="1.0" aria-describedby="delta_t-help">
+                        <small id="delta_t-help" class="form-help">Simulation step precision</small>
+                    </div>
+
+                    <!-- Random Error (Biological Perturbation) Toggle Section -->
+                    <div class="noise-toggle-section random-error-section">
+                        <div class="toggle-header">
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="enable_random_error" name="enable_random_error">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <div class="toggle-label">
+                                <h4 class="tooltip-wrapper">
+                                    <i class="fas fa-dna"></i> 🧬 <span data-i18n="random-error-title">Random Error (Biologické poruchy)</span>
+                                    <span class="tooltip-icon" tabindex="0">
+                                        <i class="fas fa-info-circle"></i>
+                                        <span class="tooltip-content" data-i18n="random-error-info">
+                                            Přidává biologické poruchy pigmentu, napodobující defekty přirozených mušlí
+                                        </span>
+                                    </span>
+                                </h4>
+                                <small class="form-help" data-i18n="random-error-desc">Vědecky podložené lokální poruchy vzoru - simuluje biologické defekty v přirozených mušlích</small>
+                            </div>
+                        </div>
+
+                        <div id="random_error_preview" class="random-error-preview" style="display: none;">
+                            <div class="random-error-preview-head">
+                                <div>
+                                    <strong><i class="fas fa-dna"></i> <span data-i18n="random-error-title">Random Error</span></strong>
+                                    <p>Read-only defaults for the selected preset. Toggle only switches the effect on or off.</p>
+                                </div>
+                                <span class="param-badge" id="random_error_state">OFF</span>
+                            </div>
+                            <div class="random-error-summary-grid">
+                                <div class="random-error-summary-item"><span>Strength</span><strong id="random_error_preview_strength">-</strong></div>
+                                <div class="random-error-summary-item"><span>Duration</span><strong id="random_error_preview_duration">-</strong></div>
+                                <div class="random-error-summary-item"><span>Frequency</span><strong id="random_error_preview_frequency">-</strong></div>
+                                <div class="random-error-summary-item"><span>Probability</span><strong id="random_error_preview_probability">-</strong></div>
+                                <div class="random-error-summary-item"><span>Regions</span><strong id="random_error_preview_num_regions">-</strong></div>
+                                <div class="random-error-summary-item"><span>Region size</span><strong id="random_error_preview_region_size">-</strong></div>
+                                <div class="random-error-summary-item"><span>Jitter</span><strong id="random_error_preview_jitter">-</strong></div>
+                                <div class="random-error-summary-item"><span>Micro noise</span><strong id="random_error_preview_micro_noise">-</strong></div>
+                                <div class="random-error-summary-item"><span>Alpha var</span><strong id="random_error_preview_alpha_var">-</strong></div>
+                                <div class="random-error-summary-item"><span>Beta</span><strong id="random_error_preview_beta">-</strong></div>
+                                <div class="random-error-summary-item"><span>Drift X</span><strong id="random_error_preview_drift_x">-</strong></div>
+                                <div class="random-error-summary-item"><span>Drift Y</span><strong id="random_error_preview_drift_y">-</strong></div>
+                                <div class="random-error-summary-item"><span>Drift frequency</span><strong id="random_error_preview_drift_frequency">-</strong></div>
+                            </div>
+                        </div>
+
+                        <!-- Collapsible Random Error Parameters Panel -->
+                        <div id="random_error_panel" class="noise-panel" style="display: none;">
+                            <div class="noise-panel-content">
+                                <div class="random-error-info">
+                                    <p><i class="fas fa-info-circle"></i> <strong>R(x,y,t) = α·M(x,y)·sin(2πft+φ)</strong></p>
+                                    <p data-i18n="random-error-formula-desc">Přidává časově omezené lokální perturbace do aktivátorové rovnice</p>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="re_strength" class="tooltip-wrapper">
+                                        <i class="fas fa-bolt"></i> <span data-i18n="strength-label">Síla (Strength α)</span>
+                                        <span class="param-badge" data-i18n="strength-range">0.01-0.10</span>
+                                        <span class="tooltip-icon" tabindex="0">
+                                            <i class="fas fa-info-circle"></i>
+                                            <span class="tooltip-content" data-i18n="tooltip-strength">
+                                                Určuje intenzitu lokálních poruch. Vyšší = výraznější poruchy, Nižší = jemné biologické šumy
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="range" id="re_strength" name="re_strength"
+                                           min="0.01" max="0.10" step="0.005" value="0.06">
+                                    <output id="re_strength_value">0.06</output>
+                                    <small class="form-help" data-i18n="strength-help">Amplituda perturbace - vyšší = silnější poruchy (ref: 0.05-0.07)</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="re_duration" class="tooltip-wrapper">
+                                        <i class="fas fa-clock"></i> <span data-i18n="duration-label">Trvání (Duration)</span>
+                                        <span class="param-badge" data-i18n="duration-range">10-50 steps</span>
+                                        <span class="tooltip-icon" tabindex="0">
+                                            <i class="fas fa-info-circle"></i>
+                                            <span class="tooltip-content" data-i18n="tooltip-duration">
+                                                Délka působení defektu. Delší trvání → větší zásah do vývoje vzoru, Kratší trvání → rychlé impulsy
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="range" id="re_duration" name="re_duration"
+                                           min="10" max="50" step="5" value="30">
+                                    <output id="re_duration_value">30</output>
+                                    <small class="form-help" data-i18n="duration-help">Jak dlouho každá perturbace trvá</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="re_frequency" class="tooltip-wrapper">
+                                        <i class="fas fa-wave-square"></i> <span data-i18n="frequency-label">Frekvence (Frequency)</span>
+                                        <span class="param-badge" data-i18n="frequency-range">0.05-0.2</span>
+                                        <span class="tooltip-icon" tabindex="0">
+                                            <i class="fas fa-info-circle"></i>
+                                            <span class="tooltip-content" data-i18n="tooltip-frequency">
+                                                Jak často se poruchy objevují během simulace. Vyšší frekvence → více drobných defektů, Nižší frekvence → ojedinělé velké poruchy
+                                            </span>
+                                        </span>
+                                    </label>
+                                    <input type="range" id="re_frequency" name="re_frequency"
+                                           min="0.01" max="0.20" step="0.01" value="0.05">
+                                    <output id="re_frequency_value">0.05</output>
+                                    <small class="form-help" data-i18n="frequency-help">Časová oscilace sin(2πft)</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="re_probability">
+                                        <i class="fas fa-dice"></i> Pravděpodobnost (Probability)
+                                        <span class="param-badge">0.01-0.1</span>
+                                    </label>
+                                    <input type="range" id="re_probability" name="re_probability"
+                                           min="0.01" max="0.1" step="0.01" value="0.05">
+                                    <output id="re_probability_value">0.05</output>
+                                    <small class="form-help">Šance na spuštění nové perturbace každý krok</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="re_num_regions">
+                                        <i class="fas fa-map-marker-alt"></i> Počet zón (Regions)
+                                        <span class="param-badge">1-10</span>
+                                    </label>
+                                    <input type="range" id="re_num_regions" name="re_num_regions"
+                                           min="1" max="10" step="1" value="5">
+                                    <output id="re_num_regions_value">5</output>
+                                    <small class="form-help">Kolik oblastí bude současně narušeno (Gaussian gradient)</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="re_region_size">
+                                        <i class="fas fa-expand"></i> Velikost zóny (Region Size)
+                                        <span class="param-badge">5-20 px</span>
+                                    </label>
+                                    <input type="range" id="re_region_size" name="re_region_size"
+                                           min="5" max="20" step="1" value="10">
+                                    <output id="re_region_size_value">10</output>
+                                    <small class="form-help">Velikost každé narušené oblasti v pixelech</small>
+                                </div>
+
+                                <div class="random-error-presets">
+                                    <label><i class="fas fa-magic"></i> <span data-i18n="quick-presets">Rychlé předvolby (biologicky realistické):</span></label>
+                                    <div class="preset-buttons">
+                                        <button type="button" class="btn-small" onclick="applyRandomErrorPreset('low_diffusion')">
+                                            <i class="fas fa-microscope"></i> <span data-i18n="preset-low-diff">Nízká difúze</span>
+                                        </button>
+                                        <button type="button" class="btn-small" onclick="applyRandomErrorPreset('medium_diffusion')">
+                                            <i class="fas fa-balance-scale"></i> <span data-i18n="preset-medium-diff">Střední difúze</span>
+                                        </button>
+                                        <button type="button" class="btn-small" onclick="applyRandomErrorPreset('high_diffusion')">
+                                            <i class="fas fa-water"></i> <span data-i18n="preset-high-diff">Vysoká difúze</span>
+                                        </button>
+                                        <button type="button" class="btn-small" onclick="applyRandomErrorPreset('balanced')">
+                                            <i class="fas fa-yin-yang"></i> <span data-i18n="preset-balanced">Vyvážený</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="color-group">
+                        <h4><i class="fas fa-palette"></i> <span data-i18n="color-scheme">Color Scheme</span></h4>
+                        <div class="color-inputs">
+                            <div class="form-group">
+                                <label for="color1" data-i18n="base-color">Base Color</label>
+                                <input type="color" id="color1" name="color1" value="#0000ff">
+                            </div>
+                            <div class="form-group">
+                                <label for="color2" data-i18n="contrast-color">Contrast Color</label>
+                                <input type="color" id="color2" name="color2" value="#ff0000">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" id="generateBtn" class="btn">
+                        <i class="fas fa-magic"></i> <span data-i18n="generate-texture">Generate Texture</span>
+                    </button>
+
+                    <!-- Pattern Evolution Mode checkbox -->
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label class="checkbox-label tooltip-wrapper">
+                            <input type="checkbox" id="export_snapshots" name="export_snapshots">
+                            <span><i class="fas fa-chart-line"></i> <span data-i18n="show-pattern-evolution">Zobrazit vývoj vzoru</span> (4 stages: 25%, 50%, 75%, 100%)</span>
+                            <span class="tooltip-icon" tabindex="0">
+                                <i class="fas fa-info-circle"></i>
+                                <span class="tooltip-content" data-i18n="pattern-evolution-param-info">
+                                    Pattern Evolution používá aktuálně nastavené parametry modelu (K, čas, krok, stabilitu apod.) a pouze sleduje vývoj vzoru v čase. Pokud upravíte parametry, změní se i tvar a průběh jednotlivých fází (25 %, 50 %, 75 %, 100 %).
+                                </span>
+                            </span>
+                        </label>
+                        <small class="form-help">Display development stages instead of final image only</small>
+                    </div>
+                </form>
+                
+                <!-- Loading indicator -->
+                <div id="loading" style="display: none;">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text" data-i18n="generating">Generating texture...</div>
+                </div>
+            </div>
+
+            <!-- Result display container -->
+            <div class="image-container">
+                <h3><i class="fas fa-image"></i> <span data-i18n="result-texture">Generated Texture</span></h3>
+                <div class="image-wrapper" id="imageWrapper">
+                    <div class="image-placeholder">
+                        <i class="fas fa-camera"></i>
+                        <p data-i18n="placeholder-text">Generated texture will appear here</p>
+                    </div>
+                    <img id="generatedImage" src="#" alt="Generated texture" style="display:none;" onclick="openPopup(this)">
+                    <canvas id="analysisGridCanvas" style="display:none;"></canvas>
+                    <canvas id="heatmapCanvas" style="display:none;"></canvas>
+                </div>
+
+                <!-- Biological Heatmap Section - Separate Section Below Image -->
+                <div id="biologicalHeatmapSection" class="biological-heatmap-section">
+                    <h4>
+                        <i class="fas fa-fire"></i>
+                        <span data-i18n="biological-heatmap-title">Biologická heatmapa</span>
+                    </h4>
+                    <div class="heatmap-wrapper">
+                        <div class="heatmap-canvas-container">
+                            <canvas id="biologicalHeatmapCanvas"></canvas>
+                        </div>
+                        <div class="biological-heatmap-legend" id="biologicalHeatmapLegend">
+                            <h5>
+                                <i class="fas fa-palette"></i>
+                                <span data-i18n="heatmap-legend-title">Legenda</span>
+                            </h5>
+                            <div class="heatmap-legend-item">
+                                <span class="heatmap-legend-color stable"></span>
+                                <span data-i18n="heatmap-legend-stable">Stabilní</span>
+                            </div>
+                            <div class="heatmap-legend-item">
+                                <span class="heatmap-legend-color transition"></span>
+                                <span data-i18n="heatmap-legend-transition">Přechodové</span>
+                            </div>
+                            <div class="heatmap-legend-item">
+                                <span class="heatmap-legend-color unstable"></span>
+                                <span data-i18n="heatmap-legend-unstable">Nestabilní</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Baseline Comparison Container (side-by-side) -->
+                <div id="comparisonContainer" style="display:none;" class="comparison-container">
+                    <h4><i class="fas fa-balance-scale"></i> Baseline vs Random Error Comparison</h4>
+                    <div class="comparison-wrapper">
+                        <div class="comparison-image-box">
+                            <h5><i class="fas fa-check-circle"></i> Baseline (No Perturbation)</h5>
+                            <img id="baselineImage" src="#" alt="Baseline texture" onclick="openPopup(this)">
+                            <a id="downloadBaselineBtn" href="#" class="download-btn" download="baseline_texture.png">
+                                <i class="fas fa-download"></i> Download Baseline
+                            </a>
+                        </div>
+                        <div class="comparison-image-box">
+                            <h5><i class="fas fa-dna"></i> Random Error (Perturbed)</h5>
+                            <img id="perturbedImage" src="#" alt="Perturbed texture" onclick="openPopup(this)">
+                            <a id="downloadPerturbedBtn" href="#" class="download-btn" download="perturbed_texture.png">
+                                <i class="fas fa-download"></i> Download Perturbed
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pattern Evolution Panel - NEW -->
+                <div id="patternEvolutionContainer" style="display:none;" class="pattern-evolution-container">
+                    <h4 class="tooltip-wrapper">
+                        <i class="fas fa-chart-line"></i> <span data-i18n="pattern-evolution">Vývoj vzoru</span>
+                        <span class="tooltip-icon" tabindex="0">
+                            <i class="fas fa-info-circle"></i>
+                            <span class="tooltip-content" data-i18n="pattern-evolution-info">
+                                Vizualizace 4 fází vývoje vzoru podle aktuálních parametrů
+                            </span>
+                        </span>
+                    </h4>
+                    <p class="evolution-info" data-i18n="pattern-evolution-param-info">Pattern Evolution používá aktuálně nastavené parametry modelu a sleduje vývoj vzoru v čase</p>
+
+                    <!-- Stage Selector -->
+                    <div class="stage-selector-wrapper">
+                        <label class="stage-selector-label">
+                            <i class="fas fa-eye"></i> <span data-i18n="stage-selector-label">Choose stage to preview in detail:</span>
+                        </label>
+                        <div class="stage-selector" id="stageSelector">
+                            <button class="stage-btn active" data-stage="3" data-percentage="100" data-i18n-title="final-stage">
+                                <span class="stage-percentage">100%</span>
+                                <span class="stage-label" data-i18n="final-stage">Finální fáze</span>
+                            </button>
+                            <button class="stage-btn" data-stage="2" data-percentage="75" data-i18n-title="late-stage">
+                                <span class="stage-percentage">75%</span>
+                                <span class="stage-label" data-i18n="late-stage">Pozdní fáze</span>
+                            </button>
+                            <button class="stage-btn" data-stage="1" data-percentage="50" data-i18n-title="mid-stage">
+                                <span class="stage-percentage">50%</span>
+                                <span class="stage-label" data-i18n="mid-stage">Střední fáze</span>
+                            </button>
+                            <button class="stage-btn" data-stage="0" data-percentage="25" data-i18n-title="early-stage">
+                                <span class="stage-percentage">25%</span>
+                                <span class="stage-label" data-i18n="early-stage">Raná fáze</span>
+                            </button>
+                        </div>
+                        <p class="stage-selector-help">
+                            <i class="fas fa-info-circle"></i> <span data-i18n="stage-selector-help">Select a stage to view it in full size above with analysis options</span>
+                        </p>
+                    </div>
+
+                    <div class="evolution-grid" id="evolutionGrid">
+                        <!-- Evolution snapshots (25%, 50%, 75%, 100%) will be dynamically inserted here -->
+                    </div>
+                </div>
+
+                <!-- Snapshot Thumbnails Container -->
+                <div id="snapshotsContainer" style="display:none;" class="snapshots-container">
+                    <h4><i class="fas fa-camera-retro"></i> Simulation Snapshots</h4>
+                    <p class="snapshots-info" id="snapshotsInfo"></p>
+                    <div class="snapshots-grid" id="snapshotsGrid">
+                        <!-- Thumbnails will be dynamically inserted here -->
+                    </div>
+                </div>
+
+                <!-- Texture result will be populated by JavaScript -->
+                <div id="textureResult"></div>
+
+                <!-- Pattern Analysis Section (under texture, above actions) -->
+                <div class="analysis-section card" style="display:none;" id="analysisSection">
+                    <h4><i class="fas fa-chart-area"></i> Analýza vzoru (Pattern Analysis)</h4>
+
+                    <div class="toggle-header">
+                        <label class="toggle-switch">
+                            <input type="checkbox" class="toggle toggle-primary" id="show_analysis_grid" name="show_analysis_grid">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <div class="toggle-label">
+                            <h4><i class="fas fa-th"></i> Show analysis grid</h4>
+                            <small class="form-help">Zobrazí mřížku 4×4 pro vizuální kontrolu</small>
+                        </div>
+                    </div>
+
+                    <div class="toggle-header">
+                        <label class="toggle-switch">
+                            <input type="checkbox" class="toggle toggle-primary" id="show_regularity_heatmap" name="show_regularity_heatmap">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <div class="toggle-label">
+                            <h4><i class="fas fa-fire"></i> Show regularity heatmap</h4>
+                            <small class="form-help">🟩 Stabilní oblasti • 🟨 Mírná variace • 🟥 Lokální nestabilita</small>
+                        </div>
+                    </div>
+
+                    <div class="toggle-header">
+                        <label class="toggle-switch">
+                            <input type="checkbox" class="toggle toggle-primary" id="show_biological_heatmap" name="show_biological_heatmap">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <div class="toggle-label">
+                            <h4 class="tooltip-wrapper">
+                                <i class="fas fa-dna"></i> <span data-i18n="show-biological-heatmap">Show Biological Heatmap</span>
+                                <span class="tooltip-icon" tabindex="0">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span class="tooltip-content" data-i18n="biological-heatmap-tooltip">
+                                        Zobrazí biologickou heatmapu — barevné rozložení aktivity modelu, kde červené oblasti označují lokální poruchy nebo nestabilitu
+                                    </span>
+                                </span>
+                            </h4>
+                            <small class="form-help">🔵 <span data-i18n="heatmap-legend-stable">Stabilní</span> • 🟢 <span data-i18n="heatmap-legend-transition">Přechodové</span> • 🔴 <span data-i18n="heatmap-legend-unstable">Nestabilní</span></small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="image-actions" style="display:none;" id="imageActions">
+                    <a id="downloadBtn" href="#" class="download-btn" download>
+                        <i class="fas fa-download"></i> <span data-i18n="download">Download</span>
+                    </a>
+                    <button class="btn btn-secondary" onclick="openPopup(document.getElementById('generatedImage'))">
+                        <i class="fas fa-expand"></i> <span data-i18n="view">View</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 3D Model Visualization Section -->
+            <div class="model-container card" id="modelContainer">
+                <h3><i class="fas fa-cube"></i> <span data-i18n="3d-visualization">3D Visualization</span></h3>
+                <div class="model-wrapper">
+                    <div class="model-selector">
+                        <label for="shellSelect"><i class="fas fa-list"></i> <span data-i18n="select-shell-type">Select shell type:</span></label>
+                        <select id="shellSelect" class="shell-selector" onchange="changeShellModel()">
+                            <option value="Buccinidae" data-i18n="shell-buccinidae">Buccinidae</option>
+                            <option value="Fasciolariidae" data-i18n="shell-fasciolariidae">Fasciolariidae</option>
+                            <option value="Moon snail" data-i18n="shell-moon-snail">Moon snail</option>
+                            <option value="Muricidae" data-i18n="shell-muricidae">Muricidae</option>
+                            <option value="Pecten" data-i18n="shell-pecten">Pecten</option>
+                            <option value="Whelk" data-i18n="shell-whelk">Whelk</option>
+                        </select>
+                    </div>
+                    <div id="threejs-container" class="threejs-container">
+                        <div class="model-loading" id="modelLoading">
+                            <div class="loading-spinner"></div>
+                            <div class="loading-text" data-i18n="loading-model">Loading 3D model...</div>
+                        </div>
+                    </div>
+                    <div class="model-instructions">
+                        <p><i class="fas fa-mouse"></i> <span data-i18n="instruction-drag">Drag texture onto shell to apply</span></p>
+                        <p><i class="fas fa-mouse"></i> <span data-i18n="instruction-mouse">Left click: rotate • Mouse wheel: zoom in/out</span></p>
+                        <p><i class="fas fa-mobile-alt"></i> <span data-i18n="instruction-mobile">Mobile: 1 finger = rotate • 2 fingers = pinch zoom</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image popup viewer -->
+        <div id="popupContainer" class="popup" onclick="closePopup(event)">
+            <div class="popup-close" onclick="closePopup(event)">
+                <i class="fas fa-times"></i>
+            </div>
+            <img class="popup-content" id="popupImage">
+            <div class="popup-controls">
+                <div data-i18n="popup-close-info">ESC / Click outside / Swipe down to close</div>
+                <div data-i18n="popup-zoom-info">Double click to zoom • Pinch to zoom on mobile</div>
+            </div>
+        </div>
+    </main>
+
+    <style>
+        /* Page-specific styles for activator-inhibitor interface */
+        .color-group {
+            margin-top: var(--space-6);
+            padding-top: var(--space-6);
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .color-group h4 {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            margin-bottom: var(--space-4);
+            color: var(--text-primary);
+            font-size: var(--font-size-lg);
+        }
+        
+        .color-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-4);
+        }
+
+        /* Random Error Toggle Section */
+        .noise-toggle-section {
+            margin-top: var(--space-6);
+            padding-top: var(--space-6);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .toggle-header {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-4);
+            margin-bottom: var(--space-4);
+        }
+
+        .toggle-label {
+            flex: 1;
+        }
+
+        .toggle-label h4 {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            margin: 0 0 var(--space-1) 0;
+            color: var(--text-primary);
+            font-size: var(--font-size-lg);
+        }
+
+        /* Toggle Switch Styles */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+            border-radius: 28px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 2px;
+            bottom: 2px;
+            background-color: var(--text-muted);
+            transition: all 0.3s ease;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--primary-500);
+            border-color: var(--primary-500);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+            background-color: white;
+        }
+
+        .toggle-switch input:focus + .toggle-slider {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Noise Panel Styles */
+        .noise-panel {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+            opacity: 0;
+        }
+
+        .noise-panel.expanded {
+            max-height: 1200px;
+            opacity: 1;
+            transition: max-height 0.4s ease-in, opacity 0.4s ease-in;
+        }
+
+        .noise-panel-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--space-4);
+            margin-top: var(--space-3);
+        }
+
+        .noise-panel-content .form-group {
+            margin-bottom: var(--space-4);
+        }
+
+        .noise-panel-content .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Slider Output Styles */
+        input[type="range"] {
+            width: 100%;
+            margin: var(--space-2) 0;
+        }
+
+        output {
+            display: inline-block;
+            background: var(--bg-primary);
+            padding: var(--space-1) var(--space-3);
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            color: var(--primary-500);
+            margin-left: var(--space-2);
+            border: 1px solid var(--border-color);
+        }
+
+        .form-help {
+            font-size: var(--font-size-sm);
+            color: var(--text-muted);
+            margin-top: var(--space-2);
+            display: block;
+        }
+        
+        .image-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-4);
+            padding: var(--space-8);
+            color: var(--text-muted);
+            background: var(--bg-secondary);
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-lg);
+            min-height: 200px;
+        }
+        
+        .image-placeholder i {
+            font-size: 3rem;
+            opacity: 0.5;
+        }
+        
+        .generated-texture {
+            max-width: 100%;
+            height: auto;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            cursor: pointer;
+            transition: transform var(--transition-base);
+        }
+        
+        .generated-texture:hover {
+            transform: scale(1.02);
+        }
+        
+        .texture-actions {
+            display: flex;
+            gap: var(--space-4);
+            justify-content: center;
+            margin-top: var(--space-6);
+        }
+        
+        .btn-primary, .btn-secondary {
+            padding: var(--space-3) var(--space-6);
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all var(--transition-base);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-700), var(--primary-600));
+            transform: translateY(-2px);
+        }
+        
+        .error-message {
+            color: var(--error-500);
+            font-size: var(--font-size-sm);
+            margin-top: var(--space-1);
+        }
+        
+        .invalid {
+            border-color: var(--error-500) !important;
+        }
+        
+        /* Mobile responsivity */
+        @media (max-width: 768px) {
+            .color-inputs {
+                grid-template-columns: 1fr;
+            }
+            
+            .texture-actions {
+                flex-direction: column;
+            }
+        }
+        
+        /* Content grid layout for activator-inhibitor page */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: var(--space-8);
+            margin-top: var(--space-8);
+        }
+
+        @media (max-width: 1200px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (min-width: 768px) and (max-width: 1200px) {
+            .content-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .model-container {
+                grid-column: auto;
+            }
+        }
+
+        /* 3D Model Visualization Styles */
+        .model-selector {
+            margin-bottom: var(--space-4);
+            padding: var(--space-4);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        .model-selector label {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            margin-bottom: var(--space-2);
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .shell-selector {
+            width: 100%;
+            padding: var(--space-3);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .shell-selector:focus {
+            outline: none;
+            border-color: var(--primary-500);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .shell-selector:hover {
+            border-color: var(--primary-500);
+        }
+
+        .model-wrapper {
+            position: relative;
+        }
+
+        .threejs-container {
+            width: 100%;
+            height: 500px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            position: relative;
+            overflow: hidden;
+            border: 2px dashed var(--border-color);
+            transition: all 0.3s ease;
+            cursor: grab;
+        }
+
+        .threejs-container:active {
+            cursor: grabbing;
+        }
+
+        .threejs-container.drag-over {
+            border-color: var(--primary-500);
+            background: rgba(59, 130, 246, 0.1);
+            transform: scale(1.02);
+        }
+
+        .model-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+        }
+
+        .model-instructions {
+            text-align: center;
+            margin-top: var(--space-4);
+            color: var(--text-muted);
+            font-size: var(--font-size-sm);
+        }
+
+        .model-instructions p {
+            margin: var(--space-2) 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+        }
+
+        .model-instructions i {
+            color: var(--primary-500);
+        }
+
+        /* Pattern Analysis Section (inside image-container) */
+        .analysis-section {
+            margin-top: var(--space-4);
+            padding: var(--space-4);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+        }
+
+        .analysis-section h4 {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            margin: 0 0 var(--space-4) 0;
+            color: var(--text-primary);
+            font-size: var(--font-size-lg);
+        }
+
+        .analysis-section .toggle-header {
+            margin-bottom: var(--space-3);
+        }
+
+        .analysis-section .toggle-header:last-of-type {
+            margin-bottom: 0;
+        }
+
+        /* Grid & Heatmap Overlay Canvases */
+        #analysisGridCanvas,
+        #heatmapCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        #analysisGridCanvas {
+            z-index: 11; /* Grid above heatmap */
+        }
+
+        #heatmapCanvas {
+            z-index: 10; /* Heatmap below grid */
+        }
+
+        /* Make image-wrapper relative for absolute positioning of grid */
+        .image-wrapper {
+            position: relative;
+            display: flex; /* keep centered layout */
+            justify-content: center; /* center texture horizontally */
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .threejs-container {
+                height: 350px;
+            }
+
+            .model-instructions p {
+                font-size: var(--font-size-xs);
+            }
+        }
+    </style>
+    
+    <script>
+        // Toast notification system
+        function showToast(message, type = 'success', duration = 4000) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <span class="toast-message">${message}</span>
+                    <button class="toast-close" onclick="this.parentElement.parentElement.remove()">×</button>
+                </div>
+            `;
+            
+            let toastContainer = document.getElementById('toast-container');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.id = 'toast-container';
+                toastContainer.style.cssText = 'position:fixed;top:20px;right:20px;z-index:10000;';
+                document.body.appendChild(toastContainer);
+            }
+            
+            toastContainer.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.style.transition = 'all 0.3s ease';
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        if (toast.parentNode) {
+                            document.body.removeChild(toast);
+                        }
+                    }, 300);
+                }
+            }, 4000);
+        }
+        
+
+        // 3D Model Visualization System
+        class ShellViewer {
+            constructor() {
+                this.scene = null;
+                this.camera = null;
+                this.renderer = null;
+                this.controls = null;
+                this.shell = null;
+                this.container = null;
+                this.isInitialized = false;
+                this.currentTexture = null;
+                this.currentShellType = 'Buccinidae'; // Default shell
+                this.originalMaterials = [];
+                
+                // Individual scale settings for each shell type
+                this.shellScales = {
+                    'Buccinidae': 2.0,        // Smaller - was too big
+                    'Fasciolariidae': 2.8,    // Medium size
+                    'Moon snail': 2.5,        // Medium size
+                    'Muricidae': 3.2,         // Bigger - has fine details
+                    'Pecten': 3.0,            // Standard size
+                    'Whelk': 2.7              // Medium size
+                };
+                
+                this.init();
+            }
+
+            getShellScale() {
+                return this.shellScales[this.currentShellType] || 3.0;
+            }
+
+            init() {
+                this.container = document.getElementById('threejs-container');
+                if (!this.container) return;
+
+                this.setupScene();
+                this.setupCamera();
+                this.setupRenderer();
+                this.setupControls();
+                this.setupLights();
+                this.loadShellModel();
+                this.setupDragAndDrop();
+                this.setupEvents();
+                this.animate();
+            }
+
+            setupScene() {
+                this.scene = new THREE.Scene();
+                this.updateSceneBackground();
+            }
+
+            updateSceneBackground() {
+                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                const bgColor = isDark ? 0x1a202c : 0xf8fafc;
+                this.scene.background = new THREE.Color(bgColor);
+            }
+
+            setupCamera() {
+                const aspect = this.container.clientWidth / this.container.clientHeight;
+                this.camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
+                this.camera.position.set(0, 0, 3);
+            }
+
+            setupRenderer() {
+                this.renderer = new THREE.WebGLRenderer({ 
+                    antialias: true, // Enable antialiasing for smooth textures
+                    alpha: true,
+                    preserveDrawingBuffer: true,
+                    powerPreference: "high-performance"
+                });
+                this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Limit for performance
+                this.renderer.shadowMap.enabled = false; // No shadows for cleaner textures
+                this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+                this.renderer.toneMapping = THREE.ACESFilmicToneMapping; // Better color reproduction
+                this.renderer.toneMappingExposure = 1.2; // Slightly brighter exposure
+                this.renderer.physicallyCorrectLights = false; // Simpler lighting for better texture visibility
+                this.container.appendChild(this.renderer.domElement);
+            }
+
+            setupControls() {
+                try {
+                    if (typeof THREE.OrbitControls !== 'undefined') {
+                        this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+                        this.controls.enableDamping = true;
+                        this.controls.dampingFactor = 0.05;
+                        this.controls.screenSpacePanning = false;
+                        this.controls.enableZoom = true; // Enable zoom
+                        this.controls.enablePan = true; // Enable panning
+                        this.controls.enableRotate = true; // Enable rotation
+                        this.controls.minDistance = 0.5; // Closer zoom
+                        this.controls.maxDistance = 20; // Further zoom out
+                        this.controls.maxPolarAngle = Math.PI;
+                        this.controls.zoomSpeed = 1.0; // Normal zoom speed
+                        this.controls.panSpeed = 0.8; // Pan speed
+                        this.controls.rotateSpeed = 0.5; // Rotation speed
+                    } else {
+                        console.warn('OrbitControls not loaded, using enhanced mouse controls');
+                        this.setupEnhancedControls();
+                    }
+                } catch (error) {
+                    console.warn('Error setting up OrbitControls:', error);
+                    this.setupEnhancedControls();
+                }
+            }
+
+            setupEnhancedControls() {
+                // Enhanced mouse controls with zoom support
+                let isMouseDown = false;
+                let mouseX = 0, mouseY = 0;
+
+                // Mouse rotation
+                this.renderer.domElement.addEventListener('mousedown', (e) => {
+                    isMouseDown = true;
+                    mouseX = e.clientX;
+                    mouseY = e.clientY;
+                });
+
+                document.addEventListener('mouseup', () => {
+                    isMouseDown = false;
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!isMouseDown || !this.shell) return;
+                    
+                    const deltaX = e.clientX - mouseX;
+                    const deltaY = e.clientY - mouseY;
+                    
+                    this.shell.rotation.y += deltaX * 0.01;
+                    this.shell.rotation.x += deltaY * 0.01;
+                    
+                    mouseX = e.clientX;
+                    mouseY = e.clientY;
+                });
+
+                // Mouse wheel zoom
+                this.renderer.domElement.addEventListener('wheel', (e) => {
+                    e.preventDefault();
+                    
+                    const zoomSpeed = 0.1;
+                    const currentZ = this.camera.position.z;
+                    
+                    if (e.deltaY > 0) {
+                        // Zoom out
+                        this.camera.position.z = Math.min(currentZ + zoomSpeed, 20);
+                    } else {
+                        // Zoom in
+                        this.camera.position.z = Math.max(currentZ - zoomSpeed, 0.5);
+                    }
+                });
+
+                // Touch controls for mobile
+                this.setupTouchControls();
+            }
+
+            setupTouchControls() {
+                let lastTouchDistance = 0;
+                let lastTouchCenter = { x: 0, y: 0 };
+
+                this.renderer.domElement.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    if (e.touches.length === 2) {
+                        // Pinch to zoom
+                        const touch1 = e.touches[0];
+                        const touch2 = e.touches[1];
+                        lastTouchDistance = Math.hypot(
+                            touch2.clientX - touch1.clientX,
+                            touch2.clientY - touch1.clientY
+                        );
+                        lastTouchCenter = {
+                            x: (touch1.clientX + touch2.clientX) / 2,
+                            y: (touch1.clientY + touch2.clientY) / 2
+                        };
+                    }
+                });
+
+                this.renderer.domElement.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    if (e.touches.length === 2) {
+                        // Handle pinch zoom
+                        const touch1 = e.touches[0];
+                        const touch2 = e.touches[1];
+                        const currentDistance = Math.hypot(
+                            touch2.clientX - touch1.clientX,
+                            touch2.clientY - touch1.clientY
+                        );
+
+                        if (lastTouchDistance > 0) {
+                            const zoomFactor = currentDistance / lastTouchDistance;
+                            const currentZ = this.camera.position.z;
+                            const newZ = currentZ / zoomFactor;
+                            this.camera.position.z = Math.max(0.5, Math.min(20, newZ));
+                        }
+
+                        lastTouchDistance = currentDistance;
+                    }
+                });
+            }
+
+            setupLights() {
+                // Optimized lighting for enhanced texture visibility
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+                this.scene.add(ambientLight);
+
+                // Primary directional light for good texture illumination
+                const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.6);
+                directionalLight1.position.set(10, 10, 5);
+                directionalLight1.castShadow = false;
+                this.scene.add(directionalLight1);
+
+                // Fill light from opposite side for even illumination
+                const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
+                directionalLight2.position.set(-10, 5, -5);
+                directionalLight2.castShadow = false;
+                this.scene.add(directionalLight2);
+
+                // Top light for better surface details
+                const directionalLight3 = new THREE.DirectionalLight(0xffffff, 0.3);
+                directionalLight3.position.set(0, 15, 0);
+                directionalLight3.castShadow = false;
+                this.scene.add(directionalLight3);
+            }
+
+            loadShellModel(shellType = null) {
+                // Use provided shell type or current one
+                if (shellType) {
+                    this.currentShellType = shellType;
+                }
+                
+                console.log('Loading shell model:', this.currentShellType);
+                
+                // Try to load OBJ model, fallback to simple parser if loaders not available
+                if (typeof THREE.OBJLoader !== 'undefined') {
+                    this.loadOBJModel();
+                } else {
+                    console.log('OBJLoader not available, using simple OBJ parser');
+                    this.loadOBJWithSimpleParser();
+                }
+            }
+
+            loadOBJModel() {
+                const loadingEl = document.getElementById('modelLoading');
+                console.log('Starting OBJ model loading...');
+                
+                // Check if loaders are available
+                if (typeof THREE.OBJLoader === 'undefined') {
+                    console.error('OBJLoader not available');
+                    this.fallbackToBasicShell(loadingEl);
+                    return;
+                }
+                
+                if (typeof THREE.MTLLoader === 'undefined') {
+                    console.warn('MTLLoader not available, loading OBJ without materials');
+                    this.loadOBJWithoutMaterials(loadingEl);
+                    return;
+                }
+                
+                try {
+                    // First load MTL file for materials
+                    console.log('Loading MTL file...');
+                    const mtlLoader = new THREE.MTLLoader();
+                    const mtlPath = `/assets/${encodeURIComponent(this.currentShellType)}/${encodeURIComponent(this.currentShellType)}.mtl`;
+                    console.log('Loading MTL from:', mtlPath);
+                    
+                    mtlLoader.load(mtlPath, (materials) => {
+                        console.log('MTL loaded successfully, materials:', materials);
+                        materials.preload();
+                        
+                        // Store original materials for reset functionality
+                        this.originalMaterials = [];
+                        Object.values(materials.materials).forEach(material => {
+                            this.originalMaterials.push(material.clone());
+                        });
+                        console.log('Stored', this.originalMaterials.length, 'original materials');
+                        
+                        // Load OBJ file
+                        console.log('Loading OBJ file...');
+                        const objLoader = new THREE.OBJLoader();
+                        objLoader.setMaterials(materials);
+                        
+                        const objPath = `/assets/${encodeURIComponent(this.currentShellType)}/${encodeURIComponent(this.currentShellType)}.obj`;
+                        console.log('Loading OBJ from:', objPath);
+                        objLoader.load(objPath, (object) => {
+                            console.log('OBJ loaded successfully:', object);
+                            
+                            // Scale and position the shell with individual sizing
+                            const scale = this.getShellScale();
+                            object.scale.setScalar(scale);
+                            console.log(`Scaled ${this.currentShellType} to ${scale}`);
+                            object.position.set(0, 0, 0);
+                            object.rotation.set(0, 0, 0);
+                            
+                            // Count meshes
+                            let meshCount = 0;
+                            object.traverse((child) => {
+                                if (child.isMesh) {
+                                    meshCount++;
+                                    console.log('Found mesh:', child.name, 'Material:', child.material);
+                                    if (child.material) {
+                                        child.material.needsUpdate = true;
+                                    }
+                                }
+                            });
+                            console.log('Total meshes found:', meshCount);
+                            
+                            this.shell = object;
+                            this.scene.add(this.shell);
+                            
+                            // Hide loading indicator
+                            if (loadingEl) loadingEl.style.display = 'none';
+                            
+                            this.isInitialized = true;
+                            console.log('OBJ model loaded and added to scene successfully');
+                            
+                        }, (progress) => {
+                            if (progress.lengthComputable) {
+                                const percentComplete = progress.loaded / progress.total * 100;
+                                console.log('OBJ Loading progress:', percentComplete.toFixed(2) + '%');
+                            }
+                        }, (error) => {
+                            console.error('Error loading OBJ:', error);
+                            this.fallbackToBasicShell(loadingEl);
+                        });
+                        
+                    }, (progress) => {
+                        console.log('MTL loading progress:', progress);
+                    }, (error) => {
+                        console.error('Error loading MTL:', error);
+                        console.log('Trying to load OBJ without materials...');
+                        this.loadOBJWithoutMaterials(loadingEl);
+                    });
+                    
+                } catch (error) {
+                    console.error('Error in loadOBJModel:', error);
+                    this.fallbackToBasicShell(loadingEl);
+                }
+            }
+
+            loadOBJWithoutMaterials(loadingEl) {
+                console.log('Loading OBJ without materials...');
+                const objLoader = new THREE.OBJLoader();
+                
+                const objPath = `/assets/${encodeURIComponent(this.currentShellType)}/${encodeURIComponent(this.currentShellType)}.obj`;
+                console.log('Loading OBJ without materials from:', objPath);
+                objLoader.load(objPath, (object) => {
+                    console.log('OBJ loaded without materials:', object);
+                    
+                    // Apply default material
+                    const defaultMaterial = new THREE.MeshPhongMaterial({ 
+                        color: 0xf0f0f0,
+                        shininess: 30,
+                        specular: 0x111111
+                    });
+                    this.originalMaterials = [defaultMaterial];
+                    
+                    let meshCount = 0;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material = defaultMaterial.clone();
+                            meshCount++;
+                            console.log('Applied default material to mesh:', child.name);
+                        }
+                    });
+                    console.log('Applied materials to', meshCount, 'meshes');
+                    
+                    const scale = this.getShellScale();
+                    object.scale.setScalar(scale);
+                    console.log(`Scaled ${this.currentShellType} to ${scale}`);
+                    object.position.set(0, 0, 0);
+                    
+                    this.shell = object;
+                    this.scene.add(this.shell);
+                    
+                    if (loadingEl) loadingEl.style.display = 'none';
+                    this.isInitialized = true;
+                    console.log('OBJ model without materials loaded successfully');
+                    
+                }, (progress) => {
+                    if (progress.lengthComputable) {
+                        const percentComplete = progress.loaded / progress.total * 100;
+                        console.log('OBJ Loading progress (no MTL):', percentComplete.toFixed(2) + '%');
+                    }
+                }, (error) => {
+                    console.error('Error loading OBJ without materials:', error);
+                    this.fallbackToBasicShell(loadingEl);
+                });
+            }
+
+            loadOBJWithSimpleParser() {
+                const loadingEl = document.getElementById('modelLoading');
+                console.log('Loading OBJ with simple parser...');
+                
+                // Fetch OBJ file manually based on selected shell type
+                const objPath = `/assets/${encodeURIComponent(this.currentShellType)}/${encodeURIComponent(this.currentShellType)}.obj`;
+                console.log('Fetching OBJ from:', objPath);
+                fetch(objPath)
+                    .then(response => response.text())
+                    .then(objData => {
+                        console.log('OBJ file fetched, parsing...');
+                        const geometry = this.parseOBJ(objData);
+                        
+                        if (geometry) {
+                            const material = new THREE.MeshPhongMaterial({ 
+                                color: 0xf0f0f0,
+                                shininess: 30,
+                                specular: 0x111111
+                            });
+                            this.originalMaterials = [material];
+                            
+                            this.shell = new THREE.Mesh(geometry, material);
+                            const scale = this.getShellScale();
+                            this.shell.scale.setScalar(scale);
+                            console.log(`Scaled ${this.currentShellType} to ${scale}`);
+                            this.scene.add(this.shell);
+                            
+                            if (loadingEl) loadingEl.style.display = 'none';
+                            this.isInitialized = true;
+                            console.log('OBJ loaded with simple parser successfully');
+                        } else {
+                            throw new Error('Failed to parse OBJ data');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading OBJ with simple parser:', error);
+                        this.fallbackToBasicShell(loadingEl);
+                    });
+            }
+
+            parseOBJ(data) {
+                console.log('Parsing OBJ data with UV mapping support...');
+                const vertices = [];
+                const textureCoords = [];
+                const faces = [];
+                const faceUVs = [];
+                
+                const lines = data.split('\n');
+                let vertexCount = 0;
+                let uvCount = 0;
+                let faceCount = 0;
+                
+                for (let line of lines) {
+                    line = line.trim();
+                    if (line.startsWith('v ')) {
+                        // Vertex positions
+                        const parts = line.split(/\s+/);
+                        vertices.push(
+                            parseFloat(parts[1]),
+                            parseFloat(parts[2]),
+                            parseFloat(parts[3])
+                        );
+                        vertexCount++;
+                    } else if (line.startsWith('vt ')) {
+                        // UV texture coordinates
+                        const parts = line.split(/\s+/);
+                        textureCoords.push(
+                            parseFloat(parts[1]),
+                            parseFloat(parts[2])
+                        );
+                        uvCount++;
+                    } else if (line.startsWith('f ')) {
+                        // Face definitions with vertex/texture/normal indices
+                        const parts = line.split(/\s+/);
+                        if (parts.length >= 4) {
+                            const vertexIndices = [];
+                            const uvIndices = [];
+                            
+                            // Parse each vertex reference in the face
+                            for (let i = 1; i < parts.length; i++) {
+                                const vertexData = parts[i].split('/');
+                                const vertexIndex = parseInt(vertexData[0]) - 1; // OBJ is 1-indexed
+                                const uvIndex = vertexData.length > 1 && vertexData[1] ? parseInt(vertexData[1]) - 1 : -1;
+                                
+                                vertexIndices.push(vertexIndex);
+                                uvIndices.push(uvIndex);
+                            }
+                            
+                            // Triangulate faces (convert quads to triangles)
+                            if (vertexIndices.length === 3) {
+                                // Triangle face
+                                faces.push(vertexIndices[0], vertexIndices[1], vertexIndices[2]);
+                                faceUVs.push(uvIndices[0], uvIndices[1], uvIndices[2]);
+                                faceCount++;
+                            } else if (vertexIndices.length === 4) {
+                                // Quad face - split into two triangles
+                                faces.push(vertexIndices[0], vertexIndices[1], vertexIndices[2]);
+                                faces.push(vertexIndices[0], vertexIndices[2], vertexIndices[3]);
+                                faceUVs.push(uvIndices[0], uvIndices[1], uvIndices[2]);
+                                faceUVs.push(uvIndices[0], uvIndices[2], uvIndices[3]);
+                                faceCount += 2;
+                            }
+                        }
+                    }
+                }
+                
+                console.log(`Parsed ${vertexCount} vertices, ${uvCount} UV coordinates, ${faceCount} faces`);
+                
+                if (vertices.length === 0 || faces.length === 0) {
+                    console.error('No valid geometry found in OBJ file');
+                    return null;
+                }
+                
+                // Create Three.js geometry
+                const geometry = new THREE.BufferGeometry();
+                geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+                geometry.setIndex(faces);
+                
+                // Handle UV mapping
+                if (textureCoords.length > 0 && faceUVs.length > 0) {
+                    console.log('Creating UV mapping from OBJ data...');
+                    
+                    // Create properly indexed UV coordinates for each vertex
+                    const uvBuffer = [];
+                    for (let i = 0; i < faceUVs.length; i++) {
+                        const uvIndex = faceUVs[i];
+                        if (uvIndex >= 0 && uvIndex < textureCoords.length / 2) {
+                            uvBuffer.push(textureCoords[uvIndex * 2]);
+                            uvBuffer.push(textureCoords[uvIndex * 2 + 1]);
+                        } else {
+                            // Fallback UV coordinates if index is invalid
+                            uvBuffer.push(0.5);
+                            uvBuffer.push(0.5);
+                        }
+                    }
+                    
+                    if (uvBuffer.length > 0) {
+                        geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvBuffer, 2));
+                        console.log('UV mapping applied successfully with', uvBuffer.length / 2, 'UV coordinates');
+                    } else {
+                        console.warn('Failed to create UV buffer, generating fallback UVs');
+                        this.generateFallbackUVs(geometry);
+                    }
+                } else {
+                    console.warn('No UV coordinates found in OBJ file, generating fallback UVs');
+                    this.generateFallbackUVs(geometry);
+                }
+                
+                geometry.computeVertexNormals();
+                console.log('Geometry created successfully with proper UV mapping');
+                return geometry;
+            }
+
+            generateFallbackUVs(geometry) {
+                console.log('Generating fallback UV coordinates using spherical mapping...');
+                
+                const positions = geometry.getAttribute('position');
+                if (!positions) {
+                    console.error('No position attribute found in geometry');
+                    return;
+                }
+                
+                const uvs = [];
+                const vertex = new THREE.Vector3();
+                
+                for (let i = 0; i < positions.count; i++) {
+                    vertex.fromBufferAttribute(positions, i);
+                    
+                    // Normalize vertex position for spherical mapping
+                    vertex.normalize();
+                    
+                    // Convert to spherical coordinates
+                    const theta = Math.atan2(vertex.x, vertex.z);
+                    const phi = Math.acos(vertex.y);
+                    
+                    // Convert to UV coordinates (0-1 range)
+                    const u = (theta + Math.PI) / (2 * Math.PI);
+                    const v = phi / Math.PI;
+                    
+                    uvs.push(u, v);
+                }
+                
+                if (uvs.length > 0) {
+                    geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+                    console.log('Generated', uvs.length / 2, 'fallback UV coordinates using spherical mapping');
+                } else {
+                    console.error('Failed to generate fallback UV coordinates');
+                }
+            }
+
+            fallbackToBasicShell(loadingEl) {
+                console.log('Falling back to basic shell geometry');
+                
+                // Create simple fallback shell
+                const geometry = new THREE.SphereGeometry(1, 32, 16);
+                const material = new THREE.MeshPhongMaterial({ 
+                    color: 0xf0f0f0,
+                    shininess: 30,
+                    specular: 0x111111
+                });
+                
+                this.originalMaterials = [material];
+                this.shell = new THREE.Mesh(geometry, material);
+                this.scene.add(this.shell);
+                
+                if (loadingEl) {
+                    loadingEl.innerHTML = '<div class="loading-text" style="color: orange;">Using fallback model</div>';
+                    setTimeout(() => {
+                        loadingEl.style.display = 'none';
+                    }, 2000);
+                }
+                
+                this.isInitialized = true;
+            }
+
+            setupDragAndDrop() {
+                // Enable drag and drop from generated image
+                const generatedImage = document.getElementById('generatedImage');
+                
+                if (generatedImage) {
+                    generatedImage.draggable = true;
+                    generatedImage.addEventListener('dragstart', (e) => {
+                        e.dataTransfer.setData('text/plain', generatedImage.src);
+                        e.dataTransfer.effectAllowed = 'copy';
+                    });
+                }
+
+                // Setup drop zone
+                this.container.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'copy';
+                    this.container.classList.add('drag-over');
+                });
+
+                this.container.addEventListener('dragleave', (e) => {
+                    if (!this.container.contains(e.relatedTarget)) {
+                        this.container.classList.remove('drag-over');
+                    }
+                });
+
+                this.container.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    this.container.classList.remove('drag-over');
+                    
+                    const imageUrl = e.dataTransfer.getData('text/plain');
+                    if (imageUrl) {
+                        this.applyTexture(imageUrl);
+                    }
+                });
+            }
+
+            applyTexture(imageUrl) {
+                if (!this.shell || !this.isInitialized) {
+                    console.error('Cannot apply texture: shell not loaded or not initialized');
+                    showToast(window.languageSwitcher ? window.languageSwitcher.t('model-not-ready') : 'Model not ready for texture application', 'error');
+                    return;
+                }
+
+                console.log('Starting texture application process...');
+                console.log('Texture URL:', imageUrl);
+                console.log('Shell type:', this.currentShellType);
+
+                const loader = new THREE.TextureLoader();
+                loader.load(imageUrl, (texture) => {
+                    // Perfect 1:1 texture reproduction settings
+                    texture.wrapS = THREE.RepeatWrapping;
+                    texture.wrapT = THREE.RepeatWrapping;
+                    texture.repeat.set(1, 1); // Exactly once - no repetition
+                    texture.offset.set(0, 0);
+                    texture.magFilter = THREE.LinearFilter;
+                    texture.minFilter = THREE.LinearMipmapLinearFilter;
+                    texture.generateMipmaps = true;
+                    texture.flipY = false;
+                    texture.premultiplyAlpha = false;
+                    texture.unpackAlignment = 4;
+                    texture.encoding = THREE.sRGBEncoding; // Ensure proper color encoding
+                    
+                    // No anisotropy to prevent any filtering that could alter colors
+                    texture.anisotropy = 1;
+
+                    console.log('Applying enhanced texture with optimal visibility...');
+                    console.log('Texture anisotropy:', texture.anisotropy);
+
+                    // Apply 100% visible texture - no lighting, no blending
+                    if (this.shell.traverse) {
+                        // For OBJ models (Group objects)
+                        this.shell.traverse((child) => {
+                            if (child.isMesh && child.material) {
+                                // Unlit material for perfect 1:1 texture display - no lighting interference
+                                const newMaterial = new THREE.MeshBasicMaterial({
+                                    map: texture,
+                                    transparent: false,
+                                    opacity: 1.0,
+                                    side: THREE.DoubleSide,
+                                    toneMapped: false,
+                                    fog: false,
+                                    alphaTest: 0,
+                                    depthWrite: true,
+                                    depthTest: true,
+                                    vertexColors: false
+                                });
+                                
+                                // Force material update
+                                child.material = newMaterial;
+                                child.material.needsUpdate = true;
+                                
+                                // Ensure proper UV mapping
+                                if (child.geometry.attributes.uv) {
+                                    const uvCount = child.geometry.attributes.uv.count;
+                                    console.log('UV coordinates available for mesh:', child.name, 'UV count:', uvCount);
+                                    
+                                    // Validate UV coordinates
+                                    if (uvCount > 0) {
+                                        console.log('✓ Texture mapping should work correctly for:', child.name);
+                                    } else {
+                                        console.warn('⚠ UV attribute exists but has no data for:', child.name);
+                                    }
+                                } else {
+                                    console.warn('✗ No UV coordinates for mesh:', child.name, '- texture may appear as solid color');
+                                    console.log('Attempting to generate fallback UVs for mesh:', child.name);
+                                    
+                                    // Try to generate fallback UVs for this specific mesh
+                                    this.generateFallbackUVs(child.geometry);
+                                    
+                                    if (child.geometry.attributes.uv) {
+                                        console.log('✓ Successfully generated fallback UVs for:', child.name);
+                                    } else {
+                                        console.error('✗ Failed to generate fallback UVs for:', child.name);
+                                    }
+                                }
+                                
+                                console.log('Applied enhanced texture to mesh:', child.name);
+                            }
+                        });
+                    } else {
+                        // For simple mesh objects (fallback) - perfect 1:1 reproduction
+                        const newMaterial = new THREE.MeshBasicMaterial({
+                            map: texture,
+                            transparent: false,
+                            opacity: 1.0,
+                            side: THREE.DoubleSide,
+                            toneMapped: false,
+                            fog: false,
+                            alphaTest: 0,
+                            depthWrite: true,
+                            depthTest: true,
+                            vertexColors: false
+                        });
+                        
+                        // Check UV coordinates for fallback mesh
+                        if (this.shell.geometry.attributes.uv) {
+                            const uvCount = this.shell.geometry.attributes.uv.count;
+                            console.log('✓ Fallback mesh has UV coordinates, count:', uvCount);
+                        } else {
+                            console.warn('✗ Fallback mesh missing UV coordinates, generating...');
+                            this.generateFallbackUVs(this.shell.geometry);
+                        }
+                        
+                        this.shell.material = newMaterial;
+                        this.shell.material.needsUpdate = true;
+                    }
+
+                    // Force renderer update for perfect color reproduction
+                    if (this.renderer) {
+                        this.renderer.shadowMap.enabled = false; // Disable shadows completely
+                        this.renderer.toneMapping = THREE.NoToneMapping; // Disable tone mapping
+                        this.renderer.toneMappingExposure = 1.0; // Reset exposure
+                        this.renderer.outputEncoding = THREE.sRGBEncoding; // Proper color space
+                    }
+
+                    this.currentTexture = texture;
+                    
+                    // Show reset button
+                    const modelActions = document.getElementById('modelActions');
+                    if (modelActions) {
+                        modelActions.style.display = 'flex';
+                    }
+                    
+                    showToast(window.languageSwitcher ? window.languageSwitcher.t('texture-applied') : 'Texture successfully applied to shell!');
+                }, undefined, (error) => {
+                    showToast(window.languageSwitcher ? window.languageSwitcher.t('texture-generation-error') : 'Error loading texture', 'error');
+                    console.error('Error loading texture:', error);
+                });
+            }
+
+            resetTexture() {
+                if (!this.shell || !this.isInitialized || !this.originalMaterials) return;
+
+                // Restore original materials for OBJ model
+                let materialIndex = 0;
+                
+                if (this.shell.traverse) {
+                    // For OBJ models (Group objects)
+                    this.shell.traverse((child) => {
+                        if (child.isMesh && child.material) {
+                            if (materialIndex < this.originalMaterials.length) {
+                                child.material = this.originalMaterials[materialIndex].clone();
+                                materialIndex++;
+                            } else if (this.originalMaterials.length > 0) {
+                                // Use first material if we run out
+                                child.material = this.originalMaterials[0].clone();
+                            }
+                        }
+                    });
+                } else {
+                    // For simple mesh objects (fallback)
+                    if (this.originalMaterials.length > 0) {
+                        this.shell.material = this.originalMaterials[0].clone();
+                    }
+                }
+
+                this.currentTexture = null;
+                
+                // Hide reset button
+                const modelActions = document.getElementById('modelActions');
+                if (modelActions) {
+                    modelActions.style.display = 'none';
+                }
+                
+                showToast(window.languageSwitcher ? window.languageSwitcher.t('texture-reset') : 'Texture reset to original colors!');
+            }
+
+            setupEvents() {
+                window.addEventListener('resize', () => this.onWindowResize());
+                
+                // Listen for theme changes
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+                            this.updateSceneBackground();
+                        }
+                    });
+                });
+                
+                observer.observe(document.documentElement, {
+                    attributes: true,
+                    attributeFilter: ['data-theme']
+                });
+            }
+
+            onWindowResize() {
+                if (!this.camera || !this.renderer) return;
+
+                const width = this.container.clientWidth;
+                const height = this.container.clientHeight;
+
+                this.camera.aspect = width / height;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(width, height);
+            }
+
+            animate() {
+                requestAnimationFrame(() => this.animate());
+
+                if (this.controls) {
+                    this.controls.update();
+                }
+
+                if (this.shell && this.isInitialized) {
+                    // Gentle rotation animation
+                    this.shell.rotation.y += 0.005;
+                }
+
+                if (this.renderer && this.scene && this.camera) {
+                    this.renderer.render(this.scene, this.camera);
+                }
+            }
+
+            clearCurrentModel() {
+                if (this.shell) {
+                    this.scene.remove(this.shell);
+                    this.shell = null;
+                }
+                this.currentTexture = null;
+                this.originalMaterials = [];
+                this.isInitialized = false;
+                
+                // Hide reset button
+                const modelActions = document.getElementById('modelActions');
+                if (modelActions) {
+                    modelActions.style.display = 'none';
+                }
+            }
+
+            changeModel(newShellType) {
+                console.log('Changing model to:', newShellType);
+                
+                // Show loading
+                const loadingEl = document.getElementById('modelLoading');
+                if (loadingEl) {
+                    loadingEl.style.display = 'block';
+                    loadingEl.innerHTML = '<div class="loading-spinner"></div><div class="loading-text">Loading new model...</div>';
+                }
+                
+                // Clear current model
+                this.clearCurrentModel();
+                
+                // Load new model
+                this.loadShellModel(newShellType);
+            }
+
+            show() {
+                const modelContainer = document.getElementById('modelContainer');
+                if (modelContainer) {
+                    modelContainer.style.display = 'block';
+                    // Trigger resize to ensure proper rendering
+                    setTimeout(() => this.onWindowResize(), 100);
+                }
+            }
+
+            hide() {
+                const modelContainer = document.getElementById('modelContainer');
+                if (modelContainer) {
+                    modelContainer.style.display = 'none';
+                }
+            }
+        }
+
+        // Initialize 3D viewer
+        let shellViewer = null;
+        
+        let initRetries = 0;
+        const maxRetries = 5;
+        
+        function initShellViewer() {
+            try {
+                console.log('Checking THREE availability:', typeof THREE);
+                console.log('Checking OBJLoader:', typeof THREE.OBJLoader);
+                console.log('Checking MTLLoader:', typeof THREE.MTLLoader);
+                console.log('Checking OrbitControls:', typeof THREE.OrbitControls);
+                
+                if (typeof THREE !== 'undefined') {
+                    // Don't wait for loaders - use custom parser if they're not available
+                    if (typeof THREE.OBJLoader === 'undefined' && initRetries < maxRetries) {
+                        console.log('OBJLoader not ready yet, retrying... (' + (initRetries + 1) + '/' + maxRetries + ')');
+                        initRetries++;
+                        setTimeout(initShellViewer, 500);
+                        return;
+                    }
+                    
+                    console.log('Initializing ShellViewer (loaders available:', typeof THREE.OBJLoader !== 'undefined', ')');
+                    shellViewer = new ShellViewer();
+                    console.log('ShellViewer initialized successfully');
+                } else {
+                    console.log('Three.js not loaded yet, retrying...');
+                    setTimeout(initShellViewer, 200);
+                }
+            } catch (error) {
+                console.error('Error initializing ShellViewer:', error);
+                console.error('Error stack:', error.stack);
+                // Hide loading and show error message
+                const loadingEl = document.getElementById('modelLoading');
+                if (loadingEl) {
+                    loadingEl.innerHTML = '<div class="loading-text" style="color: red;">Error loading 3D model: ' + error.message + '</div>';
+                }
+            }
+        }
+
+        // Wait for both DOM and scripts to load
+        let scriptsLoaded = 0;
+        const totalScripts = 2; // Three.js and OrbitControls
+        
+        function checkScriptsLoaded() {
+            scriptsLoaded++;
+            console.log(`Script ${scriptsLoaded}/${totalScripts} loaded`);
+            if (scriptsLoaded >= totalScripts) {
+                console.log('All scripts loaded, initializing...');
+                setTimeout(initShellViewer, 100);
+            }
+        }
+        
+        // Add load events to scripts
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded');
+            const scripts = document.querySelectorAll('script[src*="three"]');
+            scripts.forEach((script, index) => {
+                script.addEventListener('load', checkScriptsLoaded);
+                script.addEventListener('error', (e) => {
+                    console.error(`Script ${index} failed to load:`, e);
+                });
+            });
+            
+            // Fallback - try to initialize after 2 seconds regardless
+            setTimeout(() => {
+                if (!shellViewer) {
+                    console.log('Fallback initialization...');
+                    initShellViewer();
+                }
+            }, 2000);
+        });
+
+        // Show 3D model when texture is generated
+        const originalFormHandler = document.getElementById("activatorForm").onsubmit;
+        document.getElementById("activatorForm").addEventListener("submit", function(event) {
+            // The existing form handler will run first
+            // Then we'll show the 3D model after successful generation
+        });
+
+        // Modify the existing fetch success handler to show 3D model
+        const originalFetch = window.fetch;
+        window.fetch = function(...args) {
+            return originalFetch.apply(this, args).then(response => {
+                if (args[0] === '/calculate' && response.ok) {
+                    response.clone().json().then(data => {
+                        if (data.image_url && shellViewer) {
+                            setTimeout(() => {
+                                shellViewer.show();
+                            }, 500);
+                        }
+                    });
+                }
+                return response;
+            });
+        };
+
+        // Global function for reset button
+        function resetShellTexture() {
+            if (shellViewer && shellViewer.resetTexture) {
+                shellViewer.resetTexture();
+            }
+        }
+
+        // Global function for changing shell model
+        function changeShellModel() {
+            const shellSelect = document.getElementById('shellSelect');
+            if (shellSelect && shellViewer && shellViewer.changeModel) {
+                const selectedShell = shellSelect.value;
+                shellViewer.changeModel(selectedShell);
+                showToast((window.languageSwitcher ? window.languageSwitcher.t('model-loading') : 'Loading model:') + ` ${selectedShell}`);
+            }
+        }
+
+        // Pattern Analysis System (Grid + Heatmap)
+        class PatternAnalysis {
+            constructor() {
+                // Canvas elements
+                this.gridCanvas = document.getElementById('analysisGridCanvas');
+                this.gridCtx = this.gridCanvas ? this.gridCanvas.getContext('2d') : null;
+                this.heatmapCanvas = document.getElementById('heatmapCanvas');
+                this.heatmapCtx = this.heatmapCanvas ? this.heatmapCanvas.getContext('2d') : null;
+
+                // Image and toggles
+                this.image = document.getElementById('generatedImage');
+                this.gridToggle = document.getElementById('show_analysis_grid');
+                this.heatmapToggle = document.getElementById('show_regularity_heatmap');
+                this.analysisSection = document.getElementById('analysisSection');
+
+                this.gridSize = 4; // 4x4 grid
+                // Heatmap caching
+                this.heatmapBuffer = null; // offscreen canvas with last computed heatmap
+                this.computedForSrc = null; // image src that buffer corresponds to
+
+                this.initEventListeners();
+            }
+
+            initEventListeners() {
+                // Grid toggle
+                if (this.gridToggle) {
+                    this.gridToggle.addEventListener('change', () => {
+                        this.updateGridVisibility();
+                    });
+                }
+
+                // Heatmap toggle
+                if (this.heatmapToggle) {
+                    this.heatmapToggle.addEventListener('change', () => {
+                        this.updateHeatmapVisibility();
+                    });
+                }
+
+                // Redraw when image loads
+                if (this.image) {
+                    this.image.addEventListener('load', () => {
+                        this.drawGrid();
+                        // Compute heatmap only if enabled at load; otherwise lazy on toggle
+                        if (this.heatmapToggle && this.heatmapToggle.checked) {
+                            const compute = () => setTimeout(() => this.computeHeatmapBuffer(), 50);
+                            if (window.requestAnimationFrame) requestAnimationFrame(compute); else compute();
+                        }
+                    });
+                }
+            }
+
+            updateGridVisibility() {
+                if (!this.gridCanvas || !this.gridToggle) return;
+
+                if (this.gridToggle.checked && this.image.style.display !== 'none') {
+                    this.drawGrid();
+                    this.gridCanvas.style.display = 'block';
+                } else {
+                    this.gridCanvas.style.display = 'none';
+                }
+            }
+
+            updateHeatmapVisibility() {
+                if (!this.heatmapCanvas || !this.heatmapToggle) return;
+
+                if (this.heatmapToggle.checked && this.image.style.display !== 'none') {
+                    // Compute lazily if not computed for this image yet
+                    if (!this.heatmapBuffer || this.computedForSrc !== this.image.src) {
+                        const compute = () => {
+                            this.computeHeatmapBuffer();
+                            setTimeout(() => this.drawHeatmap(), 50);
+                        };
+                        if (window.requestAnimationFrame) requestAnimationFrame(compute); else compute();
+                    } else {
+                        this.drawHeatmap();
+                    }
+                    this.heatmapCanvas.style.display = 'block';
+                } else {
+                    this.heatmapCanvas.style.display = 'none';
+                }
+            }
+
+            drawGrid() {
+                if (!this.gridCanvas || !this.gridCtx || !this.image) return;
+                if (this.image.style.display === 'none') return;
+
+                // Set canvas dimensions to match image
+                this.gridCanvas.width = this.image.naturalWidth || this.image.width;
+                this.gridCanvas.height = this.image.naturalHeight || this.image.height;
+
+                // Clear canvas
+                this.gridCtx.clearRect(0, 0, this.gridCanvas.width, this.gridCanvas.height);
+
+                // Only draw if toggle is checked
+                if (!this.gridToggle || !this.gridToggle.checked) return;
+
+                const width = this.gridCanvas.width;
+                const height = this.gridCanvas.height;
+                const cellWidth = width / this.gridSize;
+                const cellHeight = height / this.gridSize;
+
+                // Draw semi-transparent grid lines
+                this.gridCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                this.gridCtx.lineWidth = 2;
+
+                // Draw vertical lines
+                for (let i = 1; i < this.gridSize; i++) {
+                    const x = i * cellWidth;
+                    this.gridCtx.beginPath();
+                    this.gridCtx.moveTo(x, 0);
+                    this.gridCtx.lineTo(x, height);
+                    this.gridCtx.stroke();
+                }
+
+                // Draw horizontal lines
+                for (let i = 1; i < this.gridSize; i++) {
+                    const y = i * cellHeight;
+                    this.gridCtx.beginPath();
+                    this.gridCtx.moveTo(0, y);
+                    this.gridCtx.lineTo(width, y);
+                    this.gridCtx.stroke();
+                }
+
+                // Draw border
+                this.gridCtx.strokeRect(0, 0, width, height);
+            }
+
+            computeHeatmapBuffer() {
+                if (!this.heatmapCanvas || !this.heatmapCtx || !this.image) return;
+                if (this.image.style.display === 'none') return;
+
+                const width = this.image.naturalWidth || this.image.width;
+                const height = this.image.naturalHeight || this.image.height;
+                // Prepare offscreen buffer
+                const buffer = document.createElement('canvas');
+                buffer.width = width;
+                buffer.height = height;
+                const bctx = buffer.getContext('2d');
+
+                // Create temporary canvas to extract pixel data from image
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = width;
+                tempCanvas.height = height;
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCtx.drawImage(this.image, 0, 0);
+
+                const cellWidth = width / this.gridSize;
+                const cellHeight = height / this.gridSize;
+
+                // Calculate variance for each cell
+                for (let row = 0; row < this.gridSize; row++) {
+                    for (let col = 0; col < this.gridSize; col++) {
+                        const x = col * cellWidth;
+                        const y = row * cellHeight;
+
+                        // Get pixel data for this cell
+                        const imageData = tempCtx.getImageData(x, y, cellWidth, cellHeight);
+                        const variance = this.calculateVariance(imageData.data);
+
+                        // Map variance to color (green = stable, yellow = medium, red = unstable)
+                        const color = this.varianceToColor(variance);
+
+                        // Draw semi-transparent rectangle
+                        bctx.fillStyle = color;
+                        bctx.fillRect(x, y, cellWidth, cellHeight);
+                    }
+                }
+
+                // save buffer
+                this.heatmapBuffer = buffer;
+                this.computedForSrc = this.image.src;
+                // If toggle enabled, draw to visible canvas
+                if (this.heatmapToggle && this.heatmapToggle.checked) this.drawHeatmap();
+            }
+
+            drawHeatmap() {
+                if (!this.heatmapCanvas || !this.heatmapCtx || !this.image) return;
+                if (!this.heatmapBuffer || this.computedForSrc !== this.image.src) return;
+                // Match canvas to image pixels then draw cached buffer (fast)
+                this.heatmapCanvas.width = this.image.naturalWidth || this.image.width;
+                this.heatmapCanvas.height = this.image.naturalHeight || this.image.height;
+                this.heatmapCtx.clearRect(0, 0, this.heatmapCanvas.width, this.heatmapCanvas.height);
+                this.heatmapCtx.drawImage(this.heatmapBuffer, 0, 0, this.heatmapCanvas.width, this.heatmapCanvas.height);
+            }
+
+            calculateVariance(pixelData) {
+                // Calculate grayscale variance (measure of local contrast)
+                let sum = 0;
+                let sumSq = 0;
+                let count = 0;
+
+                // Convert to grayscale and calculate mean
+                for (let i = 0; i < pixelData.length; i += 4) {
+                    const gray = 0.299 * pixelData[i] + 0.587 * pixelData[i + 1] + 0.114 * pixelData[i + 2];
+                    sum += gray;
+                    sumSq += gray * gray;
+                    count++;
+                }
+
+                const mean = sum / count;
+                const variance = (sumSq / count) - (mean * mean);
+
+                return Math.sqrt(variance); // Return standard deviation
+            }
+
+            varianceToColor(stdDev) {
+                // Map standard deviation to color
+                // Low stdDev (< 20) = stable = green
+                // Medium stdDev (20-40) = moderate = yellow
+                // High stdDev (> 40) = unstable = red
+
+                let r, g, b;
+                const alpha = 0.4; // Semi-transparent
+
+                if (stdDev < 20) {
+                    // Green (stable)
+                    r = 0;
+                    g = 200;
+                    b = 0;
+                } else if (stdDev < 40) {
+                    // Yellow (moderate)
+                    const t = (stdDev - 20) / 20; // 0 to 1
+                    r = Math.round(200 * t);
+                    g = 200;
+                    b = 0;
+                } else {
+                    // Red (unstable)
+                    const t = Math.min((stdDev - 40) / 40, 1); // 0 to 1, capped
+                    r = 200;
+                    g = Math.round(200 * (1 - t));
+                    b = 0;
+                }
+
+                return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+            }
+
+            // Public method to show analysis section and redraw overlays
+            show() {
+                if (this.analysisSection) {
+                    this.analysisSection.style.display = 'block';
+                }
+            }
+
+            // Public method to refresh after texture generation
+            refresh() {
+                this.show(); // Show analysis section when texture is generated
+                // Reset cache for new generation
+                this.heatmapBuffer = null;
+                this.computedForSrc = null;
+                // Draw grid immediately if enabled
+                setTimeout(() => {
+                    if (this.gridToggle && this.gridToggle.checked) {
+                        this.drawGrid();
+                    }
+                }, 50);
+                // Heatmap buffer will compute once on image load handler
+            }
+        }
+
+        // Initialize Pattern Analysis when DOM is ready
+        let patternAnalysis;
+        document.addEventListener('DOMContentLoaded', () => {
+            patternAnalysis = new PatternAnalysis();
+            // Back-compat with texture-generator.js expecting window.analysisGrid
+            window.analysisGrid = patternAnalysis;
+
+            // Live-update <output> for all range sliders
+            document.querySelectorAll('input[type="range"]').forEach(function(slider) {
+                var output = document.getElementById(slider.id + '_value');
+                if (output) {
+                    slider.addEventListener('input', function() {
+                        output.textContent = parseFloat(this.value).toFixed(
+                            this.step && this.step.includes('.') ? this.step.split('.')[1].length : 0
+                        );
+                    });
+                }
+            });
+        });
+
+        // Static/Dynamic Mode Toggle Logic
+        document.addEventListener('DOMContentLoaded', function() {
+            const staticBtn = document.getElementById('staticModeBtn');
+            const dynamicBtn = document.getElementById('dynamicModeBtn');
+            const staticPresetGroup = document.getElementById('staticPresetGroup');
+            const oldPresetGroup = document.getElementById('oldPresetGroup');
+            const staticPresetSelect = document.getElementById('static_preset');
+            const modeDescription = document.getElementById('modeDescription');
+            const randomErrorPreview = document.getElementById('random_error_preview');
+            const randomErrorPanel = document.getElementById('random_error_panel');
+            const randomErrorState = document.getElementById('random_error_state');
+            const randomErrorCheckbox = document.getElementById('enable_random_error');
+
+            // Parameters to lock/unlock in Static Mode
+            const paramInputs = ['s_param', 'D_b_param', 'r_a_param', 'r_b_param', 'K', 't_max', 'delta_t'];
+            const randomErrorEditableInputs = [
+                're_strength', 're_duration', 're_frequency', 're_probability',
+                're_num_regions', 're_region_size', 're_jitter', 're_micro_noise',
+                're_alpha_var', 're_beta', 're_drift_x', 're_drift_y', 're_drift_frequency'
+            ];
+
+            // Preset configurations (tuned for maximum visual contrast)
+            const PRESETS = {
+                'low_diffusion': {
+                    s: 0.13, D_b: 0.20, r_a: 0.08, r_b: 0.16,
+                    K: 1.0, t_max: 400, delta_t: 0.025,
+                    // Random Error params (only used when checkbox enabled)
+                    re_strength: 0.045, re_duration: 25, re_frequency: 0.06
+                },
+                'medium_diffusion': {
+                    s: 0.10, D_b: 0.35, r_a: 0.10, r_b: 0.18,
+                    K: 1.0, t_max: 400, delta_t: 0.025,
+                    re_strength: 0.035, re_duration: 30, re_frequency: 0.05
+                },
+                'high_diffusion': {
+                    s: 0.07, D_b: 0.55, r_a: 0.12, r_b: 0.20,
+                    K: 1.0, t_max: 400, delta_t: 0.025,
+                    re_strength: 0.025, re_duration: 35, re_frequency: 0.04
+                },
+                'balanced': {
+                    s: 0.09, D_b: 0.42, r_a: 0.11, r_b: 0.19,
+                    K: 1.0, t_max: 400, delta_t: 0.025,
+                    re_strength: 0.03, re_duration: 30, re_frequency: 0.05
+                }
+            };
+
+            let currentMode = 'static';  // Default mode
+
+            function getPresetProfile(presetName) {
+                return (window.STATIC_PRESETS && window.STATIC_PRESETS[presetName]) || PRESETS[presetName] || null;
+            }
+
+            function renderRandomErrorPreview(presetName) {
+                const preset = getPresetProfile(presetName);
+                if (!preset || !randomErrorPreview) return;
+
+                const previewFields = {
+                    re_strength: { id: 'random_error_preview_strength', decimals: 3 },
+                    re_duration: { id: 'random_error_preview_duration', decimals: 0 },
+                    re_frequency: { id: 'random_error_preview_frequency', decimals: 3 },
+                    re_probability: { id: 'random_error_preview_probability', decimals: 3 },
+                    re_num_regions: { id: 'random_error_preview_num_regions', decimals: 0 },
+                    re_region_size: { id: 'random_error_preview_region_size', decimals: 0 },
+                    re_jitter: { id: 'random_error_preview_jitter', decimals: 2 },
+                    re_micro_noise: { id: 'random_error_preview_micro_noise', decimals: 2 },
+                    re_alpha_var: { id: 'random_error_preview_alpha_var', decimals: 2 },
+                    re_beta: { id: 'random_error_preview_beta', decimals: 2 },
+                    re_drift_x: { id: 'random_error_preview_drift_x', decimals: 2 },
+                    re_drift_y: { id: 'random_error_preview_drift_y', decimals: 2 },
+                    re_drift_frequency: { id: 'random_error_preview_drift_frequency', decimals: 3 },
+                };
+
+                Object.entries(previewFields).forEach(([key, meta]) => {
+                    const el = document.getElementById(meta.id);
+                    if (!el) return;
+                    const value = preset[key];
+                    if (value === undefined || value === null) {
+                        el.textContent = '—';
+                        return;
+                    }
+                    el.textContent = Number(value).toFixed(meta.decimals);
+                });
+
+                if (randomErrorState) {
+                    randomErrorState.textContent = randomErrorCheckbox && randomErrorCheckbox.checked ? 'ON' : 'OFF';
+                }
+                randomErrorPreview.classList.toggle('is-disabled', !(randomErrorCheckbox && randomErrorCheckbox.checked));
+                randomErrorPreview.style.display = 'block';
+            }
+
+            function setRandomErrorEditableState(enabled) {
+                randomErrorEditableInputs.forEach((id) => {
+                    const input = document.getElementById(id);
+                    if (!input) return;
+                    input.disabled = !enabled;
+                    if (enabled) {
+                        input.removeAttribute('readonly');
+                        input.style.pointerEvents = '';
+                        input.style.opacity = '';
+                    } else {
+                        input.setAttribute('readonly', 'true');
+                        input.style.pointerEvents = 'none';
+                        input.style.opacity = '0.72';
+                    }
+                });
+            }
+
+            function syncRandomErrorUI() {
+                const enabled = Boolean(randomErrorCheckbox && randomErrorCheckbox.checked);
+                if (randomErrorPreview) {
+                    randomErrorPreview.style.display = currentMode === 'static' ? 'block' : 'none';
+                }
+                if (randomErrorPanel) {
+                    randomErrorPanel.style.display = currentMode === 'static' ? 'none' : (enabled ? 'block' : 'none');
+                    if (!enabled) {
+                        randomErrorPanel.classList.remove('expanded');
+                    }
+                }
+                setRandomErrorEditableState(currentMode === 'dynamic');
+                renderRandomErrorPreview(staticPresetSelect.value);
+            }
+
+            function setStaticMode() {
+                currentMode = 'static';
+                document.body.dataset.generatorMode = currentMode;
+
+                // Update button styles
+                staticBtn.classList.add('active');
+                dynamicBtn.classList.remove('active');
+                staticBtn.setAttribute('aria-pressed', 'true');
+                dynamicBtn.setAttribute('aria-pressed', 'false');
+
+                // Show Static preset selector, hide old preset
+                staticPresetGroup.style.display = 'block';
+                oldPresetGroup.style.display = 'none';
+
+                // Lock parameters (keep blue background, just add cursor and tooltip)
+                paramInputs.forEach(id => {
+                    const input = document.getElementById(id);
+                    if (input) {
+                        input.setAttribute('readonly', 'true');
+                        input.style.cursor = 'not-allowed';
+                        // Tooltip: "Tento parametr je v režimu Static uzamčen. Hodnota odpovídá vybranému modelu."
+                        input.title = 'Tento parametr je v režimu Static uzamčen. Hodnota odpovídá vybranému modelu.';
+                    }
+                });
+
+                // Apply selected preset
+                applyPreset(staticPresetSelect.value);
+                syncRandomErrorUI();
+
+                // Update description with translation support
+                modeDescription.setAttribute('data-i18n', 'mode-description-static');
+                modeDescription.textContent = (typeof window.getFigureStageUiText === 'function')
+                    ? window.getFigureStageUiText('mode-description-static', 'Static parameters are read-only and match the selected preset.')
+                    : 'Static parameters are read-only and match the selected preset.';
+            }
+
+            function setDynamicMode() {
+                currentMode = 'dynamic';
+                document.body.dataset.generatorMode = currentMode;
+
+                // Update button styles
+                staticBtn.classList.remove('active');
+                dynamicBtn.classList.add('active');
+                staticBtn.setAttribute('aria-pressed', 'false');
+                dynamicBtn.setAttribute('aria-pressed', 'true');
+
+                // Hide Static preset selector
+                staticPresetGroup.style.display = 'none';
+                oldPresetGroup.style.display = 'none';
+
+                // Unlock parameters
+                paramInputs.forEach(id => {
+                    const input = document.getElementById(id);
+                    if (input) {
+                        input.removeAttribute('readonly');
+                        input.style.backgroundColor = '';
+                        input.style.cursor = '';
+                        input.style.opacity = '';
+                        input.title = '';
+                    }
+                });
+                syncRandomErrorUI();
+
+                // Update description with translation support
+                modeDescription.setAttribute('data-i18n', 'mode-description-dynamic');
+                modeDescription.textContent = (typeof window.getFigureStageUiText === 'function')
+                    ? window.getFigureStageUiText('mode-description-dynamic', 'Editable model values are used instead of the locked preset.')
+                    : 'Editable model values are used instead of the locked preset.';
+            }
+
+            function applyPreset(presetName) {
+                const preset = PRESETS[presetName];
+                if (!preset) return;
+
+                // Set all parameter values (Gierer-Meinhardt + simulation params)
+                document.getElementById('s_param').value = preset.s;
+                document.getElementById('D_b_param').value = preset.D_b;
+                document.getElementById('r_a_param').value = preset.r_a;
+                document.getElementById('r_b_param').value = preset.r_b;
+                document.getElementById('K').value = preset.K;
+                document.getElementById('t_max').value = preset.t_max;
+                document.getElementById('delta_t').value = preset.delta_t;
+
+                // Update Random Error preview/inputs from the preset profile
+                const sourcePreset = getPresetProfile(presetName);
+                if (sourcePreset) {
+                    const randomErrorFields = [
+                        're_strength', 're_duration', 're_frequency', 're_probability',
+                        're_num_regions', 're_region_size', 're_jitter', 're_micro_noise',
+                        're_alpha_var', 're_beta', 're_drift_x', 're_drift_y', 're_drift_frequency'
+                    ];
+
+                    randomErrorFields.forEach((field) => {
+                        const input = document.getElementById(field);
+                        if (input && sourcePreset[field] !== undefined && sourcePreset[field] !== null) {
+                            input.value = sourcePreset[field];
+                        }
+                    });
+
+                    renderRandomErrorPreview(presetName);
+                }
+            }
+
+            // Event listeners
+            staticBtn.addEventListener('click', function() {
+                setStaticMode();
+            });
+
+            dynamicBtn.addEventListener('click', function() {
+                setDynamicMode();
+            });
+
+            staticPresetSelect.addEventListener('change', function() {
+                if (currentMode === 'static') {
+                    applyPreset(this.value);
+                }
+            });
+
+            // Initialize in Static Mode
+            setStaticMode();
+            syncRandomErrorUI();
+        });
+
+    </script>
+</body>
+</html>

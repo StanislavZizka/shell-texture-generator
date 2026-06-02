@@ -1,0 +1,102 @@
+/* Shared content card shells */
+.card {
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius-xl);
+  padding: var(--space-8);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--card-border);
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+  color: var(--text-primary);
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-600), var(--primary-400));
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-xl);
+  border-color: rgba(var(--accent-rgb), 0.24);
+}
+
+/* Shared image/result cards */
+.image-container {
+  background: var(--card-bg);
+  backdrop-filter: blur(15px);
+  border-radius: var(--radius-xl);
+  padding: var(--space-8);
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--card-border);
+  transition: all var(--transition-base);
+  color: var(--text-primary);
+  position: relative;
+  overflow: hidden;
+}
+
+.image-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-600), var(--primary-400));
+}
+
+.image-container:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-xl);
+}
+
+.image-container h3 {
+  color: var(--text-primary);
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  margin: 0 0 var(--space-6) 0;
+}
+
+.image-container img {
+  max-width: 70%;
+  height: auto;
+  border-radius: var(--radius-lg);
+  margin: var(--space-4) 0;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-base);
+}
+
+.image-container img:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow-lg);
+}
+
+.image-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 4px dashed var(--border-color);
+  transition: all var(--transition-base);
+  position: relative;
+}
+
+.image-placeholder {
+  color: var(--text-muted);
+}
+
+@media (max-width: 768px) {
+  .card {
+    padding: var(--space-6);
+  }
+}

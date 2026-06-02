@@ -1,0 +1,489 @@
+{
+  "stage_order": [
+    "stage_1",
+    "stage_2",
+    "stage_3",
+    "stage_4",
+    "stage_5"
+  ],
+  "default_stage": "stage_3",
+  "development_order": [
+    "dev_10",
+    "dev_30",
+    "dev_60",
+    "dev_90"
+  ],
+  "default_development": "dev_60",
+  "stages": {
+    "stage_1": {
+      "label": "Stage 1 - Dense onset",
+      "reference_report": "Denser, earlier stripe emergence from the tested sweep.",
+      "params_override": {
+        "s": 0.0146,
+        "r_a": 0.02,
+        "r_b": 0.045,
+        "D_a": 0.0048,
+        "D_b": 0.24,
+        "b_a": 0.00068,
+        "b_b": 0.01,
+        "B0": 1.0,
+        "dx": 1.0,
+        "random_seed": 42,
+        "initial_noise_a_amplitude": 0.05,
+        "initial_noise_b_amplitude": 0.01
+      }
+    },
+    "stage_2": {
+      "label": "Stage 2 - Balanced dense",
+      "reference_report": "Balanced stripe growth with slightly denser spacing.",
+      "params_override": {
+        "s": 0.0145,
+        "r_a": 0.02,
+        "r_b": 0.048,
+        "D_a": 0.00464,
+        "D_b": 0.264,
+        "b_a": 0.00068,
+        "b_b": 0.01,
+        "B0": 1.0,
+        "dx": 1.0,
+        "random_seed": 42,
+        "initial_noise_a_amplitude": 0.044,
+        "initial_noise_b_amplitude": 0.009
+      }
+    },
+    "stage_3": {
+      "label": "Stage 3 - Current best",
+      "reference_report": "Best current compromise between stripe dominance and spacing.",
+      "params_override": {
+        "s": 0.0144,
+        "r_a": 0.02,
+        "r_b": 0.05,
+        "D_a": 0.0057,
+        "D_b": 0.345,
+        "b_a": 0.00068,
+        "b_b": 0.01,
+        "B0": 1.0,
+        "dx": 1.0,
+        "random_seed": 42,
+        "initial_noise_a_amplitude": 0.042,
+        "initial_noise_b_amplitude": 0.0085
+      }
+    },
+    "stage_4": {
+      "label": "Stage 4 - Slightly wider bands",
+      "reference_report": "A nearby sweep point with marginally broader stripe bands.",
+      "params_override": {
+        "s": 0.0143,
+        "r_a": 0.02,
+        "r_b": 0.051,
+        "D_a": 0.00448,
+        "D_b": 0.288,
+        "b_a": 0.00068,
+        "b_b": 0.01,
+        "B0": 1.0,
+        "dx": 1.0,
+        "random_seed": 42,
+        "initial_noise_a_amplitude": 0.04,
+        "initial_noise_b_amplitude": 0.008
+      }
+    },
+    "stage_5": {
+      "label": "Stage 5 - Alternate sweep",
+      "reference_report": "A slightly more separated alternate calibration from the final sweep.",
+      "params_override": {
+        "s": 0.0142,
+        "r_a": 0.02,
+        "r_b": 0.052,
+        "D_a": 0.00432,
+        "D_b": 0.3,
+        "b_a": 0.00068,
+        "b_b": 0.01,
+        "B0": 1.0,
+        "dx": 1.0,
+        "random_seed": 42,
+        "initial_noise_a_amplitude": 0.0375,
+        "initial_noise_b_amplitude": 0.0075
+      }
+    }
+  },
+  "development_presets": {
+    "dev_10": {
+      "label": "Development 10%",
+      "reference_report": "Very early development, using the current best stripe calibration.",
+      "progress_percent": 10,
+      "t_max": 8.0,
+      "snapshot_count": 72,
+      "params_override": {
+        "s": 0.0144,
+        "r_a": 0.02,
+        "r_b": 0.05,
+        "D_a": 0.00456,
+        "D_b": 0.276,
+        "b_a": 0.00068,
+        "b_b": 0.01,
+        "B0": 1.0,
+        "dx": 1.0,
+        "random_seed": 42,
+        "initial_noise_a_amplitude": 0.042,
+        "initial_noise_b_amplitude": 0.0085
+      }
+    },
+    "dev_30": {
+      "label": "Development 30%",
+      "reference_report": "Early stripe growth with the same current-best calibration.",
+      "progress_percent": 30,
+      "t_max": 24.0,
+      "snapshot_count": 72,
+      "params_override": {
+        "s": 0.0144,
+        "r_a": 0.02,
+        "r_b": 0.05,
+        "D_a": 0.00456,
+        "D_b": 0.276,
+        "b_a": 0.00068,
+        "b_b": 0.01,
+        "B0": 1.0,
+        "dx": 1.0,
+        "random_seed": 42,
+        "initial_noise_a_amplitude": 0.042,
+        "initial_noise_b_amplitude": 0.0085
+      }
+    },
+    "dev_60": {
+      "label": "Development 60%",
+      "reference_report": "Mid-development, approaching the stable stripe regime.",
+      "progress_percent": 60,
+      "t_max": 54.0,
+      "snapshot_count": 72,
+      "params_override": {
+        "s": 0.0144,
+        "r_a": 0.02,
+        "r_b": 0.05,
+        "D_a": 0.00456,
+        "D_b": 0.276,
+        "b_a": 0.00068,
+        "b_b": 0.01,
+        "B0": 1.0,
+        "dx": 1.0,
+        "random_seed": 42,
+        "initial_noise_a_amplitude": 0.042,
+        "initial_noise_b_amplitude": 0.0085
+      }
+    },
+    "dev_90": {
+      "label": "Development 90%",
+      "reference_report": "Late development, close to the final stripe texture.",
+      "progress_percent": 90,
+      "t_max": 99.0,
+      "snapshot_count": 72,
+      "params_override": {
+        "s": 0.0144,
+        "r_a": 0.02,
+        "r_b": 0.05,
+        "D_a": 0.00456,
+        "D_b": 0.276,
+        "b_a": 0.00068,
+        "b_b": 0.01,
+        "B0": 1.0,
+        "dx": 1.0,
+        "random_seed": 42,
+        "initial_noise_a_amplitude": 0.042,
+        "initial_noise_b_amplitude": 0.0085
+      }
+    }
+  },
+  "progression_order": [
+    "malo",
+    "vice",
+    "jeste_vice",
+    "nejvice"
+  ],
+  "progression_levels": {
+    "malo": {
+      "label": "Málo",
+      "development_key": "dev_10",
+      "progress_percent": 10,
+      "reference_report": "Short early-time window with the strongest stripe interruptions.",
+      "snapshot_count": 72,
+      "spatial_modulation": {
+        "enabled": true,
+        "eps_s": 0.031,
+        "eps_Da": 0.032,
+        "eps_initial_a": 0.024,
+        "eps_initial_b": 0.012,
+          "field_scale": 60.0,
+          "smoothing_passes": 7,
+        "seed_offset": 5,
+        "orientation": "stripe_x"
+      },
+        "random_error_override": {
+          "local_y_segments": true,
+          "strength": 0.05,
+        "duration": 9,
+        "frequency": 0.045,
+        "probability": 0.044800000000000006,
+        "num_regions": 4,
+        "region_size": 9,
+        "jitter": 0.1236,
+          "micro_noise": 0.022,
+          "alpha_var": 0.32,
+        "beta": 0.09,
+        "drift_x": 0.86,
+        "drift_y": 0.82,
+        "drift_frequency": 0.0021000000000000003
+      },
+      "params_override": {
+        "r_b": 0.0484,
+        "D_b": 0.275,
+        "s": 0.0137,
+        "initial_noise_a_amplitude": 0.078,
+        "initial_noise_b_amplitude": 0.015
+      }
+    },
+    "vice": {
+      "label": "Více",
+      "development_key": "dev_30",
+      "progress_percent": 30,
+      "reference_report": "A clearer growth phase with visible stripe interruptions and slightly calmer spacing.",
+      "snapshot_count": 72,
+      "spatial_modulation": {
+        "enabled": true,
+        "eps_s": 0.037,
+        "eps_Da": 0.038,
+        "eps_initial_a": 0.022,
+        "eps_initial_b": 0.011,
+          "field_scale": 54.0,
+          "smoothing_passes": 7,
+        "seed_offset": 11,
+        "orientation": "stripe_x"
+      },
+        "random_error_override": {
+          "local_y_segments": true,
+          "strength": 0.05,
+        "duration": 12,
+        "frequency": 0.047,
+        "probability": 0.03,
+        "num_regions": 3,
+        "region_size": 9,
+        "jitter": 0.108,
+          "micro_noise": 0.022,
+          "alpha_var": 0.34,
+        "beta": 0.085,
+        "drift_x": 0.93,
+        "drift_y": 0.86,
+        "drift_frequency": 0.0019
+      },
+      "params_override": {
+        "r_b": 0.049,
+        "D_b": 0.311,
+        "s": 0.0137,
+        "initial_noise_a_amplitude": 0.068,
+        "initial_noise_b_amplitude": 0.0135
+      }
+    },
+    "jeste_vice": {
+      "label": "Ještě více",
+      "development_key": "dev_60",
+      "progress_percent": 60,
+      "reference_report": "More established stripes with longer continuous bands and mild irregular breaks.",
+      "snapshot_count": 72,
+      "spatial_modulation": {
+        "enabled": true,
+        "eps_s": 0.043,
+        "eps_Da": 0.044,
+        "eps_initial_a": 0.024,
+        "eps_initial_b": 0.012,
+        "field_scale": 68.0,
+        "smoothing_passes": 8,
+        "seed_offset": 17,
+        "orientation": "stripe_x"
+      },
+      "random_error_override": {
+        "strength": 0.0132,
+        "duration": 15,
+        "frequency": 0.049,
+        "probability": 0.01892,
+        "num_regions": 1,
+        "region_size": 9,
+        "jitter": 0.09212,
+        "micro_noise": 0.0061200000000000004,
+        "alpha_var": 0.17,
+        "beta": 0.075,
+        "drift_x": 1.0,
+        "drift_y": 0.9,
+        "drift_frequency": 0.001692
+      },
+      "params_override": {
+        "r_b": 0.0496,
+        "D_b": 0.33,
+        "initial_noise_a_amplitude": 0.05,
+        "initial_noise_b_amplitude": 0.01
+      }
+    },
+    "nejvice": {
+      "label": "Nejvíce",
+      "development_key": "dev_90",
+      "progress_percent": 90,
+      "reference_report": "Closest to the final stable stripe regime with subtle interruption noise.",
+      "snapshot_count": 72,
+      "spatial_modulation": {
+        "enabled": true,
+        "eps_s": 0.048,
+        "eps_Da": 0.05,
+        "eps_initial_a": 0.026,
+        "eps_initial_b": 0.013,
+        "field_scale": 60.0,
+        "smoothing_passes": 9,
+        "seed_offset": 23,
+        "orientation": "stripe_x"
+      },
+      "random_error_override": {
+        "strength": 0.012528,
+        "duration": 15,
+        "frequency": 0.051,
+        "probability": 0.016800000000000002,
+        "num_regions": 2,
+        "region_size": 7,
+        "jitter": 0.09888000000000001,
+        "micro_noise": 0.00588,
+        "alpha_var": 0.16,
+        "beta": 0.07,
+        "drift_x": 1.04,
+        "drift_y": 0.94,
+        "drift_frequency": 0.0018375000000000002
+      },
+      "params_override": {
+        "r_b": 0.0504,
+        "D_b": 0.372,
+        "initial_noise_a_amplitude": 0.046,
+        "initial_noise_b_amplitude": 0.009
+      }
+    }
+  },
+  "random_error_presets": {
+    "dev_10": {
+      "enabled": false,
+      "strength": 0.011,
+      "duration": 10,
+      "frequency": 0.045,
+      "probability": 0.02,
+      "num_regions": 1,
+      "region_size": 8,
+      "jitter": 0.09,
+      "micro_noise": 0.04,
+      "alpha_var": 0.18,
+      "beta": 0.06,
+      "drift_x": 0.75,
+      "drift_y": 0.7,
+      "drift_frequency": 0.0018
+    },
+    "dev_30": {
+      "enabled": false,
+      "strength": 0.013,
+      "duration": 12,
+      "frequency": 0.048,
+      "probability": 0.02,
+      "num_regions": 1,
+      "region_size": 9,
+      "jitter": 0.1,
+      "micro_noise": 0.05,
+      "alpha_var": 0.2,
+      "beta": 0.07,
+      "drift_x": 0.9,
+      "drift_y": 0.8,
+      "drift_frequency": 0.0019
+    },
+    "dev_60": {
+      "enabled": false,
+      "strength": 0.015,
+      "duration": 14,
+      "frequency": 0.05,
+      "probability": 0.018,
+      "num_regions": 2,
+      "region_size": 12,
+      "jitter": 0.11,
+      "micro_noise": 0.05,
+      "alpha_var": 0.22,
+      "beta": 0.08,
+      "drift_x": 1.0,
+      "drift_y": 0.9,
+      "drift_frequency": 0.002
+    },
+    "dev_90": {
+      "enabled": false,
+      "strength": 0.017,
+      "duration": 16,
+      "frequency": 0.052,
+      "probability": 0.015,
+      "num_regions": 1,
+      "region_size": 13,
+      "jitter": 0.12,
+      "micro_noise": 0.06,
+      "alpha_var": 0.24,
+      "beta": 0.09,
+      "drift_x": 1.1,
+      "drift_y": 1.0,
+      "drift_frequency": 0.0022
+    }
+  },
+  "stripe_variants": {
+    "baseline": {
+      "label": "Baseline",
+      "reference_report": "Current best stripe calibration without spatial modulation.",
+      "base_stage": "stage_3",
+      "snapshot_count": 96,
+      "spatial_modulation": {
+        "enabled": false,
+        "eps_s": 0.0,
+        "eps_Da": 0.0,
+        "eps_initial_a": 0.0,
+        "eps_initial_b": 0.0,
+        "field_scale": 96.0,
+        "smoothing_passes": 8,
+        "seed_offset": 3
+      }
+    },
+    "mild_modulation": {
+      "label": "Mild modulation",
+      "reference_report": "Small low-frequency spatial modulation that relaxes perfect periodicity while keeping long vertical stripes.",
+      "base_stage": "stage_3",
+      "snapshot_count": 96,
+      "params_override": {
+        "r_b": 0.0492,
+        "initial_noise_a_amplitude": 0.054,
+        "initial_noise_b_amplitude": 0.0108
+      },
+      "spatial_modulation": {
+        "enabled": true,
+        "eps_s": 0.02,
+        "eps_Da": 0.006,
+        "eps_initial_a": 0.02,
+        "eps_initial_b": 0.01,
+        "field_scale": 72.0,
+        "smoothing_passes": 8,
+        "seed_offset": 11
+      }
+    },
+    "moderate_modulation": {
+      "label": "Moderate modulation",
+      "reference_report": "Stronger low-frequency heterogeneity while preserving the stripe regime and vertical anisotropy.",
+      "base_stage": "stage_3",
+      "snapshot_count": 96,
+      "params_override": {
+        "r_b": 0.0485,
+        "initial_noise_a_amplitude": 0.06,
+        "initial_noise_b_amplitude": 0.012
+      },
+      "spatial_modulation": {
+        "enabled": true,
+        "eps_s": 0.045,
+        "eps_Da": 0.012,
+        "eps_initial_a": 0.035,
+        "eps_initial_b": 0.015,
+        "field_scale": 56.0,
+        "smoothing_passes": 9,
+        "seed_offset": 23
+      }
+    }
+  }
+}

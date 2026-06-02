@@ -1,0 +1,32 @@
+<section class="model-container card figure-panel figure-panel--viewer" id="modelContainer">
+    <h3><i class="fas fa-cube"></i> <span data-i18n="3d-visualization">3D Visualization</span></h3>
+    <div class="model-wrapper">
+        <div class="model-selector">
+            <label for="shellSelect"><i class="fas fa-list"></i> <span data-i18n="select-shell-type">Select shell type:</span></label>
+            <select id="shellSelect" class="shell-selector" onchange="changeShellModel()">
+                <option value="Buccinidae" data-i18n="shell-buccinidae">Buccinidae (Whelk)</option>
+                <option value="Fasciolariidae" data-i18n="shell-fasciolariidae">Fasciolariidae</option>
+                <option value="Moon snail" data-i18n="shell-moon-snail">Moon snail</option>
+                <option value="Muricidae" data-i18n="shell-muricidae">Muricidae</option>
+                <option value="Pecten" data-i18n="shell-pecten">Pecten</option>
+                <option value="Whelk" data-i18n="shell-whelk">Whelk</option>
+            </select>
+        </div>
+        <div id="threejs-container" class="threejs-container">
+            <div class="model-loading" id="modelLoading">
+                <div class="loading-spinner"></div>
+                <div class="loading-text" data-i18n="loading-model">Loading 3D model...</div>
+            </div>
+        </div>
+        <div class="model-actions" id="modelActions" style="display:none;">
+            <button type="button" class="btn btn-secondary" id="resetTextureBtn" onclick="resetShellTexture()">
+                <i class="fas fa-undo"></i> <span data-i18n="reset-texture">Reset texture</span>
+            </button>
+        </div>
+        <div class="model-instructions">
+            <p><i class="fas fa-mouse"></i> <span data-i18n="instruction-drag">Drag texture onto shell to apply</span></p>
+            <p><i class="fas fa-mouse-pointer"></i> <span data-i18n="instruction-mouse">Left click: rotate • Mouse wheel: zoom in/out</span></p>
+            <p><i class="fas fa-mobile-alt"></i> <span data-i18n="instruction-mobile">Mobile: 1 finger = rotate • 2 fingers = pinch zoom</span></p>
+        </div>
+    </div>
+</section>

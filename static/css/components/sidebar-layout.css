@@ -1,0 +1,125 @@
+/* Sidebar navigation and main layout shell */
+.sidenav {
+  height: 100vh;
+  width: 75px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: var(--nav-bg);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  transition: all var(--transition-base);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-6) 0;
+}
+
+.sidenav:hover {
+  box-shadow: var(--shadow-xl);
+}
+
+.sidenav a {
+  display: flex;
+  align-items: center;
+  padding: var(--space-4);
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.7);
+  transition: all var(--transition-base);
+  border-radius: var(--radius-xl);
+  margin: var(--space-2) var(--space-3);
+  position: relative;
+  overflow: hidden;
+  min-height: 48px;
+  justify-content: flex-start;
+}
+
+.sidenav a::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transition: left var(--transition-slow);
+}
+
+.sidenav a:hover::before {
+  left: 100%;
+}
+
+.sidenav a i {
+  font-size: 1.25rem;
+  min-width: 1.5rem;
+  color: var(--primary-300);
+  transition: transform var(--transition-base), color var(--transition-base);
+}
+
+.sidenav a .nav-text {
+  margin-left: var(--space-4);
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all var(--transition-base);
+  white-space: nowrap;
+  font-weight: 500;
+  font-size: var(--font-size-sm);
+}
+
+.sidenav a:hover {
+  background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.22), rgba(var(--accent-rgb-soft), 0.1));
+  color: white;
+  transform: translateX(3px);
+  box-shadow: 0 4px 12px rgba(var(--accent-rgb-deep), 0.2);
+}
+
+.sidenav a:hover i {
+  color: var(--primary-200);
+  transform: scale(1.15);
+}
+
+.sidenav a.active {
+  background: linear-gradient(135deg, var(--primary-700), var(--primary-500));
+  color: white;
+  box-shadow: 0 4px 12px rgba(var(--accent-rgb-deep), 0.3);
+}
+
+.sidenav a.active i {
+  color: white;
+}
+
+.sidenav.expanded {
+  width: 260px;
+}
+
+.sidenav.expanded .nav-text {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+#main {
+  margin-left: 75px;
+  padding: var(--space-8);
+  transition: margin-left var(--transition-base);
+  min-height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+}
+
+#main.expanded {
+  margin-left: 260px;
+}
+
+@media (max-width: 768px) {
+  .sidenav {
+    width: 60px;
+  }
+
+  #main {
+    margin-left: 60px;
+    padding: var(--space-6);
+  }
+}

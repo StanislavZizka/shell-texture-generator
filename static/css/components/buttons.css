@@ -1,0 +1,108 @@
+/* Button components */
+.menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin: 0 auto var(--space-8) auto;
+  background: linear-gradient(135deg, var(--primary-700), var(--primary-500));
+  color: white;
+  border: none;
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  font-size: 1.1rem;
+  box-shadow: 0 4px 12px rgba(var(--accent-rgb-deep), 0.28);
+}
+
+.menu-btn:hover {
+  background: linear-gradient(135deg, var(--primary-800), var(--primary-700));
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px rgba(var(--accent-rgb-deep), 0.34);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-6);
+  background: linear-gradient(135deg, var(--primary-700), var(--primary-500));
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-family: inherit;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  text-decoration: none;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left var(--transition-slow);
+}
+
+.btn:hover::before {
+  left: 100%;
+}
+
+.btn:hover {
+  background: linear-gradient(135deg, var(--primary-800), var(--primary-700));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, var(--gray-600), var(--gray-500));
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, var(--gray-700), var(--gray-600));
+}
+
+.btn-small {
+  padding: var(--space-2) var(--space-4);
+  background: var(--card-bg);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.btn-small:hover {
+  background: var(--primary-600);
+  border-color: var(--primary-600);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.sidenav a:focus,
+.btn:focus,
+input:focus,
+button:focus {
+  outline: 2px solid var(--primary-600);
+  outline-offset: 2px;
+}

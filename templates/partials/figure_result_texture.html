@@ -1,0 +1,57 @@
+<section class="image-container card figure-panel figure-panel--result">
+    <h3><i class="fas fa-image"></i> <span data-i18n="resultTextureTitle">Result texture</span></h3>
+    <div class="figure-result-scroll">
+        <div class="image-wrapper" id="imageWrapper">
+            <div class="image-placeholder" id="imagePlaceholder">
+                <i class="fas fa-camera"></i>
+                <span data-i18n="imagePlaceholder">Generated texture will appear here</span>
+            </div>
+            <img id="generatedImage" src="#" alt="Generated pattern texture" style="display:none;" draggable="true" onclick="openPopup(this)">
+        </div>
+        <div class="stage-readout">
+            <strong id="stageLabel" data-i18n="stageLabel">Stage</strong>
+            <p id="stageDescription" data-i18n="stageSelectionHelp">Select a concrete stage before generating.</p>
+        </div>
+        <div class="image-actions" id="imageActions" style="display:none;">
+            <a id="downloadBtn" href="#" class="download-btn" download>
+                <i class="fas fa-download"></i> <span data-i18n="download">Download</span>
+            </a>
+            <button type="button" class="btn btn-secondary" id="viewBtn">
+                <i class="fas fa-expand"></i> <span data-i18n="view">View</span>
+            </button>
+        </div>
+        <div class="texture-heatmap-module" id="textureHeatmapSection" hidden>
+            <div class="toggle-header texture-heatmap-header">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="show_texture_heatmap" name="show_texture_heatmap" role="switch" aria-checked="false">
+                    <span class="toggle-slider"></span>
+                </label>
+                <div class="toggle-label">
+                    <h4 class="tooltip-wrapper">
+                        <i class="fas fa-temperature-high"></i> <span id="textureHeatmapToggleLabel" data-i18n="texture-heatmap-toggle">Show heatmap</span>
+                        <span class="tooltip-icon" tabindex="0">
+                            <i class="fas fa-info-circle"></i>
+                            <span class="tooltip-content" data-i18n="texture-heatmap-tooltip">Show a color-coded heatmap derived from the current texture.</span>
+                        </span>
+                    </h4>
+                    <small class="form-help" id="textureHeatmapToggleHelp" data-i18n="texture-heatmap-help">Visualize the current texture as a heatmap below the result image.</small>
+                </div>
+                <span class="param-badge" id="textureHeatmapState">HEATMAP HIDDEN</span>
+            </div>
+            <div class="texture-heatmap-panel" id="textureHeatmapPanel" hidden>
+                <div class="texture-heatmap-canvas-shell">
+                    <canvas id="textureHeatmapCanvas" aria-label="Texture heatmap"></canvas>
+                </div>
+                <small class="texture-heatmap-note" id="textureHeatmapNote" data-i18n="texture-heatmap-note">Heatmap is derived from the current generated texture.</small>
+                <div class="image-actions texture-heatmap-actions" id="textureHeatmapActions">
+                    <a id="textureHeatmapDownload" href="#" class="download-btn" download hidden>
+                        <i class="fas fa-download"></i> <span data-i18n="download">Download</span>
+                    </a>
+                    <button type="button" class="btn btn-secondary" id="textureHeatmapView" hidden>
+                        <i class="fas fa-expand"></i> <span data-i18n="view">View</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

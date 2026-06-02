@@ -1,0 +1,293 @@
+{
+  "stage_order": [
+    "stage_1",
+    "stage_2",
+    "stage_3",
+    "stage_4",
+    "stage_5"
+  ],
+  "default_stage": "stage_3",
+  "model_params": {
+    "name": "Figure 2.12 Labyrinth",
+    "s": 0.139266,
+    "r_a": 0.211395,
+    "r_b": 0.448224,
+    "b_a": 0.01,
+    "b_b": 0.01,
+    "D_a": 0.019207,
+    "D_b": 0.931674,
+    "K": 0.492651,
+    "delta_t": 0.5,
+    "dx": 1.0,
+    "random_seed": 42,
+    "stage_tmax_map": {
+      "stage_1": 20.0,
+      "stage_2": 60.0,
+      "stage_3": 140.0,
+      "stage_4": 260.0,
+      "stage_5": 400.0
+    }
+  },
+  "stage_presets": {
+    "stage_1": {
+      "label": "Stage 1 - Early corridors",
+      "reference_report": "Early labyrinth emergence with narrow corridor fragments.",
+      "params_override": {
+        "initial_noise_a_amplitude": 0.0375,
+        "initial_noise_b_amplitude": 0.0072,
+        "initial_noise_smoothing_passes": 3,
+        "early_smoothing_fraction": 0.18,
+        "early_smoothing_strength": 0.10
+      },
+      "initial_noise_a_amplitude": 0.0375,
+      "initial_noise_b_amplitude": 0.0072,
+      "initial_noise_smoothing_passes": 3,
+      "early_smoothing_fraction": 0.18,
+      "early_smoothing_strength": 0.10
+    },
+    "stage_2": {
+      "label": "Stage 2 - Channel growth",
+      "reference_report": "Growing channels and stronger topological separation.",
+      "params_override": {
+        "initial_noise_a_amplitude": 0.0385,
+        "initial_noise_b_amplitude": 0.0074,
+        "initial_noise_smoothing_passes": 2,
+        "early_smoothing_fraction": 0.18,
+        "early_smoothing_strength": 0.09
+      },
+      "initial_noise_a_amplitude": 0.0385,
+      "initial_noise_b_amplitude": 0.0074,
+      "initial_noise_smoothing_passes": 2,
+      "early_smoothing_fraction": 0.18,
+      "early_smoothing_strength": 0.09
+    },
+    "stage_3": {
+      "label": "Stage 3 - Current best",
+      "reference_report": "Best current balance between labyrinth detail and continuity.",
+      "params_override": {
+        "initial_noise_a_amplitude": 0.0395,
+        "initial_noise_b_amplitude": 0.0076,
+        "initial_noise_smoothing_passes": 2,
+        "early_smoothing_fraction": 0.17,
+        "early_smoothing_strength": 0.085
+      },
+      "initial_noise_a_amplitude": 0.0395,
+      "initial_noise_b_amplitude": 0.0076,
+      "initial_noise_smoothing_passes": 2,
+      "early_smoothing_fraction": 0.17,
+      "early_smoothing_strength": 0.085
+    },
+    "stage_4": {
+      "label": "Stage 4 - Wide labyrinths",
+      "reference_report": "Broader corridors and more open labyrinth regions.",
+      "params_override": {
+        "initial_noise_a_amplitude": 0.0405,
+        "initial_noise_b_amplitude": 0.0078,
+        "initial_noise_smoothing_passes": 2,
+        "early_smoothing_fraction": 0.16,
+        "early_smoothing_strength": 0.08
+      },
+      "initial_noise_a_amplitude": 0.0405,
+      "initial_noise_b_amplitude": 0.0078,
+      "initial_noise_smoothing_passes": 2,
+      "early_smoothing_fraction": 0.16,
+      "early_smoothing_strength": 0.08
+    },
+    "stage_5": {
+      "label": "Stage 5 - Alternate sweep",
+      "reference_report": "A slightly more open alternative from the final sweep.",
+      "params_override": {
+        "initial_noise_a_amplitude": 0.0415,
+        "initial_noise_b_amplitude": 0.0080,
+        "initial_noise_smoothing_passes": 1,
+        "early_smoothing_fraction": 0.15,
+        "early_smoothing_strength": 0.075
+      },
+      "initial_noise_a_amplitude": 0.0415,
+      "initial_noise_b_amplitude": 0.0080,
+      "initial_noise_smoothing_passes": 1,
+      "early_smoothing_fraction": 0.15,
+      "early_smoothing_strength": 0.075
+    }
+  },
+  "random_error_presets": {
+    "stage_1": {
+      "strength": 0.0045,
+      "duration": 10,
+      "frequency": 0.040,
+      "num_regions": 1,
+      "region_size": 8,
+      "probability": 0.008,
+      "jitter": 0.08,
+      "micro_noise": 0.002,
+      "alpha_var": 0.06,
+      "beta": 0.03,
+      "drift_x": 0.38,
+      "drift_y": 0.32,
+      "drift_frequency": 0.0015
+    },
+    "stage_2": {
+      "strength": 0.0070,
+      "duration": 12,
+      "frequency": 0.045,
+      "num_regions": 1,
+      "region_size": 10,
+      "probability": 0.012,
+      "jitter": 0.09,
+      "micro_noise": 0.0025,
+      "alpha_var": 0.07,
+      "beta": 0.035,
+      "drift_x": 0.42,
+      "drift_y": 0.35,
+      "drift_frequency": 0.0017
+    },
+    "stage_3": {
+      "strength": 0.028,
+      "duration": 14,
+      "frequency": 0.048,
+      "num_regions": 1,
+      "region_size": 10,
+      "probability": 0.040,
+      "jitter": 0.10,
+      "micro_noise": 0.0024,
+      "alpha_var": 0.18,
+      "beta": 0.080,
+      "drift_x": 0.55,
+      "drift_y": 0.45,
+      "drift_frequency": 0.0018
+    },
+    "stage_4": {
+      "strength": 0.022,
+      "duration": 14,
+      "frequency": 0.048,
+      "num_regions": 1,
+      "region_size": 10,
+      "probability": 0.030,
+      "jitter": 0.10,
+      "micro_noise": 0.0022,
+      "alpha_var": 0.15,
+      "beta": 0.070,
+      "drift_x": 0.50,
+      "drift_y": 0.40,
+      "drift_frequency": 0.0018
+    },
+    "stage_5": {
+      "strength": 0.017,
+      "duration": 12,
+      "frequency": 0.045,
+      "num_regions": 1,
+      "region_size": 9,
+      "probability": 0.024,
+      "jitter": 0.08,
+      "micro_noise": 0.0020,
+      "alpha_var": 0.11,
+      "beta": 0.060,
+      "drift_x": 0.45,
+      "drift_y": 0.35,
+      "drift_frequency": 0.0015
+    }
+  },
+  "development_order": [
+    "dev_10",
+    "dev_30",
+    "dev_60",
+    "dev_90"
+  ],
+  "default_development": "dev_60",
+  "development_presets": {
+    "dev_10": {
+      "label": "Development 10%",
+      "reference_report": "Early labyrinth emergence with narrow corridor fragments.",
+      "progress_percent": 10,
+      "stage_key": "stage_1",
+      "reference_step": 0,
+      "reference_t": 20.0
+    },
+    "dev_30": {
+      "label": "Development 30%",
+      "reference_report": "Growing channels and stronger topological separation.",
+      "progress_percent": 30,
+      "stage_key": "stage_2",
+      "reference_step": 1,
+      "reference_t": 60.0
+    },
+    "dev_60": {
+      "label": "Development 60%",
+      "reference_report": "Best current balance between labyrinth detail and continuity.",
+      "progress_percent": 60,
+      "stage_key": "stage_3",
+      "reference_step": 2,
+      "reference_t": 140.0
+    },
+    "dev_90": {
+      "label": "Development 90%",
+      "reference_report": "A slightly more open alternative from the final sweep.",
+      "progress_percent": 90,
+      "stage_key": "stage_5",
+      "reference_step": 4,
+      "reference_t": 400.0
+    }
+  },
+  "development_random_error_presets": {
+    "dev_10": {
+      "strength": 0.0045,
+      "duration": 10,
+      "frequency": 0.040,
+      "num_regions": 1,
+      "region_size": 8,
+      "probability": 0.008,
+      "jitter": 0.08,
+      "micro_noise": 0.002,
+      "alpha_var": 0.06,
+      "beta": 0.03,
+      "drift_x": 0.38,
+      "drift_y": 0.32,
+      "drift_frequency": 0.0015
+    },
+    "dev_30": {
+      "strength": 0.0070,
+      "duration": 12,
+      "frequency": 0.045,
+      "num_regions": 1,
+      "region_size": 7,
+      "probability": 0.012,
+      "jitter": 0.09,
+      "micro_noise": 0.0025,
+      "alpha_var": 0.07,
+      "beta": 0.035,
+      "drift_x": 0.42,
+      "drift_y": 0.35,
+      "drift_frequency": 0.0017
+    },
+    "dev_60": {
+      "strength": 0.028,
+      "duration": 14,
+      "frequency": 0.048,
+      "num_regions": 1,
+      "region_size": 10,
+      "probability": 0.040,
+      "jitter": 0.10,
+      "micro_noise": 0.0024,
+      "alpha_var": 0.18,
+      "beta": 0.080,
+      "drift_x": 0.55,
+      "drift_y": 0.45,
+      "drift_frequency": 0.0018
+    },
+    "dev_90": {
+      "strength": 0.017,
+      "duration": 12,
+      "frequency": 0.045,
+      "num_regions": 1,
+      "region_size": 9,
+      "probability": 0.024,
+      "jitter": 0.08,
+      "micro_noise": 0.0020,
+      "alpha_var": 0.11,
+      "beta": 0.060,
+      "drift_x": 0.45,
+      "drift_y": 0.35,
+      "drift_frequency": 0.0015
+    }
+  }
+}

@@ -1,0 +1,378 @@
+.pattern-page {
+  --figure-panel-padding: var(--space-5);
+  --figure-panel-gap: var(--space-4);
+  --figure-field-gap: var(--space-3);
+  --figure-control-padding-y: 0.85rem;
+  --figure-control-padding-x: 1rem;
+  --figure-control-min-height: 3.25rem;
+  --figure-label-min-height: 2.9rem;
+}
+
+.pattern-page .figure-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--figure-panel-gap);
+}
+
+.pattern-page .figure-panel--form,
+.pattern-page .figure-panel--result,
+.pattern-page .figure-panel--viewer {
+  padding: var(--figure-panel-padding);
+}
+
+.pattern-page .figure-panel--form {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.pattern-page .figure-panel--result {
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.pattern-page .figure-result-scroll {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.pattern-page .figure-panel--form > h3 {
+  flex: 0 0 auto;
+}
+
+.pattern-page .figure-panel--form > form {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.pattern-page .figure-panel--form:has(.parameter-accordion[open], .random-error-accordion[open]) {
+  max-height: min(calc(100dvh - 3rem), 78rem);
+  overflow: hidden;
+}
+
+.pattern-page .figure-panel--form,
+.pattern-page .figure-panel--result,
+.pattern-page .figure-panel--viewer,
+.pattern-page .static-parameters-section,
+.pattern-page .noise-toggle-section,
+.pattern-page .color-group,
+.pattern-page #patternStageGroup,
+.pattern-page .mode-banner {
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  background: var(--card-bg);
+  box-shadow: var(--shadow-sm);
+}
+
+.pattern-page .content-grid {
+  gap: var(--space-6);
+  margin-top: var(--space-6);
+}
+
+.pattern-page .mode-banner,
+.pattern-page .static-parameters-section,
+.pattern-page .noise-toggle-section,
+.pattern-page .color-group,
+.pattern-page #patternStageGroup {
+  padding: var(--figure-panel-padding);
+}
+
+.pattern-page .mode-banner {
+  margin-bottom: var(--space-5);
+}
+
+.pattern-page .static-parameters-section,
+.pattern-page .noise-toggle-section {
+  margin-bottom: var(--space-5);
+}
+
+.pattern-page .static-parameters-header,
+.pattern-page .toggle-header,
+.pattern-page .color-group h4,
+.pattern-page .image-container h3,
+.pattern-page .model-container h3 {
+  margin-bottom: var(--figure-panel-gap);
+}
+
+.pattern-page .static-parameters-title strong,
+.pattern-page .toggle-label h4,
+.pattern-page .image-container h3,
+.pattern-page .model-container h3,
+.pattern-page .color-group h4 {
+  color: var(--text-primary);
+}
+
+.pattern-page .static-parameters-title p,
+.pattern-page .static-parameters-section small,
+.pattern-page .toggle-label small,
+.pattern-page .color-group .form-help,
+.pattern-page .model-instructions,
+.pattern-page .stage-readout p {
+  color: var(--text-secondary);
+}
+
+.pattern-page .parameter-accordion,
+.pattern-page .random-error-accordion {
+  margin-top: var(--figure-panel-gap);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-secondary);
+  overflow: hidden;
+}
+
+.pattern-page .parameter-accordion-summary,
+.pattern-page .random-error-accordion-summary {
+  padding: var(--figure-panel-padding);
+}
+
+.pattern-page .parameter-accordion .static-params-content,
+.pattern-page .random-error-accordion .random-error-preview {
+  margin-top: 0;
+  padding: var(--figure-panel-padding);
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  border-radius: 0;
+}
+
+.pattern-page .parameter-accordion[open] .static-params-content,
+.pattern-page .random-error-accordion[open] .random-error-preview {
+  max-height: none;
+  overflow: visible;
+  overscroll-behavior: auto;
+  scrollbar-gutter: auto;
+}
+
+@media (max-width: 960px) {
+  .pattern-page .figure-panel--form:has(.parameter-accordion[open], .random-error-accordion[open]) {
+    height: auto;
+    overflow: visible;
+  }
+
+  .pattern-page .figure-panel--form > form {
+    overflow: visible;
+    scrollbar-gutter: auto;
+  }
+}
+
+.pattern-page .parameter-grid,
+.pattern-page .random-error-summary-grid,
+.pattern-page .color-inputs {
+  gap: var(--figure-field-gap);
+}
+
+.pattern-page .parameter-item,
+.pattern-page .random-error-summary-item,
+.pattern-page .color-inputs .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: var(--space-4);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  background: var(--card-bg);
+  min-height: 6.125rem;
+}
+
+.pattern-page .parameter-label,
+.pattern-page .random-error-summary-item span,
+.pattern-page .color-inputs .form-group label {
+  margin: 0;
+  min-height: var(--figure-label-min-height);
+  font-size: var(--font-size-xs);
+  line-height: 1.15;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  display: flex;
+  align-items: flex-start;
+}
+
+.pattern-page .parameter-input,
+.pattern-page .random-error-input,
+.pattern-page .shell-selector {
+  width: 100%;
+  min-height: var(--figure-control-min-height);
+  padding: var(--figure-control-padding-y) var(--figure-control-padding-x);
+  border: 1px solid var(--border-color);
+  border-radius: var(--figure-control-radius, var(--radius-md));
+  background: var(--input-bg);
+  color: var(--text-primary);
+  font: inherit;
+  box-sizing: border-box;
+}
+
+.pattern-page .parameter-input:hover:not(:read-only),
+.pattern-page .parameter-input:focus:not(:read-only),
+.pattern-page .random-error-input:hover:not(:read-only),
+.pattern-page .random-error-input:focus:not(:read-only),
+.pattern-page .shell-selector:hover,
+.pattern-page .shell-selector:focus {
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.12);
+  outline: none;
+}
+
+.pattern-page .parameter-input.is-readonly,
+.pattern-page .parameter-input[readonly],
+.pattern-page .random-error-input.is-readonly,
+.pattern-page .random-error-input[readonly] {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  cursor: default;
+}
+
+.pattern-page .parameter-accordion.is-static .parameter-input[readonly],
+.pattern-page .parameter-accordion.is-static .parameter-input.is-readonly {
+  width: 100%;
+  min-height: var(--figure-control-min-height);
+  padding: var(--figure-control-padding-y) var(--figure-control-padding-x);
+  border: 1px solid var(--border-color);
+  border-radius: var(--figure-control-radius, var(--radius-md));
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  cursor: default;
+  box-shadow: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+  margin: 0;
+  text-align: left;
+}
+
+.pattern-page .parameter-accordion.is-static .parameter-input[readonly]::-webkit-inner-spin-button,
+.pattern-page .parameter-accordion.is-static .parameter-input[readonly]::-webkit-outer-spin-button,
+.pattern-page .parameter-accordion.is-static .parameter-input.is-readonly::-webkit-inner-spin-button,
+.pattern-page .parameter-accordion.is-static .parameter-input.is-readonly::-webkit-outer-spin-button,
+.pattern-page .random-error-input[readonly]::-webkit-inner-spin-button,
+.pattern-page .random-error-input[readonly]::-webkit-outer-spin-button,
+.pattern-page .random-error-input.is-readonly::-webkit-inner-spin-button,
+.pattern-page .random-error-input.is-readonly::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.pattern-page .parameter-accordion.is-empty .parameter-grid {
+  display: none;
+}
+
+.pattern-page .parameter-accordion-empty,
+.pattern-page .random-error-accordion-empty {
+  display: none;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.pattern-page .parameter-accordion-empty {
+  margin-top: var(--space-3);
+  border: 1px dashed var(--border-color);
+  background: var(--bg-secondary);
+}
+
+.pattern-page .random-error-accordion-empty {
+  margin-bottom: var(--space-3);
+  border: 1px dashed var(--border-color);
+  background: var(--bg-secondary);
+}
+
+.pattern-page .parameter-accordion.is-empty .parameter-accordion-empty,
+.pattern-page .random-error-preview.is-empty .random-error-accordion-empty {
+  display: block;
+}
+
+.pattern-page .parameter-accordion:not(.is-empty) .static-params-content,
+.pattern-page .parameter-accordion[open]:not(.is-empty) .static-params-content {
+  background: var(--bg-secondary);
+  border-top-color: var(--border-color);
+}
+
+.pattern-page .random-error-preview.is-empty .random-error-summary-grid {
+  display: none;
+}
+
+.pattern-page .random-error-edit-hint,
+.pattern-page .mode-hint {
+  margin-top: var(--space-3);
+  color: var(--text-secondary);
+}
+
+.pattern-page .color-group h4 {
+  margin: 0 0 var(--figure-panel-gap) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+}
+
+.pattern-page .color-inputs .form-group input[type="color"] {
+  min-height: var(--figure-control-min-height);
+  padding: var(--space-2);
+}
+
+.pattern-page .stage-readout {
+  padding-top: var(--figure-panel-gap);
+  border-top: 1px solid var(--border-color);
+}
+
+.pattern-page .image-actions {
+  margin-top: var(--figure-panel-gap);
+}
+
+.pattern-page .model-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--figure-panel-gap);
+}
+
+.pattern-page .model-instructions {
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+}
+
+@media (max-width: 960px) {
+  .pattern-page .content-grid {
+    gap: var(--space-5);
+  }
+}
+
+@media (max-width: 768px) {
+  .pattern-page .parameter-grid,
+  .pattern-page .random-error-summary-grid,
+  .pattern-page .color-inputs {
+    grid-template-columns: 1fr;
+  }
+
+  .pattern-page {
+    --figure-label-min-height: 2.45rem;
+  }
+
+  .pattern-page .figure-panel--form,
+  .pattern-page .figure-panel--result,
+  .pattern-page .figure-panel--viewer {
+    padding: var(--space-6);
+  }
+
+  .pattern-page .mode-banner,
+  .pattern-page .static-parameters-section,
+  .pattern-page .noise-toggle-section,
+  .pattern-page .color-group,
+  .pattern-page #patternStageGroup {
+    padding: var(--space-4);
+  }
+}

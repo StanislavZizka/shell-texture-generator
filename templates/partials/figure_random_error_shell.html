@@ -1,0 +1,102 @@
+{% if figure_mode == '23' %}
+    {% set random_error_group_id = 'fig23RandomErrorGroup' %}
+    {% set random_error_toggle_label_id = 'fig23RandomErrorToggleLabel' %}
+    {% set random_error_toggle_help_id = 'fig23RandomErrorToggleHelp' %}
+    {% set random_error_toggle_help_i18n = 'random-error-tooltip-info' %}
+    {% set random_error_toggle_help_text = 'Random error introduces a local stochastic disturbance during development; the effect depends on the model type.' %}
+    {% set random_error_accordion_id = 'fig23RandomErrorAccordion' %}
+    {% set random_error_profile_title_id = 'fig23RandomErrorProfileTitle' %}
+    {% set random_error_profile_desc_id = 'fig23RandomErrorProfileDesc' %}
+    {% set random_error_edit_hint_id = 'fig23RandomErrorEditHint' %}
+    {% set random_error_state_id = 'fig23RandomErrorState' %}
+    {% set random_error_preview_id = 'fig23RandomErrorPreview' %}
+    {% set random_error_empty_id = 'fig23RandomErrorEmpty' %}
+    {% set random_error_value_prefix = 'fig23_re_' %}
+{% else %}
+    {% set random_error_group_id = 'patternRandomErrorGroup' %}
+    {% set random_error_toggle_label_id = 'patternRandomErrorToggleLabel' %}
+    {% set random_error_toggle_help_id = 'patternRandomErrorToggleHelp' %}
+    {% set random_error_toggle_help_i18n = None %}
+    {% set random_error_toggle_help_text = 'Toggle the stochastic disturbance during simulation.' %}
+    {% set random_error_accordion_id = 'patternRandomErrorAccordion' %}
+    {% set random_error_profile_title_id = 'patternRandomErrorProfileTitle' %}
+    {% set random_error_profile_desc_id = 'patternRandomErrorProfileDesc' %}
+    {% set random_error_edit_hint_id = 'patternRandomErrorEditHint' %}
+    {% set random_error_state_id = 'patternRandomErrorState' %}
+    {% set random_error_preview_id = 'patternRandomErrorPreview' %}
+    {% set random_error_empty_id = 'patternRandomErrorEmpty' %}
+    {% set random_error_value_prefix = 'pattern_re_' %}
+{% endif %}
+
+<div class="noise-toggle-section random-error-section" id="{{ random_error_group_id }}">
+    <div class="toggle-header">
+        <label class="toggle-switch">
+            <input type="checkbox" id="enable_random_error" name="enable_random_error" role="switch" aria-checked="false">
+            <span class="toggle-slider"></span>
+        </label>
+        <div class="toggle-label">
+            <h4 class="tooltip-wrapper">
+                <i class="fas fa-dna"></i> <span id="{{ random_error_toggle_label_id }}">Random error</span>
+                <span class="tooltip-icon" tabindex="0">
+                    <i class="fas fa-info-circle"></i>
+                    <span class="tooltip-content" data-i18n="random-error-tooltip-info">
+                        Random error introduces a local stochastic disturbance during development; the effect depends on the model type.
+                    </span>
+                </span>
+            </h4>
+            <small class="form-help" id="{{ random_error_toggle_help_id }}"{% if random_error_toggle_help_i18n %} data-i18n="{{ random_error_toggle_help_i18n }}"{% endif %}>{{ random_error_toggle_help_text }}</small>
+        </div>
+    </div>
+
+    <details class="random-error-accordion" id="{{ random_error_accordion_id }}">
+        <summary class="random-error-accordion-summary">
+            <div class="random-error-accordion-title">
+                <i class="fas fa-chevron-down accordion-caret"></i>
+                <div>
+                    <strong><i class="fas fa-dna"></i> <span id="{{ random_error_profile_title_id }}">Random error profile</span></strong>
+                    <p id="{{ random_error_profile_desc_id }}">Read-only defaults for the selected stage.</p>
+                </div>
+            </div>
+            <span class="param-badge" id="{{ random_error_state_id }}">OFF</span>
+        </summary>
+        <div class="random-error-preview" id="{{ random_error_preview_id }}">
+            <div class="random-error-accordion-empty" id="{{ random_error_empty_id }}" data-i18n="randomParametersEmpty">Please select a stage first.</div>
+            <div class="random-error-summary-grid">
+                {% set random_error_fields = [
+                    ('strength', 'Strength', '0.001', 'decimal'),
+                    ('duration', 'Duration', '1', 'numeric'),
+                    ('frequency', 'Frequency', '0.001', 'decimal'),
+                    ('probability', 'Probability', '0.001', 'decimal'),
+                    ('num_regions', 'Regions', '1', 'numeric'),
+                    ('region_size', 'Region size', '1', 'numeric'),
+                    ('jitter', 'Jitter', '0.01', 'decimal'),
+                    ('micro_noise', 'Micro noise', '0.01', 'decimal'),
+                    ('alpha_var', 'Alpha var', '0.01', 'decimal'),
+                    ('beta', 'Beta', '0.01', 'decimal'),
+                    ('drift_x', 'Drift X', '0.01', 'decimal'),
+                    ('drift_y', 'Drift Y', '0.01', 'decimal'),
+                    ('drift_frequency', 'Drift frequency', '0.001', 'decimal'),
+                ] %}
+                {% for key, label, step, input_mode in random_error_fields %}
+                    <div class="random-error-summary-item">
+                        <span id="{{ random_error_value_prefix }}{{ key }}_label">{{ label }}</span>
+                        <input
+                            type="number"
+                            class="parameter-input random-error-input"
+                            id="{{ random_error_value_prefix }}{{ key }}_value"
+                            name="re_{{ key }}"
+                            step="{{ step }}"
+                            inputmode="{{ input_mode }}"
+                            value=""
+                            data-random-error-key="{{ key }}"
+                            data-default-value=""
+                            readonly
+                            aria-readonly="true"
+                        >
+                    </div>
+                {% endfor %}
+            </div>
+            <small class="form-help random-error-edit-hint" id="{{ random_error_edit_hint_id }}" hidden data-i18n="dynamic-random-error-hint">Tip: in dynamic mode you can fine-tune random error before generating.</small>
+        </div>
+    </details>
+</div>

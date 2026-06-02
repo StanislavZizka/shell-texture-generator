@@ -1,0 +1,194 @@
+.pattern-page .content-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(360px, 1.05fr) minmax(320px, 1fr);
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  align-items: stretch;
+}
+
+.pattern-page .mode-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.pattern-page .mode-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.55rem 0.85rem;
+  border-radius: 12px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.pattern-page .mode-chip.active {
+  background: linear-gradient(135deg, rgba(var(--accent-rgb-deep), 0.96), rgba(var(--accent-rgb), 0.92));
+  border: 1px solid rgba(var(--accent-rgb), 0.28);
+  color: white;
+}
+
+.pattern-page-23 .mode-chip-muted {
+  opacity: 0.68;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
+.pattern-page-211 .mode-switch,
+.pattern-page-212 .mode-switch {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+}
+
+.pattern-page-211 .mode-switch .mode-chip,
+.pattern-page-212 .mode-switch .mode-chip {
+  appearance: none;
+  border: 1px solid var(--card-border);
+  cursor: pointer;
+}
+
+.pattern-page-211 .mode-switch .mode-chip.active,
+.pattern-page-212 .mode-switch .mode-chip.active {
+  border-color: rgba(var(--accent-rgb), 0.28);
+}
+
+.pattern-page .color-group {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.pattern-page .color-group h4 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1rem 0;
+}
+
+.pattern-page .color-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9rem;
+}
+
+.pattern-page .pattern-generate-btn {
+  width: 100%;
+  margin-top: 1.25rem;
+}
+
+.pattern-page .image-wrapper {
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 1rem;
+  background: var(--bg-secondary);
+  border-radius: 18px;
+}
+
+.pattern-page .image-wrapper img {
+  max-width: 100%;
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  object-fit: contain;
+}
+
+.pattern-page .figure-panel--result {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  min-height: 0;
+  height: 100%;
+}
+
+.pattern-page .figure-panel--result .figure-result-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.pattern-page .figure-panel--result .image-wrapper {
+  flex: 0 0 auto;
+  aspect-ratio: 1 / 1;
+  min-height: 0;
+}
+
+.pattern-page .figure-panel--result:has(.texture-heatmap-module.visible) .image-wrapper {
+  aspect-ratio: 1 / 1;
+}
+
+.pattern-page .stage-readout {
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.pattern-page .stage-readout strong {
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+.pattern-page .stage-readout p {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+@media (max-width: 960px) {
+  .pattern-page .content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pattern-page .figure-panel--result {
+    height: auto;
+    overflow: visible;
+  }
+
+  .pattern-page .figure-panel--result .figure-result-scroll {
+    overflow: visible;
+    scrollbar-gutter: auto;
+  }
+
+  .pattern-page .figure-panel--form {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .pattern-page .figure-panel--form > form {
+    overflow: visible;
+    scrollbar-gutter: auto;
+  }
+
+  .pattern-page .figure-panel--form:has(.parameter-accordion[open], .random-error-accordion[open]) {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .pattern-page .parameter-accordion[open] .static-params-content,
+  .pattern-page .random-error-accordion[open] .random-error-preview {
+    max-height: none;
+    overflow: visible;
+    overscroll-behavior: auto;
+    scrollbar-gutter: auto;
+  }
+
+  .pattern-page .figure-panel--result .image-wrapper,
+  .pattern-page .figure-panel--result:has(.texture-heatmap-module.visible) .image-wrapper {
+    aspect-ratio: 1 / 1;
+    min-height: 240px;
+  }
+}
+
+@media (max-width: 768px) {
+  .pattern-page .color-inputs {
+    grid-template-columns: 1fr;
+  }
+}

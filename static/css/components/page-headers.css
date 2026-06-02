@@ -1,0 +1,13 @@
+/* Shared page header styles */
+.page-header {
+  margin-bottom: var(--space-8);
+  text-align: center;
+}
+
+.page-header h1 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}

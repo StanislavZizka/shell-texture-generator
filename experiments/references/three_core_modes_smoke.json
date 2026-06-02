@@ -1,0 +1,46 @@
+{
+  "suite": "three_core_modes_smoke",
+  "size": 32,
+  "metric_tolerance": 1e-9,
+  "cases": [
+    {
+      "mode_key": "activator_inhibitor",
+      "preset_key": "balanced",
+      "label": "Activator-Inhibitor",
+      "stage_label": "",
+      "metrics": {
+        "mean": 0.9355047106067507,
+        "std": 0.24183370471271257,
+        "contrast": 0.967392771562154,
+        "active_area_ratio": 0.93359375,
+        "dominant_orientation_score": 0.018955299714767036
+      }
+    },
+    {
+      "mode_key": "stable_periodic_patterns",
+      "preset_key": "stage_3",
+      "label": "Stable Periodic Patterns in Space",
+      "stage_label": "Stage 3 - Current best",
+      "metrics": {
+        "mean": 0.4589378983688831,
+        "std": 0.1878471989460272,
+        "contrast": 0.6164280453436659,
+        "active_area_ratio": 0.3935546875,
+        "dominant_orientation_score": 0.021879136733471898
+      }
+    },
+    {
+      "mode_key": "labyrinths",
+      "preset_key": "stage_3",
+      "label": "Labyrinths",
+      "stage_label": "Stage 3 - Current best",
+      "metrics": {
+        "mean": 0.4481542871260773,
+        "std": 0.38768065239472865,
+        "contrast": 0.9796596210460041,
+        "active_area_ratio": 0.4140625,
+        "dominant_orientation_score": 0.10310897451540747
+      }
+    }
+  ]
+}

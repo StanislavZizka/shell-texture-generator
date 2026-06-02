@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oscilační vlny - Shell Texture Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script defer src="{{ url_for('static', filename='js/components/navigation.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/components/theme-toggle.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/components/language-switcher.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar" role="navigation" aria-label="Main navigation">
+        <div class="nav-left">
+            <div class="logo">
+                <i class="fas fa-wave-square"></i>
+                <span data-i18n="app-title">Shell Texture Generator</span>
+            </div>
+        </div>
+
+        <div class="nav-center">
+            <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle theme">
+                <i class="fas fa-moon"></i>
+            </div>
+            <div class="language-switcher" id="languageSwitcher">
+                <button class="lang-btn active" data-lang="cs">CS</button>
+                <button class="lang-btn" data-lang="en">EN</button>
+            </div>
+        </div>
+
+        <div class="nav-right">
+            <a href="{{ url_for('pages.home') }}" class="nav-link">
+                <i class="fas fa-home"></i>
+                <span data-i18n="nav-home">Domů</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <div class="content-wrapper">
+            <!-- Left Panel - Parameters -->
+            <div class="form-panel">
+                <div class="panel-header">
+                    <h2 data-i18n="oscillatory-title">Oscilační vlny</h2>
+                    <p class="subtitle" data-i18n="oscillatory-subtitle">
+                        Analytické řešení Riccatiho rovnice podle vypocet.txt
+                    </p>
+                </div>
+
+                <form id="oscillatory-form" class="param-form">
+                    <!-- Autocatalysis Section -->
+                    <div class="param-section">
+                        <h3 data-i18n="autocatalysis">Autokatalýza</h3>
+
+                        <div class="form-group">
+                            <label for="s_param">
+                                <span data-i18n="param-s">Síla autokatalýzy (s)</span>
+                                <span class="tooltip-icon" tabindex="0">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span class="tooltip-content" data-i18n="param-s-help">
+                                        Kvadratický člen v rovnici da/dt = ka² - r_a·a + b_a
+                                    </span>
+                                </span>
+                            </label>
+                            <input type="range" id="s_param" name="s" min="0.01" max="2.0" step="0.01" value="0.11">
+                            <span class="param-value">0.11</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="r_a_param">
+                                <span data-i18n="param-ra">Rozpad aktivátoru (r_a)</span>
+                                <span class="tooltip-icon" tabindex="0">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span class="tooltip-content" data-i18n="param-ra-help">
+                                        Lineární člen -r_a·a v rovnici
+                                    </span>
+                                </span>
+                            </label>
+                            <input type="range" id="r_a_param" name="r_a" min="0.01" max="3.0" step="0.01" value="0.10">
+                            <span class="param-value">0.10</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="b_a_param">
+                                <span data-i18n="param-ba">Bazální produkce (b_a)</span>
+                                <span class="tooltip-icon" tabindex="0">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span class="tooltip-content" data-i18n="param-ba-help">
+                                        Konstantní člen v rovnici
+                                    </span>
+                                </span>
+                            </label>
+                            <input type="range" id="b_a_param" name="b_a" min="0.001" max="0.05" step="0.001" value="0.010">
+                            <span class="param-value">0.010</span>
+                        </div>
+                    </div>
+
+                    <!-- Inhibitor Section -->
+                    <div class="param-section">
+                        <h3 data-i18n="inhibitor">Inhibitor</h3>
+
+                        <div class="form-group">
+                            <label for="s_b_param">
+                                <span data-i18n="param-sb">Parametr s_b</span>
+                                <span class="tooltip-icon" tabindex="0">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span class="tooltip-content" data-i18n="param-sb-help">
+                                        k = s / (s_b + b₀)
+                                    </span>
+                                </span>
+                            </label>
+                            <input type="range" id="s_b_param" name="s_b" min="0.5" max="2.0" step="0.1" value="1.0">
+                            <span class="param-value">1.0</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="b_0_param">
+                                <span data-i18n="param-b0">Koncentrace inhibitoru (b₀)</span>
+                                <span class="tooltip-icon" tabindex="0">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span class="tooltip-content" data-i18n="param-b0-help">
+                                        Předpoklad: inhibitor je konstantní
+                                    </span>
+                                </span>
+                            </label>
+                            <input type="range" id="b_0_param" name="b_0" min="0.5" max="2.0" step="0.1" value="1.0">
+                            <span class="param-value">1.0</span>
+                        </div>
+                    </div>
+
+                    <!-- Initial Conditions -->
+                    <div class="param-section">
+                        <h3 data-i18n="initial-conditions">Počáteční podmínky</h3>
+
+                        <div class="form-group">
+                            <label for="a_0_param">
+                                <span data-i18n="param-a0">Počáteční koncentrace (a₀)</span>
+                                <span class="tooltip-icon" tabindex="0">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span class="tooltip-content" data-i18n="param-a0-help">
+                                        Hodnota aktivátoru v čase t=0
+                                    </span>
+                                </span>
+                            </label>
+                            <input type="range" id="a_0_param" name="a_0" min="0.1" max="2.0" step="0.1" value="0.5">
+                            <span class="param-value">0.5</span>
+                        </div>
+                    </div>
+
+                    <!-- Simulation Settings -->
+                    <div class="param-section">
+                        <h3 data-i18n="simulation-settings">Nastavení simulace</h3>
+
+                        <div class="form-group">
+                            <label for="t_max_param">
+                                <span data-i18n="param-tmax">Maximální čas (t_max)</span>
+                            </label>
+                            <input type="range" id="t_max_param" name="t_max" min="10" max="500" step="10" value="100">
+                            <span class="param-value">100</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="dt_param">
+                                <span data-i18n="param-dt">Časový krok (dt)</span>
+                            </label>
+                            <input type="range" id="dt_param" name="dt" min="0.1" max="2.0" step="0.1" value="0.5">
+                            <span class="param-value">0.5</span>
+                        </div>
+                    </div>
+
+                    <!-- Generate Button -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary" id="generateBtn">
+                            <i class="fas fa-calculator"></i>
+                            <span data-i18n="calculate">Vypočítat</span>
+                        </button>
+                    </div>
+
+                    <!-- Loading Indicator -->
+                    <div id="loading" class="loading-indicator" style="display: none;">
+                        <div class="spinner"></div>
+                        <p data-i18n="calculating">Probíhá výpočet...</p>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Right Panel - Results -->
+            <div class="result-panel">
+                <div class="panel-header">
+                    <h2 data-i18n="results">Výsledky</h2>
+                </div>
+
+                <div id="result-content" class="result-content">
+                    <!-- Equilibrium Info -->
+                    <div id="equilibrium-info" class="info-box" style="display: none;">
+                        <h3 data-i18n="equilibrium-points">Rovnovážné body</h3>
+                        <div id="equilibrium-data"></div>
+                    </div>
+
+                    <!-- Graph Canvas -->
+                    <div id="graph-container" class="graph-container" style="display: none;">
+                        <canvas id="oscillatoryChart"></canvas>
+                    </div>
+
+                    <!-- Download Link -->
+                    <div id="download-section" class="download-section" style="display: none;">
+                        <a id="downloadVerification" href="#" class="btn-secondary" download>
+                            <i class="fas fa-download"></i>
+                            <span data-i18n="download-verification">Stáhnout vypocet_output.txt</span>
+                        </a>
+                    </div>
+
+                    <!-- Error Message -->
+                    <div id="error-message" class="error-message" style="display: none;"></div>
+
+                    <!-- Initial Help Text -->
+                    <div id="help-text" class="help-text">
+                        <i class="fas fa-info-circle"></i>
+                        <p data-i18n="oscillatory-help">
+                            Nastavte parametry a stiskněte "Vypočítat" pro zobrazení analytického řešení Riccatiho rovnice.
+                            Výpočet přesně následuje matematický postup z <code>vypocet.txt</code>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript for Oscillatory Waves -->
+    <script>
+        // Update parameter displays
+        document.querySelectorAll('input[type="range"]').forEach(input => {
+            const valueDisplay = input.nextElementSibling;
+            input.addEventListener('input', (e) => {
+                valueDisplay.textContent = e.target.value;
+            });
+        });
+
+        // Handle form submission
+        document.getElementById('oscillatory-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(e.target);
+            const params = {};
+            formData.forEach((value, key) => {
+                params[key] = parseFloat(value);
+            });
+
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('help-text').style.display = 'none';
+            document.getElementById('error-message').style.display = 'none';
+            document.getElementById('equilibrium-info').style.display = 'none';
+            document.getElementById('graph-container').style.display = 'none';
+            document.getElementById('download-section').style.display = 'none';
+
+            try {
+                const response = await fetch('/calculate_oscillatory_waves', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(params)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.error || 'Calculation failed');
+                }
+
+                // Display equilibrium info
+                const equilibriumDiv = document.getElementById('equilibrium-data');
+                const eqInfo = result.equilibrium_info;
+
+                if (eqInfo.valid) {
+                    equilibriumDiv.innerHTML = `
+                        <p><strong>Diskriminant:</strong> D = ${eqInfo.discriminant.toFixed(6)}</p>
+                        <p><strong>Dolní rovnovážný bod:</strong> a₁* = ${eqInfo.a1_star.toFixed(6)}</p>
+                        <p><strong>Horní rovnovážný bod:</strong> a₂* = ${eqInfo.a2_star.toFixed(6)}</p>
+                        <p><strong>Růstová konstanta:</strong> λ = ${eqInfo.lambda.toFixed(6)}</p>
+                        <p class="info-message">${eqInfo.message}</p>
+                    `;
+                } else {
+                    equilibriumDiv.innerHTML = `
+                        <p><strong>Diskriminant:</strong> D = ${eqInfo.discriminant.toFixed(6)}</p>
+                        <p class="warning-message">${eqInfo.message}</p>
+                    `;
+                }
+                document.getElementById('equilibrium-info').style.display = 'block';
+
+                // Create graph
+                const ctx = document.getElementById('oscillatoryChart').getContext('2d');
+
+                // Destroy previous chart if exists
+                if (window.oscillatoryChart && typeof window.oscillatoryChart.destroy === 'function') {
+                    window.oscillatoryChart.destroy();
+                }
+
+                window.oscillatoryChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: result.t_values,
+                        datasets: [{
+                            label: 'a(t) - Aktivátor',
+                            data: result.a_values,
+                            borderColor: 'rgb(75, 192, 192)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            tension: 0.1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        aspectRatio: 2,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Časový průběh a(t)',
+                                font: { size: 16 }
+                            },
+                            legend: {
+                                display: true
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Čas t'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Koncentrace aktivátoru a(t)'
+                                }
+                            }
+                        }
+                    }
+                });
+
+                document.getElementById('graph-container').style.display = 'block';
+
+                // Show download link
+                document.getElementById('downloadVerification').href = result.verification_url;
+                document.getElementById('download-section').style.display = 'block';
+
+            } catch (error) {
+                document.getElementById('error-message').textContent = error.message;
+                document.getElementById('error-message').style.display = 'block';
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

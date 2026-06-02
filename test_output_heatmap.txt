@@ -1,0 +1,218 @@
+================================================================================
+RANDOM ERROR CALIBRATION TEST
+================================================================================
+
+
+================================================================================
+Testing preset: LOW_DIFFUSION
+================================================================================
+
+Simulation parameters:
+  D_b (inhibitor diffusion): 0.25
+  s (reaction rate): 1.2
+
+Random Error parameters:
+  strength: 0.075
+  duration: 25
+  frequency: 0.08
+  num_regions: 6
+  region_size: 8
+  probability: 0.08
+  jitter: 0.1
+  micro_noise: 0.07
+  alpha_var: 0.25
+
+Testing time evolution:
+  Step   0: mean=+0.001865, max=+0.030519, min=+0.000000, std=0.005042, nonzero=16384/16384
+  Step   5: mean=+0.002751, max=+0.045012, min=+0.000000, std=0.007436, nonzero=16384/16384
+  Step  10: mean=-0.005010, max=-0.000000, min=-0.081957, std=0.013540, nonzero=16384/16384
+  Step  15: mean=+0.005046, max=+0.082557, min=+0.000000, std=0.013639, nonzero=16384/16384
+  Step  20: mean=-0.003084, max=-0.000000, min=-0.050456, std=0.008336, nonzero=16384/16384
+  Step  25: mean=+0.002879, max=+0.047095, min=+0.000000, std=0.007781, nonzero=16384/16384
+  Step  30: mean=-0.003108, max=-0.000000, min=-0.050842, std=0.008400, nonzero=16384/16384
+
+[CHECK] Verifying constant strength (no systematic decay):
+  Max amplitude: 0.082557
+  Min amplitude: 0.030519
+  Expected strength (alpha): 0.075000
+  [PASS] Max amplitude within expected range (including alpha_var)
+        Max observed: 0.082557 <= Expected: 0.093750
+        (alpha=0.075 * (1 + alpha_var=0.25))
+
+[CHECK] Verifying localized perturbations:
+  Relative perturbation intensity: 12.22%
+  (Measure of concentration, not spatial extent)
+  [PASS] Perturbations show localized character
+
+[OK] Visualization saved: static\images\random_error_calibration\random_error_low_diffusion.png
+
+================================================================================
+PRESET: LOW_DIFFUSION
+Strength constancy: PASS
+Localization: PASS
+[OVERALL] PASS - Random Error generates visible local perturbations
+================================================================================
+
+================================================================================
+Testing preset: MEDIUM_DIFFUSION
+================================================================================
+
+Simulation parameters:
+  D_b (inhibitor diffusion): 0.4
+  s (reaction rate): 1.0
+
+Random Error parameters:
+  strength: 0.065
+  duration: 30
+  frequency: 0.06
+  num_regions: 5
+  region_size: 10
+  probability: 0.06
+  jitter: 0.12
+  micro_noise: 0.05
+  alpha_var: 0.25
+
+Testing time evolution:
+  Step   0: mean=+0.003833, max=+0.052259, min=+0.000000, std=0.009377, nonzero=16384/16384
+  Step   5: mean=+0.003674, max=+0.050080, min=+0.000000, std=0.008986, nonzero=16384/16384
+  Step  10: mean=+0.000907, max=+0.012361, min=+0.000000, std=0.002218, nonzero=16384/16384
+  Step  15: mean=-0.005486, max=-0.000000, min=-0.074794, std=0.013420, nonzero=16384/16384
+  Step  20: mean=+0.002489, max=+0.033928, min=+0.000000, std=0.006088, nonzero=16384/16384
+  Step  25: mean=+0.002189, max=+0.029844, min=+0.000000, std=0.005355, nonzero=16384/16384
+  Step  30: mean=-0.006773, max=-0.000000, min=-0.092326, std=0.016566, nonzero=16384/16384
+
+[CHECK] Verifying constant strength (no systematic decay):
+  Max amplitude: 0.092326
+  Min amplitude: 0.012361
+  Expected strength (alpha): 0.065000
+  [FAIL] Amplitude exceeds expected strength
+        Max observed: 0.092326 > Expected: 0.081250
+
+[CHECK] Verifying localized perturbations:
+  Relative perturbation intensity: 13.63%
+  (Measure of concentration, not spatial extent)
+  [PASS] Perturbations show localized character
+
+[OK] Visualization saved: static\images\random_error_calibration\random_error_medium_diffusion.png
+
+================================================================================
+PRESET: MEDIUM_DIFFUSION
+Strength constancy: FAIL
+Localization: PASS
+[OVERALL] FAIL - Issues detected
+================================================================================
+
+================================================================================
+Testing preset: HIGH_DIFFUSION
+================================================================================
+
+Simulation parameters:
+  D_b (inhibitor diffusion): 0.6
+  s (reaction rate): 0.9
+
+Random Error parameters:
+  strength: 0.055
+  duration: 35
+  frequency: 0.05
+  num_regions: 4
+  region_size: 13
+  probability: 0.05
+  jitter: 0.15
+  micro_noise: 0.06
+  alpha_var: 0.2
+
+Testing time evolution:
+  Step   0: mean=-0.003373, max=-0.000000, min=-0.032386, std=0.006669, nonzero=16384/16384
+  Step   5: mean=-0.001733, max=-0.000000, min=-0.016637, std=0.003426, nonzero=16384/16384
+  Step  10: mean=+0.006872, max=+0.065969, min=+0.000000, std=0.013583, nonzero=16384/16384
+  Step  15: mean=-0.000239, max=-0.000000, min=-0.002299, std=0.000473, nonzero=16384/16384
+  Step  20: mean=-0.005609, max=-0.000000, min=-0.053851, std=0.011088, nonzero=16384/16384
+  Step  25: mean=+0.002773, max=+0.026626, min=+0.000000, std=0.005482, nonzero=16384/16384
+  Step  30: mean=+0.003791, max=+0.036397, min=+0.000000, std=0.007494, nonzero=16384/16384
+
+[CHECK] Verifying constant strength (no systematic decay):
+  Max amplitude: 0.065969
+  Min amplitude: 0.002299
+  Expected strength (alpha): 0.055000
+  [PASS] Max amplitude within expected range (including alpha_var)
+        Max observed: 0.065969 <= Expected: 0.066000
+        (alpha=0.055 * (1 + alpha_var=0.20))
+
+[CHECK] Verifying localized perturbations:
+  Relative perturbation intensity: 12.52%
+  (Measure of concentration, not spatial extent)
+  [PASS] Perturbations show localized character
+
+[OK] Visualization saved: static\images\random_error_calibration\random_error_high_diffusion.png
+
+================================================================================
+PRESET: HIGH_DIFFUSION
+Strength constancy: PASS
+Localization: PASS
+[OVERALL] PASS - Random Error generates visible local perturbations
+================================================================================
+
+================================================================================
+Testing preset: BALANCED
+================================================================================
+
+Simulation parameters:
+  D_b (inhibitor diffusion): 0.5
+  s (reaction rate): 1.0
+
+Random Error parameters:
+  strength: 0.07
+  duration: 30
+  frequency: 0.06
+  num_regions: 5
+  region_size: 10
+  probability: 0.07
+  jitter: 0.12
+  micro_noise: 0.07
+  alpha_var: 0.25
+
+Testing time evolution:
+  Step   0: mean=+0.004131, max=+0.056279, min=+0.000000, std=0.010117, nonzero=16384/16384
+  Step   5: mean=+0.003959, max=+0.053933, min=+0.000000, std=0.009695, nonzero=16384/16384
+  Step  10: mean=+0.000977, max=+0.013312, min=+0.000000, std=0.002393, nonzero=16384/16384
+  Step  15: mean=-0.005912, max=-0.000000, min=-0.080547, std=0.014479, nonzero=16384/16384
+  Step  20: mean=+0.002682, max=+0.036538, min=+0.000000, std=0.006568, nonzero=16384/16384
+  Step  25: mean=+0.002359, max=+0.032140, min=+0.000000, std=0.005778, nonzero=16384/16384
+  Step  30: mean=-0.007298, max=-0.000000, min=-0.099428, std=0.017874, nonzero=16384/16384
+
+[CHECK] Verifying constant strength (no systematic decay):
+  Max amplitude: 0.099428
+  Min amplitude: 0.013312
+  Expected strength (alpha): 0.070000
+  [FAIL] Amplitude exceeds expected strength
+        Max observed: 0.099428 > Expected: 0.087500
+
+[CHECK] Verifying localized perturbations:
+  Relative perturbation intensity: 13.65%
+  (Measure of concentration, not spatial extent)
+  [PASS] Perturbations show localized character
+
+[OK] Visualization saved: static\images\random_error_calibration\random_error_balanced.png
+
+================================================================================
+PRESET: BALANCED
+Strength constancy: FAIL
+Localization: PASS
+[OVERALL] FAIL - Issues detected
+================================================================================
+
+================================================================================
+FINAL CALIBRATION REPORT
+================================================================================
+[TEST] Random Error - preset: low_diffusion        OK
+[TEST] Random Error - preset: medium_diffusion     FAIL
+[TEST] Random Error - preset: high_diffusion       OK
+[TEST] Random Error - preset: balanced             FAIL
+
+================================================================================
+[ERROR] SOME TESTS FAILED - Review implementation
+================================================================================
+
+================================================================================
+Test complete. Check static/images/random_error_calibration/ for visualizations.
+================================================================================

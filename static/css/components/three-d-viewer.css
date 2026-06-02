@@ -1,0 +1,60 @@
+/* Shared 3D viewer shell */
+.model-container .model-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  height: 100%;
+}
+
+.threejs-container {
+  position: relative;
+  width: 100%;
+  min-height: 320px;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--viewer-scene-bg, var(--bg-secondary));
+  border: 1px solid var(--border-color);
+}
+
+.threejs-container canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.model-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  background: linear-gradient(180deg, rgba(var(--accent-rgb-deep), 0.06), rgba(var(--accent-rgb-deep), 0.16));
+  width: 100%;
+  height: 100%;
+  padding: var(--space-4);
+  box-sizing: border-box;
+  text-align: center;
+  pointer-events: none;
+}
+
+.model-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.model-instructions {
+  margin-top: auto;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+}
+
+.model-instructions p {
+  margin: 0.25rem 0;
+}
